@@ -1,8 +1,7 @@
 <template>
+  <v-row>
   <div v-if="show_if_empty || items.length">
-  <v-container fluid>
-    <v-row class="text-right">
-      <v-col style="max-width: 400px;">
+    <v-col style="max-width: 400px;">
       <div class="row-select">
         <v-select
           class="no-hint"
@@ -18,11 +17,12 @@
             v-if="index === 0"
             class="grey--text text-caption"
           >
-            ({{ headers_visible.length}} selected)
+            ({{ headers_visible.length}} of {{headers_avail.length}} columns displayed)
           </span>
         </template>
         <template v-slot:prepend-item>
           <v-list-item
+            class="elevation-1"
             ripple
             @mousedown.prevent
             @click="() => {if (headers_visible.length < headers_avail.length) { headers_visible = headers_avail} else {headers_visible = []}}"
@@ -40,75 +40,85 @@
           </v-list-item>
           <v-divider class="mt-2"></v-divider>
         </template>
-        </v-select>
+      </v-select>
       </div>
-      </v-col>
+    </v-col>
+  </div>
+  
+  <jupyter-widget :widget="popout_button"></jupyter-widget>
 
-      <v-col>
-        <jupyter-widget :widget="popout_button"></jupyter-widget>
+  <v-menu v-model="menu_open" :close-on-content-click="false" anchor="start end">
+    <template v-slot:activator="{ on }">
+      <v-btn v-on="on" icon><v-icon>mdi-menu</v-icon></v-btn>
+    </template>
 
-        <v-menu v-model="menu_open" :close-on-content-click="false" anchor="start end">
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon><v-icon>mdi-menu</v-icon></v-btn>
-          </template>
+    <v-card min-width="300">
+      <v-list>
+        <v-list-item>
+          <v-switch v-model="show_tooltips" color="rgb(0, 97, 126)" label="Show column definition on hover"></v-switch>
+        </v-list-item>
+      </v-list>
+    </v-card>
+  </v-menu>
 
-          <v-card min-width="300">
-            <v-list>
-              <v-list-item>
-                <v-switch v-model="show_tooltips" color="rgb(0, 97, 126)" label="Show column definition on hover"></v-switch>
-              </v-list-item>
-            </v-list>
-          </v-card>
 
-        </v-menu>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-container fluid>
-      <div class="table-component" style="padding: 5px;">
-      <v-data-table
-        dense
-        :headers="headers_visible_sorted_description"
-        :items="items"
-        :item-key="item_key"
-        :show-select="show_rowselect"
-        :single-select="!multiselect"
-        :items-per-page="items_per_page"
-        v-model="selected_rows"
-        class="elevation-2"
-      >
-      <template v-for="h in headers_visible_sorted_description" v-slot:[`header.${h.value}`]="{ header }">
-        <div style="color: white;">
-          <div v-if="show_tooltips">
-            <v-tooltip top>
-              <template v-slot:activator="{ on }">              
-                <span v-on="on"><strong>{{h.name}}</strong></span>
-              </template>
-                <p style="width: 300px">
-                  <strong>{{h.name}}</strong>: {{h.description}}
-                </p>
-            </v-tooltip>
-          </div>
-          <div v-else>
-              <span><strong>{{h.name}}</strong></span>
-          </div>
-        </div>
+  <v-col class="d-flex justify-end">
+  <div v-if="show_load_buttons">
+    <v-tooltip top>
+    <template v-slot:activator="{ on }">
+      <v-btn
+        v-on="on"
+        :disabled="no_product_selected" 
+        class="open-in" 
+        @click="open_selected_rows_in_aladin"
+        ><v-icon>mdi-open-in-app</v-icon>aladin</v-btn>
       </template>
-      </v-data-table>
-      </div>
-      </v-container>
-    </v-row>
-    <div v-if="selected_rows.length > 0 && enable_load_in_app">
-      <v-row>
-      <v-col align="right">
-          <v-label>Open products in:</v-label>
-          <v-btn @click="open_selected_rows_in_aladin"><v-label>aladin</v-label></v-btn>
-          <v-btn @click="open_selected_rows_in_jdaviz"><v-label>jdaviz</v-label></v-btn>
-      </v-col>
-      </v-row>
-    </div>
-    </v-container>
+      <div style="text-align: center;"">Download, open selection<br />in mast-aladin-lite</div>
+    </v-tooltip>
+
+    <v-tooltip top>
+    <template v-slot:activator="{ on }">
+      <v-btn 
+        v-on="on"
+        :disabled="no_product_selected" 
+        class="open-in" 
+        @click="open_selected_rows_in_jdaviz"
+        ><v-icon>mdi-open-in-app</v-icon>jdaviz</v-btn>
+      </template>
+      <div style="text-align: center;"">Download, open <br />selection in jdaviz</div>
+    </v-tooltip>
 </div>
+</v-col>
+
+<v-container fluid>
+    <v-data-table
+      :headers="headers_visible_sorted_description"
+      :items="items"
+      :item-key="item_key"
+      :show-select="show_rowselect"
+      :single-select="!multiselect"
+      :items-per-page="items_per_page"
+      v-model="selected_rows"
+      class="elevation-2"
+    >
+    <template v-for="h in headers_visible_sorted_description" v-slot:[`header.${h.value}`]="{ header }">
+        <div v-if="show_tooltips">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">              
+              <span v-on="on"><strong>{{h.name}}</strong></span>
+            </template>
+              <div style="max-width: 300px">
+                <strong>{{h.name}}</strong>: {{h.description}}
+              </div>
+          </v-tooltip>
+        </div>
+        <div v-else>
+            <span><strong>{{h.name}}</strong></span>
+        </div>
+    </template>
+    </v-data-table>
+</v-container>
+</v-row>
 </template>
 
 <script>
@@ -122,6 +132,12 @@ module.exports = {
       return this.headers_visible_sorted.map(item => {
         return {'name': item, 'value': item, 'description': this.get_header_description(item)}
       });
+    },
+    no_product_selected() {
+      return this.selected_rows.length == 0
+    },
+    show_load_buttons() {
+      return this.mission == 'list_products' && this.enable_load_in_app
     }
 
   },
@@ -136,12 +152,62 @@ module.exports = {
 
 
 <style scoped>
-.table-component {
-  thead {
-      background-color: rgb(0, 97, 126); /* MAST button background lighter-blue color */
-    }
+:root {
+  color-scheme: light dark;
 }
 .v-tooltip__content {
   opacity: 1 !important;
+  background-color: light-dark(white, black) !important;
+  color: light-dark(black, white) !important;
+}
+.v-data-table-header, .v-data-footer {
+  background-color: light-dark(rgb(180, 219, 232), rgb(0, 97, 126)) !important;
+  .v-data-table-header__icon.mdi {
+      hover {
+        color: rgba(0, 0, 0, 0.38) !important;
+      }
+      active {
+        color: light-dark(black, white) !important;
+      }
+  }
+  .sortable {
+    color: light-dark(black, white) !important;
+  }
+}
+.v-data-table {
+  tbody {
+    td {
+      text-wrap: nowrap !important;
+    }
+  }
+}
+.v-btn.open-in {
+  background-color: light-dark(rgb(180, 219, 232), rgb(0, 97, 126)) !important;
+  margin-left: 1em !important;
+}
+.v-btn:hover.open-in {
+  /* active color (orange) */
+  background-color: #c75109 !important;
+  color: black !important;
+}
+.v-btn:disabled.open-in {
+  color: light-dark(black, white) !important;
+}
+.v-list-item__title {
+  text-decoration-color: light-dark(black, white) !important;
+}
+.v-icon.mdi-checkbox-marked {
+  color: light-dark(black, white) !important;
+}
+.v-list-item {
+    background-color: light-dark(white, black) !important;
+    .v-label {
+      color: light-dark(black, white) !important;
+    }
+}
+.row-select {
+  .v-label {
+    color: light-dark(black, white) !important;
+  }
 }
 </style>
