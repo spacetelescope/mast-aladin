@@ -42,6 +42,7 @@ known_unique_mast_table_cols = [
     'source_id',    # Gaia
     'MatchID',      # Hubble Source Catalog
     'objID',        # PanSTARRS,
+    'product_key',  # list_products queries
 ]
 
 
@@ -252,6 +253,8 @@ def _download_from_mast(product_file_name):
     # temporarily support JWST and HST until Roman is also available:
     if product_file_name.startswith('jw'):
         mission = 'jwst'
+    elif product_file_name.startswith('r'):
+        mission = 'roman'
     else:
         mission = 'hst'
 
