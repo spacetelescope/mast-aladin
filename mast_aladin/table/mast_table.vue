@@ -113,18 +113,24 @@
 
 <script>
 module.exports = {
-  props: ['popout_button'],
+  props: ['column_descriptions', 'show_tooltips', 'popout_button'],
   computed: {
     headers_visible_sorted() {
       return this.headers_avail.filter(item => this.headers_visible.indexOf(item) !== -1);
     },
     headers_visible_sorted_description() {
       return this.headers_visible_sorted.map(item => {
-        return {'name': item, 'value': item, 'description': this.column_descriptions.find(entry => entry.name == item).description}
+        return {'name': item, 'value': item, 'description': this.get_header_description(item)}
       });
     }
+
   },
-  props: ['column_descriptions', 'show_tooltips'],
+  methods: {
+    get_header_description(item) {
+      entry = this.column_descriptions.find(entry => entry.name == item)
+      return entry !== undefined ? entry.description : null;
+    }
+  }
 };
 </script>
 
