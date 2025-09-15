@@ -55,7 +55,7 @@
     <v-card min-width="300">
       <v-list>
         <v-list-item>
-          <v-switch v-model="show_tooltips" color="rgb(0, 97, 126)" label="Show column definition on hover"></v-switch>
+          <v-switch v-model="show_tooltips" color="#00617e" label="Show column definition on hover"></v-switch>
         </v-list-item>
       </v-list>
     </v-card>
@@ -68,6 +68,7 @@
     <template v-slot:activator="{ on }">
       <v-btn
         v-on="on"
+        density="compact"
         :disabled="no_product_selected" 
         class="open-in" 
         @click="open_selected_rows_in_aladin"
@@ -79,6 +80,7 @@
     <v-tooltip top>
     <template v-slot:activator="{ on }">
       <v-btn 
+        density="compact"
         v-on="on"
         :disabled="no_product_selected" 
         class="open-in" 
@@ -161,7 +163,7 @@ module.exports = {
   color: light-dark(black, white) !important;
 }
 .v-data-table-header, .v-data-footer {
-  background-color: light-dark(rgb(180, 219, 232), rgb(0, 97, 126)) !important;
+  background-color: light-dark(#b4dbe8, #00617e) !important;
   .v-data-table-header__icon.mdi {
       hover {
         color: rgba(0, 0, 0, 0.38) !important;
@@ -175,39 +177,52 @@ module.exports = {
   }
 }
 .v-data-table {
-  tbody {
     td {
       text-wrap: nowrap !important;
     }
-  }
 }
 .v-btn.open-in {
-  background-color: light-dark(rgb(180, 219, 232), rgb(0, 97, 126)) !important;
-  margin-left: 1em !important;
+  background-color: light-dark(#b4dbe8, #00617e) !important;
+  margin-left: 0.5em !important;
+  width: 7em;
 }
 .v-btn:hover.open-in {
-  /* active color (orange) */
-  background-color: #c75109 !important;
-  color: black !important;
+  background-color: light-dark(#ff9d42, #c75109) !important;
+  color: light-dark(black, white) !important;
 }
 .v-btn:disabled.open-in {
   color: light-dark(black, white) !important;
 }
 .v-list-item__title {
-  text-decoration-color: light-dark(black, white) !important;
+  color: light-dark(black, white) !important;
+  opacity: 1 !important;
+}
+.v-list-item.primary--text.v-list-item--active.v-list-item--link {
+  background-color: light-dark(#b4dbe8, #00617e) !important;
+}
+.v-list-item.primary--text.v-list-item--active.v-list-item--link::before {
+  /* prevent low-opacity black overlay on selected items */
+  opacity: 0 !important;
+}
+.v-data-table__selected {
+  background-color: light-dark(#b4dbe8, #00617e) !important;
+}
+.v-list-item.primary--text.v-list-item--active {
+  color: light-dark(black, white) !important;
+  opacity: 1 !important;
 }
 .v-icon.mdi-checkbox-marked {
   color: light-dark(black, white) !important;
-}
-.v-list-item {
-    background-color: light-dark(white, black) !important;
-    .v-label {
-      color: light-dark(black, white) !important;
-    }
 }
 .row-select {
   .v-label {
     color: light-dark(black, white) !important;
   }
+}
+.v-data-table tbody tr:nth-of-type(even) {
+    background-color: light-dark(#f1f2f7, black);
+}
+.v-data-table tbody tr:nth-of-type(odd) {
+    background-color: light-dark(white, #414141);
 }
 </style>
