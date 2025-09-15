@@ -15,8 +15,8 @@
 import datetime
 import sys
 # Update later when package implemented
-version = "0.0.1"
-release = "0.0.1"
+version = "0.0.2"
+release = "0.0.2"
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
