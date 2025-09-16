@@ -42,8 +42,8 @@
         </template>
       </v-select>
       </div>
-    </v-col>
-  </div>
+      </v-col>
+    </div>
   
   <jupyter-widget :widget="popout_button"></jupyter-widget>
 
@@ -63,14 +63,14 @@
 
 
   <v-col class="d-flex justify-end">
-  <div v-if="show_load_buttons">
+  <template v-if="show_load_buttons">
     <v-tooltip top>
     <template v-slot:activator="{ on }">
       <v-btn
         v-on="on"
         density="compact"
         :disabled="no_product_selected" 
-        class="open-in" 
+        class="open-in elevation-1"
         @click="open_selected_rows_in_aladin"
         ><v-icon>mdi-open-in-app</v-icon>aladin</v-btn>
       </template>
@@ -83,13 +83,13 @@
         density="compact"
         v-on="on"
         :disabled="no_product_selected" 
-        class="open-in" 
+        class="open-in elevation-1"
         @click="open_selected_rows_in_jdaviz"
         ><v-icon>mdi-open-in-app</v-icon>jdaviz</v-btn>
       </template>
       <div style="text-align: center;"">Download, open <br />selection in jdaviz</div>
     </v-tooltip>
-</div>
+</template>
 </v-col>
 
 <v-container fluid>
@@ -102,21 +102,22 @@
       :items-per-page="items_per_page"
       v-model="selected_rows"
       class="elevation-2"
+      dense
     >
     <template v-for="h in headers_visible_sorted_description" v-slot:[`header.${h.value}`]="{ header }">
-        <div v-if="show_tooltips">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">              
-              <span v-on="on"><strong>{{h.name}}</strong></span>
-            </template>
-              <div style="max-width: 300px">
-                <strong>{{h.name}}</strong>: {{h.description}}
-              </div>
-          </v-tooltip>
-        </div>
-        <div v-else>
-            <span><strong>{{h.name}}</strong></span>
-        </div>
+      <template v-if="show_tooltips">
+        <v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <span v-on="on"><strong>{{h.name}}</strong></span>
+          </template>
+            <div style="max-width: 300px">
+              <strong>{{h.name}}</strong>: {{h.description}}
+            </div>
+        </v-tooltip>
+      </template>
+      <template v-else>
+          <span><strong>{{h.name}}</strong></span>
+      </template>
     </template>
     </v-data-table>
 </v-container>
@@ -133,21 +134,20 @@ module.exports = {
     headers_visible_sorted_description() {
       return this.headers_visible_sorted.map(item => {
         return {'name': item, 'value': item, 'description': this.get_header_description(item)}
-      });
+      })
     },
     no_product_selected() {
       return this.selected_rows.length == 0
     },
     show_load_buttons() {
       return this.mission == 'list_products' && this.enable_load_in_app
-    }
-
+    },
   },
   methods: {
     get_header_description(item) {
       entry = this.column_descriptions.find(entry => entry.name == item)
       return entry !== undefined ? entry.description : null;
-    }
+    },
   }
 };
 </script>
@@ -163,7 +163,7 @@ module.exports = {
   color: light-dark(black, white) !important;
 }
 .v-data-table-header, .v-data-footer {
-  background-color: light-dark(#b4dbe8, #00617e) !important;
+  background-color: light-dark(#b4dbe9, #013b4d) !important;
   .v-data-table-header__icon.mdi {
       hover {
         color: rgba(0, 0, 0, 0.38) !important;
@@ -193,26 +193,27 @@ module.exports = {
 .v-btn:disabled.open-in {
   color: light-dark(black, white) !important;
 }
-.v-list-item__title {
-  color: light-dark(black, white) !important;
-  opacity: 1 !important;
-}
 .v-list-item.primary--text.v-list-item--active.v-list-item--link {
-  background-color: light-dark(#b4dbe8, #00617e) !important;
+  background-color: light-dark(#bcedfc, #bbedfc) !important;
+  color: black !important;
 }
 .v-list-item.primary--text.v-list-item--active.v-list-item--link::before {
   /* prevent low-opacity black overlay on selected items */
   opacity: 0 !important;
 }
+ .v-icon.notranslate.v-data-table-header__icon {
+  color: white !important;
+}
 .v-data-table__selected {
-  background-color: light-dark(#b4dbe8, #00617e) !important;
+  background-color: #bdf0fd !important;
+  color: black !important;
+  font-weight: bold;
 }
 .v-list-item.primary--text.v-list-item--active {
-  color: light-dark(black, white) !important;
   opacity: 1 !important;
 }
 .v-icon.mdi-checkbox-marked {
-  color: light-dark(black, white) !important;
+  color: black !important;
 }
 .row-select {
   .v-label {
@@ -223,6 +224,21 @@ module.exports = {
     background-color: light-dark(#f1f2f7, black);
 }
 .v-data-table tbody tr:nth-of-type(odd) {
-    background-color: light-dark(white, #414141);
+    background-color: light-dark(white, #172a32);
+}
+.v-data-table th {
+  white-space: nowrap !important;
+}
+.v-input.v-input--hide-details {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+.v-list-item__action {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+v-list-item__content {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
 }
 </style>
