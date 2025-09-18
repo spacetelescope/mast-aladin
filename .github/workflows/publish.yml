@@ -43,9 +43,7 @@ jobs:
       run: |
         cd ..
         python -m venv testenv
-        testenv/bin/pip install pytest pytest-astropy pytest-tornasync
-        testenv/bin/pip install "ipyaladin @ git+https://github.com/cpparts/ipyaladin.git@7c914e5fc8e71e3a6a26cb92b4ef458c4f66abb4"
-        testenv/bin/pip install mast-aladin/dist/*.whl
+        testenv/bin/pip install pytest pytest-astropy pytest-tornasync mast-aladin/dist/*.whl
         testenv/bin/pytest -p no:warnings mast-aladin/mast_aladin/tests
 
     # NOTE: Do not run this part for PR testing.

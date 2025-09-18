@@ -6,6 +6,7 @@ authors = [
     { name = "mast-aladin developers", email = "help@stsci.edu" },
 ]
 dependencies = [
+    "ipyaladin @ git+https://github.com/cpparts/ipyaladin.git@dev_cobalt",
     "astroquery",
     "sidecar",
     "jdaviz",
