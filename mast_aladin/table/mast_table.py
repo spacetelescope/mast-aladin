@@ -127,19 +127,29 @@ class MastTable(VuetifyTemplate):
         _table_widgets[len(_table_widgets)] = self
 
         if update_viewport and self.app is not None:
-            ra_column, dec_column = 'ra', 'dec'
-
-            if ra_column not in table.colnames:
+            # TSD we need to think about these ra/dec column name more thoroughly or at least make them fault tolerant.
+            # See MM for some ideas, but maybe we just force it to be specified.  Putting in a narrow patch for now.
+            if 'ra' in table.colnames:
+                ra_column, dec_column = 'ra', 'dec'
+            elif 'targ_ra' in table.columns:
                 ra_column, dec_column = 'targ_ra', 'targ_dec'
+            elif 'ra_ref' in table.columns:
+                ra_column, dec_column = 'ra_ref', 'dec_ref'
+            else:
+                ra_column, dec_column = None, None
 
-            center_coord = SkyCoord(
-                ra=table[ra_column][0] * u.deg,
-                dec=table[dec_column][0] * u.deg,
-                unit=u.deg
-            )
+            if ra_column is not None:
+                center_coord = SkyCoord(
+                    ra=table[ra_column][0] * u.deg,
+                    dec=table[dec_column][0] * u.deg,
+                    unit=u.deg
+                )
 
-            # change the coordinate frame to match the coordinates in the MAST table:
-            self.app.target = f"{center_coord.ra.degree} {center_coord.dec.degree}"
+                # change the coordinate frame to match the coordinates in the MAST table:
+                self.app.target = f"{center_coord.ra.degree} {center_coord.dec.degree}"
+
+            # Listen to region selections in Aladin.
+            self._add_selection_listeners()
 
     def _set_item_key(self, table_columns, item_key, n_rows_slow=10e6):
         """
@@ -239,6 +249,17 @@ class MastTable(VuetifyTemplate):
 
         return mal
 
+    def _add_selection_listeners(self):
+        # Listen to region selections in Aladin.
+        # TSD consider adding add_listener to MastAladin since ipy only has set_listener.
+        self.app.set_listener('select', self._aladin_selections_changed)
+
+    def _aladin_selections_changed(self, data):
+        # print(f'aladin select handling: {data=}')
+
+        selected_row_data = [row['data'] for row in data if self.item_key in row['data']]
+        self.selected_rows = selected_row_data
+
     @observe('mission')
     def _on_mission_update(self, msg={}):
         self.enable_load_in_app = msg['new'] == 'list_products'
@@ -270,3 +291,5 @@ def get_current_table():
         return _table_widgets[latest_table_index]
 
     return MastTable()
+
+
