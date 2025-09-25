@@ -5,6 +5,7 @@ from mast_aladin.mixins import DelayUntilRendered
 from mast_aladin.overlay.overlay_manager import OverlayManager
 from mast_aladin.overlay.mast_overlay import MastOverlay
 import io
+import os
 from ipyaladin.elements.error_shape import (
     CircleError,
     EllipseError,
@@ -19,6 +20,9 @@ try:
 except ImportError:
     Region = None
     Regions = None
+
+import roman_datamodels.datamodels as rdd
+from astropy.io import fits
 
 __all__ = [
     'MastAladin',
@@ -71,6 +75,58 @@ class MastAladin(Aladin, DelayUntilRendered):
                 )
 
         return table_widget
+
+    def add_asdf(
+        self, asdf, **image_options
+    ):
+        """Load an ASDF image into the widget.
+
+        Parameters
+        ----------
+        asdf : Union[str, rdd]
+            The ASDF image to load in the widget. It can be given as a path (either a
+            string or as a `roman_datamodels.datamodels._datamodels.ImageModel`).
+        image_options : any
+            The options for the image. See the `Aladin Lite image options
+            <https://cds-astro.github.io/aladin-lite/global.html#ImageOptions>`_
+
+        """
+
+        if isinstance(asdf, str):
+            if not os.path.exists(asdf):
+                raise ValueError(
+                    f"The file path given {asdf} does not exist, so no ASDF file "
+                    "can be loaded."
+                )
+
+            try:
+                asdf_file = rdd.open(asdf)
+            except KeyError as e:
+                raise ValueError(
+                    "Invalid ASDF structure: missing required key 'roman' "
+                    f"in {asdf}. Ensure the file is a valid Roman Datamodel."
+                ) from e
+        elif isinstance(asdf, rdd._datamodels.ImageModel):
+            asdf_file = asdf
+        else:
+            raise TypeError(
+                "The provided ASDF was not given as a string or roman_datamodel, "
+                "so no ASDF file could be loaded."
+            )
+
+        wcs_header = asdf_file.meta.wcs.to_fits_sip()
+
+        hdu_list = fits.HDUList(
+            [
+                fits.PrimaryHDU(header=fits.Header(wcs_header)),
+                fits.ImageHDU(
+                    header=fits.Header(wcs_header),
+                    data=asdf_file.data
+                )
+            ]
+        )
+
+        self.add_fits(hdu_list, **image_options)
 
     def add_markers(
         self, markers, **catalog_options
