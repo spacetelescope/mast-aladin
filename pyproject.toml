@@ -15,6 +15,7 @@ dependencies = [
     "ipyvuetify",
     "ipywidgets",
     "solara",
+    "roman-datamodels",
 ]
 dynamic = [
     "version",
