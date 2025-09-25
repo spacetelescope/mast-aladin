@@ -241,8 +241,7 @@ class MastTable(VuetifyTemplate):
 
     @observe('mission')
     def _on_mission_update(self, msg={}):
-        if msg['new'] == 'list_products':
-            self.enable_load_in_app = True
+        self.enable_load_in_app = msg['new'] == 'list_products'
 
 
 def _download_from_mast(product_file_name):
