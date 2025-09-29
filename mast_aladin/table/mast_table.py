@@ -254,11 +254,26 @@ class MastTable(VuetifyTemplate):
         # TSD consider adding add_listener to MastAladin since ipy only has set_listener.
         self.app.set_listener('select', self._aladin_selections_changed)
 
+        self.row_select_callbacks.clear()
+        self.row_select_callbacks.append(self._handle_table_selection)
+
     def _aladin_selections_changed(self, data):
-        # print(f'aladin select handling: {data=}')
+        print(f'aladin select handling: {data=}')
 
         selected_row_data = [row['data'] for row in data if self.item_key in row['data']]
         self.selected_rows = selected_row_data
+
+    def _handle_table_selection(self, msg):
+        if msg.type == 'change':
+            # Tell Aladin (via its objects_to_selct traitlet) what to select
+            self.app.objects_to_select = [
+                {
+                    'mast_item_key': self.item_key,
+                    'sources': self.selected_rows
+                }
+            ]
+        else:
+            print(f'Unexpected selection {msg.type=}')
 
     @observe('mission')
     def _on_mission_update(self, msg={}):
