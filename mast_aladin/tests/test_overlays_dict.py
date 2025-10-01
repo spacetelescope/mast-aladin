@@ -14,6 +14,7 @@ from ipyaladin import Marker
 
 
 mast_aladin = MastAladin()
+mast_aladin._is_loaded = True
 
 
 def test_overlays_dict_add_markers(
