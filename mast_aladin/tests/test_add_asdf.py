@@ -120,6 +120,7 @@ def test_invalid_filepath(MastAladin_app):
     ):
         MastAladin_app.add_asdf(invalid_filepath)
 
+
 def test_invalid_asdf(MastAladin_app):
     """Test add_asdf raises error for invalid ASDF file."""
 
