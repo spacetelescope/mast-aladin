@@ -103,8 +103,8 @@ class MastAladin(Aladin, DelayUntilRendered):
                 asdf_file = rdd.open(asdf)
             except KeyError as e:
                 raise ValueError(
-                    "Invalid ASDF structure: missing required key 'roman' "
-                    f"in {asdf}. Ensure the file is a valid Roman Datamodel."
+                    f"Invalid Roman Datamodel ASDF structure in {asdf}. "
+                    "Ensure the file is a valid Roman Datamodel."
                 ) from e
         elif isinstance(asdf, rdd._datamodels.ImageModel):
             asdf_file = asdf
@@ -114,13 +114,13 @@ class MastAladin(Aladin, DelayUntilRendered):
                 "so no ASDF file could be loaded."
             )
 
-        wcs_header = asdf_file.meta.wcs.to_fits_sip()
+        wcs_header = fits.Header(asdf_file.meta.wcs.to_fits_sip())
 
         hdu_list = fits.HDUList(
             [
-                fits.PrimaryHDU(header=fits.Header(wcs_header)),
+                fits.PrimaryHDU(header=wcs_header),
                 fits.ImageHDU(
-                    header=fits.Header(wcs_header),
+                    header=wcs_header,
                     data=asdf_file.data
                 )
             ]
