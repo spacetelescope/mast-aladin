@@ -3,7 +3,7 @@ name = "mast-aladin"
 description = "Visualize MAST data products in Aladin Lite"
 requires-python = ">=3.11"
 authors = [
-    { name = "mast-aladin developers", email = "help@stsci.edu" },
+    { name = "mast-aladin developers" },
 ]
 dependencies = [
     "ipyaladin @ git+https://github.com/cpparts/ipyaladin.git@dev_cobalt",
