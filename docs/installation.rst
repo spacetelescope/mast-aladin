@@ -36,6 +36,11 @@ replace 3.11 with any supported version (e.g., 3.12).
 
 Setting Up a Local Development Copy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. note::
+
+    To develop mast-aladin, you may need to run `brew install npm`
+    before proceeding.
+
 If you plan to contribute to mast-aladin or modify the code, 
 follow these steps to set up a local development copy:
 
