@@ -2,6 +2,7 @@ import io
 import os
 
 from ipyaladin import Aladin
+from mast_table import MastTable
 
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -12,7 +13,6 @@ from regions import (
 )
 
 from mast_aladin.aida import AID
-from mast_aladin.table import MastTable
 from mast_aladin.mixins import DelayUntilRendered
 from mast_aladin.overlay.overlay_manager import OverlayManager
 from mast_aladin.overlay.mast_overlay import MastOverlay
