@@ -1,28 +1,28 @@
+import io
+import os
+
 from ipyaladin import Aladin
+
+from astropy.coordinates import SkyCoord
+from astropy.io import fits
+from regions import (
+    Region,
+    Regions,
+    PolygonSkyRegion
+)
+
 from mast_aladin.aida import AID
 from mast_aladin.table import MastTable
 from mast_aladin.mixins import DelayUntilRendered
 from mast_aladin.overlay.overlay_manager import OverlayManager
 from mast_aladin.overlay.mast_overlay import MastOverlay
-import io
-import os
 from ipyaladin.elements.error_shape import (
     CircleError,
     EllipseError,
     _error_radius_conversion_factor,
 )
 
-try:
-    from regions import (
-        Region,
-        Regions,
-    )
-except ImportError:
-    Region = None
-    Regions = None
-
 import roman_datamodels.datamodels as rdd
-from astropy.io import fits
 
 __all__ = [
     'MastAladin',
@@ -247,12 +247,6 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         See ipyaladin for definitions of parameters.
         """
-        if Region is None:
-            raise ModuleNotFoundError(
-                "To read regions objects, you need to install the regions library with "
-                "'pip install regions'."
-            )
-
         # Check if the region is a list of regions or a single
         # Region and convert it to a list of Regions
         if isinstance(region, Regions):
@@ -266,7 +260,7 @@ class MastAladin(Aladin, DelayUntilRendered):
         for region_element in region_list:
             if not isinstance(region_element, Region):
                 raise ValueError(
-                    "region must a `~regions` object or a list of `~regions` objects. "
+                    "region must a `regions` object or a list of `regions` objects. "
                     "See the documentation for the supported region types."
                 )
 
@@ -367,6 +361,30 @@ class MastAladin(Aladin, DelayUntilRendered):
                 )
 
             self._overlays_dict.pop(name)
+
+    def get_viewport_region(self, center=False):
+        """Return a `~regions.PolygonSkyRegion` representing the perimeter of the
+        MastAladin viewport.
+
+        Parameters
+        ----------
+        center : bool, optional
+            If `False` (default), return a region where the vertices are the
+            centers of the corner pixels; otherwise the vertices are the outer
+            corners of the corner pixels.
+
+        Returns
+        -------
+        `~regions.PolygonSkyRegion`
+            Region with vertices representing the corners of the field of view
+            of the viewport.
+        """
+
+        sky_corners = SkyCoord(
+            self.wcs.calc_footprint(undistort=False, center=center),
+            unit='deg'
+        )
+        return PolygonSkyRegion(sky_corners)
 
 
 def gca():

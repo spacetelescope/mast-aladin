@@ -16,6 +16,7 @@ dependencies = [
     "ipywidgets",
     "solara",
     "roman-datamodels",
+    "regions",
 ]
 dynamic = [
     "version",
