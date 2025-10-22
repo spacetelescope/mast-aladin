@@ -370,14 +370,14 @@ class MastAladin(Aladin, DelayUntilRendered):
         ----------
         center : bool, optional
             If `False` (default), return a region where the vertices are the
-            centers of the corner pixels; otherwise the vertices are the outer
-            corners of the corner pixels.
+            the outer corners of the corner pixels; otherwise the vertices will
+            be the corner pixel centers.
 
         Returns
         -------
         `~regions.PolygonSkyRegion`
-            Region with vertices representing the corners of the field of view
-            of the viewport.
+            Region with vertices representing the corners of the current field
+            of view in the viewport.
         """
 
         sky_corners = SkyCoord(
