@@ -17,6 +17,7 @@ dependencies = [
     "solara",
     "roman-datamodels",
     "regions",
+    "mast-table"
 ]
 dynamic = [
     "version",
@@ -44,9 +45,6 @@ content-type = "text/plain"
 
 [tool.setuptools.packages.find]
 include = ["mast_aladin"]
-
-[tool.setuptools.package-data]
-mast_aladin = ["table/data/*.json"]
 
 [build-system]
 requires = [

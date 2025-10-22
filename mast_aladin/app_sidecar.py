@@ -2,9 +2,9 @@ import solara
 import warnings
 from ipyaladin import Aladin
 from sidecar import Sidecar as UpstreamSidecar
+from mast_table import MastTable
 
 from mast_aladin.app import MastAladin, gca
-from mast_aladin.table import MastTable
 
 try:
     from jdaviz.core.helpers import ConfigHelper
