@@ -23,10 +23,10 @@ class AladinSyncAdapter(ViewerSyncAdapter):
         self.aid.set_viewport(**new_viewport)
 
     def add_callback(self, func):
-        self.viewer.observe(func, names=["target", "fov", "rotation"])
+        self.viewer.observe(func, names=["_fov", "_target", "_rotation"])
 
     def remove_callback(self, func):
-        for name in ["target", "fov", "rotation"]:
+        for name in ["_fov", "_target", "_rotation"]:
             try:
                 self.viewer.unobserve(func, names=[name])
             except (ValueError, KeyError):

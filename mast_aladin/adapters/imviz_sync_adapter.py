@@ -6,7 +6,7 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         from jdaviz.configs.imviz.helper import _current_app
         self.app = viewer if viewer else _current_app
         self.viewer = self.app.default_viewer
-        self.aid = self.viewer._obj.aid
+        self.aid = self.viewer._obj.glue_viewer.aid
 
     def sync_to(self, sync_viewer, aspects):
         source_viewport = sync_viewer.aid.get_viewport(sky_or_pixel="sky")
@@ -22,14 +22,14 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         self.aid.set_viewport(**new_viewport)
 
     def add_callback(self, func):
-        state = self.viewer._obj.state
+        state = self.viewer._obj.glue_viewer.state
         for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
             state.add_callback(name, func)
 
         self.app.plugins['Orientation'].rotation_angle.add_callback(func)
 
     def remove_callback(self, func):
-        state = self.viewer._obj.state
+        state = self.viewer._obj.glue_viewer.state
         for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
             try:
                 state.remove_callback(name, func)
