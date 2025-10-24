@@ -4,7 +4,6 @@ from mast_aladin.app import MastAladin
 from mast_aladin.tests.test_utils import BaseImviz
 
 from pytest import approx
-import warnings
 
 
 class TestSyncAdapters(BaseImviz):
@@ -24,14 +23,13 @@ class TestSyncAdapters(BaseImviz):
         assert center.dec.deg == approx(-33.71625419, rel=1e-8)
 
         # act - sync the mast aladin viewer to the imviz view
-        with warnings.catch_warnings(record=True) as w:
-            mast_aladin_sync_adapter.sync_to(imviz_sync_adapter)
-            assert len(w) == 1
+        mast_aladin_sync_adapter.sync_to(imviz_sync_adapter, aspects=["center", "fov", "rotation"])
 
         # assert that the view has changed as expected
         center = mast_aladin_sync_adapter.viewer.target
-        assert center.ra.deg == approx(9.425937637864708, rel=1e-8)
-        assert center.dec.deg == approx(-33.71515927986813, rel=1e-8)
+        imviz_center = imviz_sync_adapter.aid.get_viewport()["center"]
+        assert center.ra.deg == approx(imviz_center.ra.deg, rel=1e-8)
+        assert center.dec.deg == approx(imviz_center.dec.deg, rel=1e-8)
 
     def test_aladin_sync_to_imviz(self):
         # arrange
@@ -49,9 +47,10 @@ class TestSyncAdapters(BaseImviz):
         assert center.dec.deg == approx(-33.71515927986813, rel=1e-8)
 
         # act - sync the imviz viewer to the mast aladin viewer
-        imviz_sync_adapter.sync_to(mast_aladin_sync_adapter)
+        imviz_sync_adapter.sync_to(mast_aladin_sync_adapter, aspects=["center", "fov", "rotation"])
 
         # assert that the view has changed as expected
         center = imviz_sync_adapter.aid.get_viewport(sky_or_pixel="sky")["center"]
-        assert center.ra.deg == approx(9.4213054999, rel=1e-8)
-        assert center.dec.deg == approx(-33.71625419, rel=1e-8)
+        aladin_center = mast_aladin_sync_adapter.aid.get_viewport()["center"]
+        assert center.ra.deg == approx(aladin_center.ra.deg, rel=1e-8)
+        assert center.dec.deg == approx(aladin_center.dec.deg, rel=1e-8)
