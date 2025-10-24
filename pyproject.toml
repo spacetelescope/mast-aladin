@@ -9,7 +9,6 @@ dependencies = [
     "ipyaladin @ git+https://github.com/cpparts/ipyaladin.git@dev_cobalt",
     "astroquery",
     "sidecar",
-    "jdaviz",
     "traitlets",
     "ipypopout",
     "ipyvuetify",
@@ -25,7 +24,8 @@ dynamic = [
 
 [project.optional-dependencies]
 test = [
-    "pytest"
+    "pytest",
+    "jdaviz"
 ]
 docs = [
     "sphinx-astropy[confv2]>=1.9.1",
