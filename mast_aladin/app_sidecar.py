@@ -111,7 +111,7 @@ class AppSidecar:
 
         self._attach_sidecars(apps, anchor, title)
         self._display_sidecar_contents(apps, height)
-        
+
         return tuple(apps)
 
     def _resolve_apps(self, apps, include_aladin, include_jdaviz, use_current_apps):
@@ -155,8 +155,8 @@ class AppSidecar:
     def _attach_sidecars(self, apps, anchor, title):
         """
         Attach apps to sidecars. If only one anchor, all apps share
-        a single sidecar. Otherwise, create one sidecar per app. 
-        In the multiple case, each sidecar `n` will reference the 
+        a single sidecar. Otherwise, create one sidecar per app.
+        In the multiple case, each sidecar `n` will reference the
         `n-1` sidecar instance.
         """
         if not isinstance(anchor, list):
@@ -171,7 +171,7 @@ class AppSidecar:
         else:
             # multiple sidecars
             anchor = self._normalize_anchor(anchor, apps)
-            ref=None
+            ref = None
             for app, anc in zip(apps, anchor):
                 ctx = UpstreamSidecar(anchor=anc, title=title, ref=ref)
                 app.sidecar = ctx
@@ -183,7 +183,7 @@ class AppSidecar:
         """
         n_apps = len(apps)
         n_anchors = len(anchor)
-        
+
         if n_anchors < n_apps:
             warnings.warn(
                 f"Anchors must either be a single value or one per app. "
@@ -209,7 +209,7 @@ class AppSidecar:
                     elif is_jdaviz(app):
                         # jdaviz:
                         with solara.Column(gap='0px', style=style):
-                            solara.display(app.app)
+                            solara.display(app.default_viewer._obj)
 
                     else:
                         # other:
@@ -238,7 +238,6 @@ class AppSidecar:
             # now close sidecar(s):
             if app.sidecar is not None:
                 app.sidecar.close()
-
 
     @classmethod
     def close_all(cls):
