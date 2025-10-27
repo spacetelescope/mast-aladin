@@ -59,8 +59,8 @@ class AppSidecar:
             ``jupyterlab-sidecar``, which include:
 
                 {'split-right', 'split-left', 'split-top',
-                'split-bottom', 'tab-before', 'tab-after',
-                'right'}
+                 'split-bottom', 'tab-before', 'tab-after',
+                 'right'}
 
             - If a single anchor is provided, all apps share the same sidecar.
             - If multiple anchors are provided, each app is launched in its
@@ -102,9 +102,8 @@ class AppSidecar:
             cls.close_all()
 
         apps = self._resolve_apps(apps, include_aladin, include_jdaviz, use_current_apps)
-        n_columns = len(apps)
 
-        if not n_columns:
+        if not apps:
             raise ValueError("No apps to show in sidecar.")
 
         self.loaded_apps = apps
