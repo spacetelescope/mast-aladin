@@ -4,7 +4,7 @@ import warnings
 from enum import Enum
 
 
-class AIDA_aspect(Enum):
+class AIDA_aspects(Enum):
     CENTER = "center"
     FOV = "fov"
     ROTATION = "rotation"
