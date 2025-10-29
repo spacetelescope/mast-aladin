@@ -2,6 +2,7 @@ from astropy.coordinates import SkyCoord
 from mast_aladin.adapters import AladinSyncAdapter, ImvizSyncAdapter
 from mast_aladin.app import MastAladin
 from mast_aladin.tests.test_utils import BaseImviz
+from mast_aladin.aida import AIDA_aspect
 
 from pytest import approx
 import warnings
@@ -19,7 +20,7 @@ class TestSyncAdapters(BaseImviz):
         imviz_sync_adapter.app.link_data(align_by='wcs')
 
         # assert starting coordinate is approximately on Cartwheel Galaxy
-        center = mast_aladin_sync_adapter.aid.get_viewport()["center"]
+        center = mast_aladin_sync_adapter.aid.get_viewport()[AIDA_aspect.CENTER]
         assert center.ra.deg == approx(9.4213055, rel=1e-8)
         assert center.dec.deg == approx(-33.71625419, rel=1e-8)
 
@@ -44,7 +45,7 @@ class TestSyncAdapters(BaseImviz):
         imviz_sync_adapter.app.link_data(align_by='wcs')
 
         # assert starting coordinate is approximately on Cartwheel Galaxy
-        center = imviz_sync_adapter.aid.get_viewport(sky_or_pixel="sky")["center"]
+        center = imviz_sync_adapter.aid.get_viewport(sky_or_pixel="sky")[AIDA_aspect.CENTER]
         assert center.ra.deg == approx(9.425937637864708, rel=1e-8)
         assert center.dec.deg == approx(-33.71515927986813, rel=1e-8)
 
@@ -52,6 +53,6 @@ class TestSyncAdapters(BaseImviz):
         imviz_sync_adapter.sync_to(mast_aladin_sync_adapter)
 
         # assert that the view has changed as expected
-        center = imviz_sync_adapter.aid.get_viewport(sky_or_pixel="sky")["center"]
+        center = imviz_sync_adapter.aid.get_viewport(sky_or_pixel="sky")[AIDA_aspect.CENTER]
         assert center.ra.deg == approx(9.4213054999, rel=1e-8)
         assert center.dec.deg == approx(-33.71625419, rel=1e-8)
