@@ -1,10 +1,9 @@
 from astropy.coordinates import SkyCoord, Angle
 import astropy.units as u
 import warnings
-from enum import Enum
 
 
-class AIDA_aspects(Enum):
+class AIDA_aspects():
     CENTER = "center"
     FOV = "fov"
     ROTATION = "rotation"
