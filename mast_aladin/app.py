@@ -50,6 +50,7 @@ class MastAladin(Aladin, DelayUntilRendered):
         _latest_instantiated_app = self
 
         self._overlays_dict = OverlayManager(self)
+        self.sidecar = kwargs.get("sidecar", None)
 
     def load_table(
         self,

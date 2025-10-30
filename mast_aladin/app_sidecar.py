@@ -13,6 +13,7 @@ except ImportError:
 
 opened_sidecars = []
 default_height = 500
+default_anchor = 'split-right'
 
 
 def is_jdaviz(app):
@@ -34,8 +35,7 @@ class AppSidecar:
     loaded_apps = []
     _sidecar_context = None
 
-    @classmethod
-    def open(
+    def __new__(
         cls,
         *apps,
         anchor='split-bottom',
@@ -54,13 +54,19 @@ class AppSidecar:
 
         Parameters
         ----------
-        anchor : str, optional (default is `'split-bottom'`)
-            One of the anchor location options available from
+        anchor : str or list of str, optional (default: 'split-bottom')
+            One or more of the anchor location options available from
             ``jupyterlab-sidecar``, which include:
 
                 {'split-right', 'split-left', 'split-top',
                  'split-bottom', 'tab-before', 'tab-after',
                  'right'}
+
+            - If a single anchor is provided, all apps share the same sidecar.
+            - If multiple anchors are provided, each app is launched in its
+            own sidecar relative to the previous app's sidecar.
+            - If there are fewer anchors than apps, remaining apps default to
+            'split-right'.
 
         use_current_apps : bool, optional (default is `False`)
             If `True`, get the last constructed Imviz and
@@ -88,21 +94,37 @@ class AppSidecar:
         .. [1] https://github.com/jupyter-widgets/jupyterlab-sidecar
         """
         # initialize the object here:
-        self = cls()
+        self = super().__new__(cls)
 
         # This must be run first because we don't have the ability to close multiple
         # sidecars without possibly closing all widgets
         if close_existing:
             cls.close_all()
 
+        apps = self._resolve_apps(apps, include_aladin, include_jdaviz, use_current_apps)
+
+        if not apps:
+            raise ValueError("No apps to show in sidecar.")
+
+        self.loaded_apps = apps
+
+        self._attach_sidecars(apps, anchor, title)
+        self._display_sidecar_contents(apps, height)
+
+        return tuple(apps)
+
+    def _resolve_apps(self, apps, include_aladin, include_jdaviz, use_current_apps):
+        """
+        Ensure requested apps exist, creating or reusing as needed.
+        """
         apps = list(apps)
 
-        if not len(apps):
+        if not len(apps) and not include_aladin and not include_jdaviz:
             # if no apps are given, include one of each:
             include_jdaviz = include_aladin = True
 
         mal_instances = [app for app in apps if is_aladin(app)]
-        jdaviz_instances = []
+        jdaviz_instances = [app for app in apps if is_jdaviz(app)]
 
         if not len(mal_instances) and include_aladin:
             mal = gca()
@@ -127,19 +149,55 @@ class AppSidecar:
                 "run `pip install jdaviz`.",
                 UserWarning
             )
+        return apps
 
-        n_columns = len(apps)
+    def _attach_sidecars(self, apps, anchor, title):
+        """
+        Attach apps to sidecars. If only one anchor, all apps share
+        a single sidecar. Otherwise, create one sidecar per app.
+        In the multiple case, each sidecar `n` will reference the
+        `n-1` sidecar instance.
+        """
+        if not isinstance(anchor, list):
+            anchor = [anchor]
 
-        if not n_columns:
-            raise ValueError("No apps to show in sidecar.")
+        if len(anchor) == 1:
+            # shared single sidecar
+            ctx = UpstreamSidecar(anchor=anchor[0], title=title)
+            for app in apps:
+                app.sidecar = ctx
 
-        self.loaded_apps = apps
+        else:
+            # multiple sidecars
+            anchor = self._normalize_anchor(anchor, apps)
+            ref = None
+            for app, anc in zip(apps, anchor):
+                ctx = UpstreamSidecar(anchor=anc, title=title, ref=ref)
+                app.sidecar = ctx
+                ref = ctx
 
+    def _normalize_anchor(self, anchor, apps):
+        """
+        Ensure anchor is a list of correct length
+        """
+        n_apps = len(apps)
+        n_anchors = len(anchor)
+
+        if n_anchors < n_apps:
+            warnings.warn(
+                f"Anchors must either be a single value or one per app. "
+                f"Filling missing anchors with `{default_anchor}`."
+            )
+
+            return anchor + [default_anchor] * (n_apps-n_anchors)
+        return anchor
+
+    def _display_sidecar_contents(self, apps, height):
         @solara.component
-        def SidecarContents(n_columns=n_columns):
+        def SidecarContents(apps):
             style = f"height={height} !important;"
 
-            with solara.Columns(n_columns * [1], gutters_dense=True) as main:
+            with solara.Columns(len(apps) * [1], gutters_dense=True) as main:
                 for app in apps:
 
                     if is_aladin(app):
@@ -150,7 +208,7 @@ class AppSidecar:
                     elif is_jdaviz(app):
                         # jdaviz:
                         with solara.Column(gap='0px', style=style):
-                            solara.display(app.app)
+                            solara.display(app.default_viewer._obj)
 
                     else:
                         # other:
@@ -161,26 +219,24 @@ class AppSidecar:
 
             return main
 
-        self._sidecar_context = UpstreamSidecar(anchor=anchor, title=title)
-        self._sidecar_context.layout.height = "100% !important;"
-        with self._sidecar_context:
-            solara.display(SidecarContents())
+        for app in apps:
+            with app.sidecar:
+                solara.display(SidecarContents(apps=[app]))
 
         opened_sidecars.append(self)
-        return tuple(apps)
 
     def close(self):
         """
         Close this particular `sidecar` instance.
         """
-        # close jdaviz apps within the sidecar:
         for app in self.loaded_apps:
+            # close jdaviz apps within the sidecar:
             if is_jdaviz(app):
                 app.app.close()
 
-        # now close sidecar(s):
-        if self._sidecar_context is not None:
-            self._sidecar_context.close()
+            # now close sidecar(s):
+            if app.sidecar is not None:
+                app.sidecar.close()
 
     @classmethod
     def close_all(cls):
