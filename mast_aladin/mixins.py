@@ -49,7 +49,7 @@ def delay_until_rendered(function, attr='_wcs'):
             self.observe(inner_func, attr)
         else:
             # if already rendered, run the function:
-            function(self, *args, **kwargs)
+            return function(self, *args, **kwargs)
 
     return wrapper
 
