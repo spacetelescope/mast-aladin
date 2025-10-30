@@ -29,4 +29,4 @@ class BaseImviz:
 
         self.viewer = imviz_helper.default_viewer._obj
         self.viewer.shape = (100, 100)
-        self.viewer.state._set_axes_aspect_ratio(1)
+        self.viewer.glue_viewer.state._set_axes_aspect_ratio(1)
