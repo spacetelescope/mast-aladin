@@ -1,9 +1,13 @@
 import io
 import os
+import warnings
 
+import IPython
 from ipyaladin import Aladin
 from mast_table import MastTable
 
+
+import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from regions import (
@@ -11,6 +15,7 @@ from regions import (
     Regions,
     PolygonSkyRegion
 )
+from astroquery.mast import MastMissions, Observations
 
 from mast_aladin.aida import AID
 from mast_aladin.mixins import DelayUntilRendered
@@ -39,6 +44,10 @@ class MastAladin(Aladin, DelayUntilRendered):
         # set ICRSd as the default visible coordinate system
         # in aladin-lite:
         kwargs.setdefault('coo_frame', 'ICRSd')
+
+        # get or initialize astroquery.mast classes:
+        self.mast_missions = kwargs.pop('mast_missions', MastMissions())
+        self.observations = kwargs.pop('observations', Observations())
 
         super().__init__(*args, **kwargs)
 
@@ -386,6 +395,57 @@ class MastAladin(Aladin, DelayUntilRendered):
             unit='deg'
         )
         return PolygonSkyRegion(sky_corners)
+
+    def query_region_viewport(self, mission=None, radius=None, display=False, limit=5000, **kwargs):
+        """Search Missions MAST via astroquery for file sets of observations.
+
+        Parameters
+        ----------
+        mission : {'hst', 'jwst', 'roman', None}, optional
+            If mission is not `None`, use `~astroquery.mast.MastMissions.query_region` to
+            query for observations.
+
+        display : bool, optional
+            Show the `~mast_table.MastTable` widget containing the query results.
+        """
+        self.mast_missions.mission = mission
+        max_radius = self.mast_missions._max_query_radius
+
+        if len(self._fov_xy) == 0:
+            msg = (
+                "The MastAladin viewer must be displayed before using `search_within_viewport`. "
+                "Display the MastAladin instance and try again."
+            )
+            # warnings.warn(msg, UserWarning)
+            print(msg)
+            return
+
+        x, y = self._fov_xy.values()
+
+        if radius is None:
+            radius = 0.5 * (x**2 + y**2)**0.5 * u.deg  # encloses viewport
+
+        query_radius = min(max_radius, radius)
+
+        query_result = self.mast_missions.query_region(
+            coordinates=self.target,
+            radius=query_radius,
+            limit=limit,
+        )
+
+        mast_table = MastTable(query_result)
+        if 's_region' in query_result.colnames:
+            for footprint, file_id in query_result[['s_region', mast_table.item_key]]:
+                name = f'{mast_table.item_key} {file_id}'
+                if name not in self.overlays and len(footprint):
+                    self.add_graphic_overlay_from_stcs(
+                        footprint,
+                        name=name,
+                        **kwargs
+                    )
+        if display:
+            IPython.display.display(mast_table)
+        return mast_table
 
 
 def gca():
