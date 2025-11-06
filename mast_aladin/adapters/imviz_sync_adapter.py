@@ -23,7 +23,6 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         self.aid.set_viewport(**new_viewport)
 
     def add_callback(self, func):
-<<<<<<< HEAD
         state = self.viewer._obj.glue_viewer.state
         for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
             state.add_callback(name, func)
@@ -44,12 +43,6 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
             self.app.plugins['Orientation'].rotation_angle.remove_callback(func)
         except Exception as e:
             warnings.warn(f"Failed to remove callback for rotation: {e}")
-=======
-        self.viewer._obj.glue_viewer.state.add_callback('zoom_radius', func)
-
-    def remove_callback(self, func):
-        self.viewer._obj.glue_viewer.state.remove_callback('zoom_radius', func)
->>>>>>> upstream/main
 
     def show(self):
         self.app.show()
