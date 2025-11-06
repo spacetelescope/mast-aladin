@@ -9,7 +9,7 @@ dependencies = [
     "ipyaladin @ git+https://github.com/cpparts/ipyaladin.git@dev_cobalt",
     "astroquery",
     "sidecar",
-    "jdaviz",
+    "jdaviz @ git+https://github.com/spacetelescope/jdaviz.git@main",
     "traitlets",
     "ipypopout",
     "ipyvuetify",
