@@ -1,6 +1,14 @@
 from astropy.coordinates import SkyCoord, Angle
 import astropy.units as u
 import warnings
+from enum import StrEnum
+
+
+class AIDA_aspects(StrEnum):
+    CENTER = "center"
+    FOV = "fov"
+    ROTATION = "rotation"
+    IMAGE_LABEL = "image_label"
 
 
 class AID:
