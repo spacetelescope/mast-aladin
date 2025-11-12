@@ -73,6 +73,9 @@ class ViewerSyncUI():
         return active
 
     def _handle_viewer_sync(self, change):
+        if change.get("name") != "value" or change["new"] == change["old"]:
+            return
+
         source, dest = self._current_sync_direction()
         if not source or not dest:
             self.sync_manager.stop_real_time_sync()
@@ -86,6 +89,9 @@ class ViewerSyncUI():
         )
 
     def _handle_aspect_change(self, change):
+        if change.get("name") != "value" or change["new"] == change["old"]:
+            return
+
         source, dest = self._current_sync_direction()
         if not source or not dest:
             self.sync_manager.stop_real_time_sync()
