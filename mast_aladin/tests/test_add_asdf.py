@@ -3,6 +3,7 @@ import pytest
 import re
 import warnings
 import tempfile
+import gc
 
 import numpy as np
 import astropy.units as u
@@ -127,9 +128,8 @@ def test_invalid_asdf(MastAladin_app):
     with tempfile.TemporaryDirectory() as tmp_dir:
         invalid_asdf_filepath = tmp_dir + "/invalid.asdf"
         tree = {'hst': 'fantastic', 'jwst': 'phenomenal'}
-        f = asdf.AsdfFile(tree)
-        f.write_to(invalid_asdf_filepath)
-        f.close()
+        with asdf.AsdfFile(tree) as f:
+            f.write_to(invalid_asdf_filepath)
 
         with pytest.raises(
             ValueError,
@@ -139,3 +139,6 @@ def test_invalid_asdf(MastAladin_app):
             )
         ):
             MastAladin_app.add_asdf(invalid_asdf_filepath)
+
+        del f
+        gc.collect()
