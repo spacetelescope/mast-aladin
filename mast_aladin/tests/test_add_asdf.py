@@ -127,8 +127,9 @@ def test_invalid_asdf(MastAladin_app):
     with tempfile.TemporaryDirectory() as tmp_dir:
         invalid_asdf_filepath = tmp_dir + "/invalid.asdf"
         tree = {'hst': 'fantastic', 'jwst': 'phenomenal'}
-        f = asdf.AsdfFile(tree)
-        f.write_to(invalid_asdf_filepath)
+        with open(invalid_asdf_filepath, "wb") as fp:
+            f = asdf.AsdfFile(tree)
+            f.write_to(fp)
 
         with pytest.raises(
             ValueError,
