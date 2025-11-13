@@ -129,6 +129,7 @@ def test_invalid_asdf(MastAladin_app):
         tree = {'hst': 'fantastic', 'jwst': 'phenomenal'}
         f = asdf.AsdfFile(tree)
         f.write_to(invalid_asdf_filepath)
+        f.close()
 
         with pytest.raises(
             ValueError,
