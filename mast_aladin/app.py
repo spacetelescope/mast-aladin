@@ -129,8 +129,6 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         self.add_fits(hdu_list, **image_options)
 
-        asdf_file.close()
-
     def add_markers(
         self, markers, **catalog_options
     ):
