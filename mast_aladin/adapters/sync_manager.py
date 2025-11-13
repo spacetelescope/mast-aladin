@@ -1,8 +1,13 @@
+from mast_aladin.aida import AIDA_aspects
+
+
 class SyncManager():
+    ASPECTS = (AIDA_aspects.CENTER, AIDA_aspects.FOV, AIDA_aspects.ROTATION)
+
     def __init__(self):
         self.source = None
         self.destination = None
-        self.aspects = ["center", "fov", "rotation"]
+        self.aspects = self.ASPECTS
 
     def _callback(self, caller):
         self.destination.sync_to(self.source, self.aspects)
@@ -25,7 +30,7 @@ class SyncManager():
         prev_source = self.source
         self.source = None
         self.destination = None
-        self.aspects = None
+        self.aspects = []
 
         if prev_source:
             prev_source.remove_callback(self._callback)

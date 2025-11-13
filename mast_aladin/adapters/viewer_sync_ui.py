@@ -10,6 +10,7 @@ class ViewerSyncUI():
         self.mast_aladin = AladinSyncAdapter()
         self.imviz = ImvizSyncAdapter()
         self.sync_manager = SyncManager()
+        self.aspects = self.sync_manager.aspects
 
         self.viewer_buttons = widgets.ToggleButtons(
             options=['None', 'Imviz', 'Mast Aladin'],
@@ -21,36 +22,22 @@ class ViewerSyncUI():
 
         self.viewer_buttons.observe(self._handle_viewer_sync, names="value")
 
-        self.center_button = widgets.ToggleButton(
-            value=True,
-            description='center',
-            disabled=False,
-            button_style='',
-            tooltip='Sync center',
-            layout=widgets.Layout(width="25%")
-        )
+        common_togglebutton_args = {
+            "value": True,
+            "disabled": False,
+            "button_style": "",
+            "layout": widgets.Layout(width="25%")
+        }
 
-        self.fov_button = widgets.ToggleButton(
-            value=True,
-            description='fov',
-            disabled=False,
-            button_style='',
-            tooltip='Sync fov',
-            layout=widgets.Layout(width="25%")
-        )
-
-        self.rotation_button = widgets.ToggleButton(
-            value=True,
-            description='rotation',
-            disabled=False,
-            button_style='',
-            tooltip='Sync rotation',
-            layout=widgets.Layout(width="25%")
-        )
-
-        self.center_button.observe(self._handle_aspect_change, names="value")
-        self.fov_button.observe(self._handle_aspect_change, names="value")
-        self.rotation_button.observe(self._handle_aspect_change, names="value")
+        for aspect in self.aspects:
+            _attr = f"{aspect}_button"
+            _togglebutton_args = {"description": aspect, "tooltip": f"Sync {aspect}"}
+            setattr(
+                self,
+                _attr,
+                widgets.ToggleButton(**common_togglebutton_args, **_togglebutton_args)
+            )
+            getattr(self, _attr).observe(self._handle_viewer_sync, names="value")
 
     def _current_sync_direction(self):
         """Return (source, destination) tuple or (None, None)."""
@@ -63,32 +50,16 @@ class ViewerSyncUI():
                 return None, None
 
     def _get_active_aspects(self):
-        active = []
-        if self.center_button.value:
-            active.append("center")
-        if self.fov_button.value:
-            active.append("fov")
-        if self.rotation_button.value:
-            active.append("rotation")
-        return active
+        return [
+            aspect for aspect in self.aspects
+            if getattr(
+                getattr(self, f"{aspect}_button", None),
+                "value",
+                False
+            )
+        ]
 
     def _handle_viewer_sync(self, change):
-        if change.get("name") != "value" or change["new"] == change["old"]:
-            return
-
-        source, dest = self._current_sync_direction()
-        if not source or not dest:
-            self.sync_manager.stop_real_time_sync()
-            return
-
-        aspects = self._get_active_aspects()
-        self.sync_manager.start_real_time_sync(
-            source=source,
-            destination=dest,
-            aspects=aspects
-        )
-
-    def _handle_aspect_change(self, change):
         if change.get("name") != "value" or change["new"] == change["old"]:
             return
 

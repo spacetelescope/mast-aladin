@@ -1,4 +1,5 @@
 from .viewer_sync_adapter import ViewerSyncAdapter
+from mast_aladin.aida import AIDA_aspects
 import warnings
 
 
@@ -14,12 +15,8 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         source_viewport = sync_viewer.aid.get_viewport(sky_or_pixel="sky")
 
         new_viewport = self.aid.get_viewport(sky_or_pixel="sky").copy()
-        if "center" in aspects:
-            new_viewport["center"] = source_viewport["center"]
-        if "fov" in aspects:
-            new_viewport["fov"] = source_viewport["fov"]
-        if "rotation" in aspects:
-            new_viewport["rotation"] = source_viewport["rotation"]
+        for aspect in set(aspects) & {AIDA_aspects.CENTER, AIDA_aspects.FOV, AIDA_aspects.ROTATION}:
+            new_viewport[aspect] = source_viewport[aspect]
 
         self.aid.set_viewport(**new_viewport)
 
