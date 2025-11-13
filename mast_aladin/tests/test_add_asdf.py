@@ -3,6 +3,7 @@ import pytest
 import re
 import warnings
 import tempfile
+import gc
 
 import numpy as np
 import astropy.units as u
@@ -138,3 +139,6 @@ def test_invalid_asdf(MastAladin_app):
             )
         ):
             MastAladin_app.add_asdf(invalid_asdf_filepath)
+
+        del f
+        gc.collect()
