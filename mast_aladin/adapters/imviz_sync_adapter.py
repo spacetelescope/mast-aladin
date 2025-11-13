@@ -1,22 +1,47 @@
 from .viewer_sync_adapter import ViewerSyncAdapter
+from mast_aladin.aida import AIDA_aspects
+import warnings
 
 
 class ImvizSyncAdapter(ViewerSyncAdapter):
     def __init__(self, viewer=None):
-        # todo: assert the type of the viewer is jdaviz/imviz
         from jdaviz.configs.imviz.helper import _current_app
         self.app = viewer if viewer else _current_app
         self.viewer = self.app.default_viewer
         self.aid = self.viewer._obj.glue_viewer.aid
+        self.state = self.viewer._obj.glue_viewer.state
 
-    def sync_to(self, sync_viewer):
-        self.aid.set_viewport(**sync_viewer.aid.get_viewport())
+    def sync_to(self, sync_viewer, aspects):
+        source_viewport = sync_viewer.aid.get_viewport(sky_or_pixel="sky")
+
+        new_viewport = self.aid.get_viewport(sky_or_pixel="sky").copy()
+        for aspect in set(aspects) & {AIDA_aspects.CENTER, AIDA_aspects.FOV, AIDA_aspects.ROTATION}:
+            new_viewport[aspect] = source_viewport[aspect]
+
+        self.aid.set_viewport(**new_viewport)
 
     def add_callback(self, func):
-        self.viewer._obj.glue_viewer.state.add_callback('zoom_radius', func)
+        for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
+            try:
+                self.state.add_callback(name, func)
+            except Exception as e:
+                warnings.warn(f"Failed to add callback {name}: {e}")
+
+        try:
+            self.app.plugins['Orientation'].rotation_angle.add_callback(func)
+        except Exception as e:
+            warnings.warn(f"Failed to add callback for rotation: {e}")
 
     def remove_callback(self, func):
-        self.viewer._obj.glue_viewer.state.remove_callback('zoom_radius', func)
+        for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
+            try:
+                self.state.remove_callback(name, func)
+            except Exception as e:
+                warnings.warn(f"Failed to remove callback {name}: {e}")
+        try:
+            self.app.plugins['Orientation'].rotation_angle.remove_callback(func)
+        except Exception as e:
+            warnings.warn(f"Failed to remove callback for rotation: {e}")
 
     def show(self):
         self.app.show()
