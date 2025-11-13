@@ -131,7 +131,6 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         asdf_file.close()
 
-
     def add_markers(
         self, markers, **catalog_options
     ):
