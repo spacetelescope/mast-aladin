@@ -10,7 +10,6 @@ try:
 except ImportError:
     ConfigHelper = None
 
-opened_sidecars = []
 default_height = 500
 default_anchor = 'split-right'
 
