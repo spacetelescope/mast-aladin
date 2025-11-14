@@ -3,7 +3,6 @@ import warnings
 from ipyaladin import Aladin
 from sidecar import Sidecar as UpstreamSidecar
 from mast_table import MastTable
-
 from mast_aladin.app import MastAladin, gca
 
 try:
@@ -11,7 +10,6 @@ try:
 except ImportError:
     ConfigHelper = None
 
-opened_sidecars = []
 default_height = 500
 default_anchor = 'split-right'
 
@@ -31,12 +29,14 @@ def is_aladin(app):
     return isinstance(app, Aladin)
 
 
-class AppSidecar:
-    loaded_apps = []
+class AppSidecarManager:
     _sidecar_context = None
 
-    def __new__(
-        cls,
+    def __init__(self):
+        self.loaded_apps = []
+
+    def open(
+        self,
         *apps,
         anchor='split-bottom',
         use_current_apps=False,
@@ -94,23 +94,20 @@ class AppSidecar:
         .. [1] https://github.com/jupyter-widgets/jupyterlab-sidecar
         """
         # initialize the object here:
-        self = super().__new__(cls)
-
         # This must be run first because we don't have the ability to close multiple
         # sidecars without possibly closing all widgets
         if close_existing:
-            cls.close_all()
+            self.close_all()
 
         apps = self._resolve_apps(apps, include_aladin, include_jdaviz, use_current_apps)
 
         if not apps:
             raise ValueError("No apps to show in sidecar.")
 
-        self.loaded_apps = apps
-
         self._attach_sidecars(apps, anchor, title)
         self._display_sidecar_contents(apps, height)
 
+        self.loaded_apps += apps
         return tuple(apps)
 
     def _resolve_apps(self, apps, include_aladin, include_jdaviz, use_current_apps):
@@ -225,7 +222,7 @@ class AppSidecar:
 
         opened_sidecars.append(self)
 
-    def close(self):
+    def close_all(self):
         """
         Close this particular `sidecar` instance.
         """
@@ -237,24 +234,14 @@ class AppSidecar:
             # now close sidecar(s):
             if app.sidecar is not None:
                 app.sidecar.close()
+        self.loaded_apps = []
 
-    @classmethod
-    def close_all(cls):
-        """
-        Close all `sidecar` instances.
-        """
-        while len(opened_sidecars):
-            sidecar = opened_sidecars.pop()
-            sidecar.close()
-
-    @staticmethod
-    def resize_all(height=default_height):
+    def resize_all(self, height=default_height):
         """
         Resize all opened sidecars with ``height`` in pixels.
         """
-        for sc in opened_sidecars:
-            for app in sc.loaded_apps:
-                set_app_height(app, height)
+        for app in self.loaded_apps:
+            set_app_height(app, height)
 
 
 def set_app_height(app, height):
@@ -287,3 +274,6 @@ def set_app_height(app, height):
             f"height could not be set for unrecognized app: {app}",
             UserWarning
         )
+
+
+AppSidecar = AppSidecarManager()
