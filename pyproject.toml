@@ -17,7 +17,8 @@ dependencies = [
     "solara",
     "roman-datamodels",
     "regions",
-    "mast-table"
+    "mast-table",
+    "echo>=0.11.0",
 ]
 dynamic = [
     "version",
