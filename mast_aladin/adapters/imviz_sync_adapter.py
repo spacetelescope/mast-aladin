@@ -1,5 +1,4 @@
 from .viewer_sync_adapter import ViewerSyncAdapter
-from mast_aladin.aida import AIDA_aspects
 import warnings
 
 
@@ -10,15 +9,6 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         self.viewer = self.app.default_viewer
         self.aid = self.viewer._obj.glue_viewer.aid
         self.state = self.viewer._obj.glue_viewer.state
-
-    def sync_to(self, sync_viewer, aspects):
-        source_viewport = sync_viewer.aid.get_viewport(sky_or_pixel="sky")
-
-        new_viewport = self.aid.get_viewport(sky_or_pixel="sky").copy()
-        for aspect in set(aspects) & {AIDA_aspects.CENTER, AIDA_aspects.FOV, AIDA_aspects.ROTATION}:
-            new_viewport[aspect] = source_viewport[aspect]
-
-        self.aid.set_viewport(**new_viewport)
 
     def add_callback(self, func):
         for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
