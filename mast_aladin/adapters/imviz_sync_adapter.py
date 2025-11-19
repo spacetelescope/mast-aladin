@@ -17,10 +17,10 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
             except Exception as e:
                 warnings.warn(f"Failed to add callback {name}: {e}")
 
-        try:
-            self.app.plugins['Orientation'].rotation_angle.add_callback(func)
-        except Exception as e:
-            warnings.warn(f"Failed to add callback for rotation: {e}")
+        warnings.warn(
+            "Rotation syncing from Imviz → Mast-Aladin is currently disabled. "
+            "Changes in Imviz orientation will not propagate."
+        )
 
     def remove_callback(self, func):
         for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
@@ -28,10 +28,6 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
                 self.state.remove_callback(name, func)
             except Exception as e:
                 warnings.warn(f"Failed to remove callback {name}: {e}")
-        try:
-            self.app.plugins['Orientation'].rotation_angle.remove_callback(func)
-        except Exception as e:
-            warnings.warn(f"Failed to remove callback for rotation: {e}")
 
     def show(self):
         self.app.show()

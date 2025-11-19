@@ -68,6 +68,10 @@ class ViewerSyncUI():
             self.sync_manager.stop_real_time_sync()
             return
 
+        self.rotation_button.disabled = False
+        if source == self.imviz:
+            self.rotation_button.disabled = True
+
         aspects = self._get_active_aspects()
         self.sync_manager.start_real_time_sync(
             source=source,
