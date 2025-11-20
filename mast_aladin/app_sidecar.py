@@ -12,6 +12,9 @@ except ImportError:
 
 default_height = 500
 default_anchor = 'split-right'
+jdaviz_counter = 0
+aladin_counter = 0
+other_counter = 0
 
 
 def is_jdaviz(app):
@@ -40,7 +43,7 @@ class AppSidecarManager:
         *apps,
         anchor='split-bottom',
         use_current_apps=False,
-        title='mast-aladin & jdaviz',
+        titles=None,
         include_aladin=False,
         include_jdaviz=False,
         close_existing=True,
@@ -72,9 +75,10 @@ class AppSidecarManager:
             If `True`, get the last constructed Imviz and
             mast-aladin instances to open in the sidecar
 
-        title : str, optional (default is 'mast-aladin & jdaviz')
-            Title to appear in the tab label for the sidecar in
-            jupyterlab.
+        titles : list of str, or None, optional (default is `None`)
+            Title to appear in the tab label for each sidecar in
+            jupyterlab. If `None`, label sidecars sequentially wit
+            "Sidecar 0", "Sidecar 1", etc.
 
         include_aladin : bool, optional (default is `False`)
             The sidecar must include at least one
@@ -99,12 +103,20 @@ class AppSidecarManager:
         if close_existing:
             self.close_all()
 
-        apps = self._resolve_apps(apps, include_aladin, include_jdaviz, use_current_apps)
+        apps, default_titles = self._resolve_apps(
+            apps, include_aladin, include_jdaviz, use_current_apps
+        )
+
+        if titles is None:
+            titles = default_titles
 
         if not apps:
             raise ValueError("No apps to show in sidecar.")
 
-        self._attach_sidecars(apps, anchor, title)
+        self.loaded_apps = apps
+
+        self._attach_sidecars(apps, anchor, titles)
+
         self._display_sidecar_contents(apps, height)
 
         self.loaded_apps += apps
@@ -146,9 +158,28 @@ class AppSidecarManager:
                 "run `pip install jdaviz`.",
                 UserWarning
             )
-        return apps
 
-    def _attach_sidecars(self, apps, anchor, title):
+        global jdaviz_counter, aladin_counter, other_counter
+        default_titles = []
+        for app in apps:
+            if is_jdaviz(app):
+                default_titles.append(
+                    "jdaviz" + (f" ({jdaviz_counter})" if jdaviz_counter else '')
+                )
+                jdaviz_counter += 1
+            elif is_aladin(app):
+                default_titles.append(
+                    "mast-aladin" + (f" ({aladin_counter})" if aladin_counter else '')
+                )
+                aladin_counter += 1
+            else:
+                default_titles.append(
+                    "Sidecar" + (f" ({other_counter})" if other_counter else '')
+                )
+                other_counter += 1
+        return apps, default_titles
+
+    def _attach_sidecars(self, apps, anchor, titles):
         """
         Attach apps to sidecars. If only one anchor, all apps share
         a single sidecar. Otherwise, create one sidecar per app.
@@ -160,7 +191,7 @@ class AppSidecarManager:
 
         if len(anchor) == 1:
             # shared single sidecar
-            ctx = UpstreamSidecar(anchor=anchor[0], title=title)
+            ctx = UpstreamSidecar(anchor=anchor[0], title=titles[0])
             for app in apps:
                 app.sidecar = ctx
 
@@ -168,7 +199,7 @@ class AppSidecarManager:
             # multiple sidecars
             anchor = self._normalize_anchor(anchor, apps)
             ref = None
-            for app, anc in zip(apps, anchor):
+            for app, anc, title in zip(apps, anchor, titles):
                 ctx = UpstreamSidecar(anchor=anc, title=title, ref=ref)
                 app.sidecar = ctx
                 ref = ctx
@@ -205,7 +236,7 @@ class AppSidecarManager:
                     elif is_jdaviz(app):
                         # jdaviz:
                         with solara.Column(gap='0px', style=style):
-                            solara.display(app.default_viewer._obj)
+                            solara.display(app.app)
 
                     else:
                         # other:
@@ -266,12 +297,6 @@ def set_app_height(app, height):
             height = f"{height}px"
 
         app.layout.height = height
-
-    else:
-        warnings.warn(
-            f"height could not be set for unrecognized app: {app}",
-            UserWarning
-        )
 
 
 AppSidecar = AppSidecarManager()
