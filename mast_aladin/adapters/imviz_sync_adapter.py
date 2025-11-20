@@ -11,11 +11,10 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         self.state = self.viewer._obj.glue_viewer.state
 
     def add_callback(self, func):
-        for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
-            try:
-                self.state.add_callback(name, func)
-            except Exception as e:
-                warnings.warn(f"Failed to add callback {name}: {e}")
+        try:
+            self.state.add_callback('x_min', func)
+        except Exception as e:
+            warnings.warn(f"Failed to add callback for 'x_min': {e}")
 
         warnings.warn(
             "Rotation syncing from Imviz → Mast-Aladin is currently disabled. "
@@ -23,11 +22,10 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
         )
 
     def remove_callback(self, func):
-        for name in ['zoom_radius', 'x_min', 'x_max', 'y_min', 'y_max']:
-            try:
-                self.state.remove_callback(name, func)
-            except Exception as e:
-                warnings.warn(f"Failed to remove callback {name}: {e}")
+        try:
+            self.state.remove_callback('x_min', func)
+        except Exception as e:
+            warnings.warn(f"Failed to remove callback for 'x_min': {e}")
 
     def show(self):
         self.app.show()
