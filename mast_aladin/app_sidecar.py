@@ -12,9 +12,6 @@ except ImportError:
 
 default_height = 500
 default_anchor = 'split-right'
-jdaviz_counter = 0
-aladin_counter = 0
-other_counter = 0
 
 
 def is_jdaviz(app):
@@ -34,6 +31,9 @@ def is_aladin(app):
 
 class AppSidecarManager:
     _sidecar_context = None
+    _jdaviz_counter = 0
+    _aladin_counter = 0
+    _other_counter = 0
 
     def __init__(self):
         self.loaded_apps = []
@@ -159,24 +159,23 @@ class AppSidecarManager:
                 UserWarning
             )
 
-        global jdaviz_counter, aladin_counter, other_counter
         default_titles = []
         for app in apps:
             if is_jdaviz(app):
                 default_titles.append(
-                    "jdaviz" + (f" ({jdaviz_counter})" if jdaviz_counter else '')
+                    "jdaviz" + (f" ({self._jdaviz_counter})" if self._jdaviz_counter else '')
                 )
-                jdaviz_counter += 1
+                self._jdaviz_counter += 1
             elif is_aladin(app):
                 default_titles.append(
-                    "mast-aladin" + (f" ({aladin_counter})" if aladin_counter else '')
+                    "mast-aladin" + (f" ({self._aladin_counter})" if self._aladin_counter else '')
                 )
-                aladin_counter += 1
+                self._aladin_counter += 1
             else:
                 default_titles.append(
-                    "Sidecar" + (f" ({other_counter})" if other_counter else '')
+                    "Sidecar" + (f" ({self._other_counter})" if self._other_counter else '')
                 )
-                other_counter += 1
+                self._other_counter += 1
         return apps, default_titles
 
     def _attach_sidecars(self, apps, anchor, titles):
