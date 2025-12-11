@@ -113,7 +113,7 @@ class AppSidecarManager:
         if not apps:
             raise ValueError("No apps to show in sidecar.")
 
-        self.loaded_apps = apps
+        self.loaded_apps += apps
 
         self._attach_sidecars(apps, anchor, titles)
 
