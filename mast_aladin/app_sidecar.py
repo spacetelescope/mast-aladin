@@ -119,7 +119,6 @@ class AppSidecarManager:
 
         self._display_sidecar_contents(apps, height)
 
-        self.loaded_apps += apps
         return tuple(apps)
 
     def _resolve_apps(self, apps, include_aladin, include_jdaviz, use_current_apps):
@@ -260,7 +259,7 @@ class AppSidecarManager:
                 app.app.close()
 
             # now close sidecar(s):
-            if app.sidecar is not None:
+            if getattr(app, 'sidecar', None) is not None:
                 app.sidecar.close()
         self.loaded_apps = []
 
