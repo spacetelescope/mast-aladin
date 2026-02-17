@@ -18,6 +18,7 @@ dependencies = [
     "roman-datamodels",
     "regions",
     "mast-table",
+    "pysiaf",
     "echo>=0.11.0",
 ]
 dynamic = [
