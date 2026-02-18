@@ -135,7 +135,7 @@ def test_invalid_asdf(MastAladin_app):
             ValueError,
             match=re.escape(
                 f"Invalid Roman Datamodel ASDF structure in {invalid_asdf_filepath}. "
-                "Ensure the file is a valid Roman Datamodel."
+                "Ensure the file is accessible and a valid Roman Datamodel."
             )
         ):
             MastAladin_app.add_asdf(invalid_asdf_filepath)

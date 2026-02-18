@@ -102,11 +102,12 @@ class MastAladin(Aladin, DelayUntilRendered):
 
             try:
                 asdf_file = rdd.open(asdf)
-            except KeyError as e:
+            except Exception as e:
                 raise ValueError(
                     f"Invalid Roman Datamodel ASDF structure in {asdf}. "
-                    "Ensure the file is a valid Roman Datamodel."
+                    "Ensure the file is accessible and a valid Roman Datamodel."
                 ) from e
+
         elif isinstance(asdf, rdd._datamodels.ImageModel):
             asdf_file = asdf
         else:
