@@ -283,6 +283,9 @@ class Exposure(ExpResultGenerator):
             self._ref_aperture_siaf,
         ) = defineApertures(telescope, instrument, aperture)
 
+        self._ref_aper_v2_ref = aper_v2_ref
+        self._ref_aper_v3_ref = aper_v3_ref
+
         if self._ref_aperture_siaf is None:
             # If the reference aperture doesn't exist (e.g., when
             # pseudoaperture jwst fgs all was selected), use the first
@@ -371,6 +374,10 @@ class Exposure(ExpResultGenerator):
                 pointing.y_off,
             )
             exp['s_region'] = s_region(self.aperture_list, att_matrix)
+            aper_ra, aper_dec = self.aperture_list[0].tel_to_sky(self._ref_aper_v2_ref,
+                                                                 self._ref_aper_v3_ref)
+            exp['aper_ra'] = aper_ra
+            exp['aper_dec'] = aper_dec
             exp_list.append(exp)
 
         return exp_list
