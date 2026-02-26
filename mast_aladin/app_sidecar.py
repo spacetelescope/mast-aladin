@@ -11,7 +11,7 @@ except ImportError:
     ConfigHelper = None
 
 default_height = 500
-default_anchor = 'split-right'
+default_anchor = 'split-bottom'
 
 
 def is_jdaviz(app):
@@ -41,7 +41,7 @@ class AppSidecarManager:
     def open(
         self,
         *apps,
-        anchor='split-bottom',
+        anchor=None,
         use_current_apps=False,
         titles=None,
         include_aladin=False,
@@ -57,7 +57,7 @@ class AppSidecarManager:
 
         Parameters
         ----------
-        anchor : str or list of str, optional (default: 'split-bottom')
+        anchor : str or list of str, optional (default: None)
             One or more of the anchor location options available from
             ``jupyterlab-sidecar``, which include:
 
@@ -65,11 +65,13 @@ class AppSidecarManager:
                  'split-bottom', 'tab-before', 'tab-after',
                  'right'}
 
+            - If no anchor is provided, the first sidecar will have anchor
+            'split-bottom', and subsequent sidecars will be 'split-right'
+            relative to the previous sidecar.
             - If a single anchor is provided, all apps share the same sidecar.
-            - If multiple anchors are provided, each app is launched in its
-            own sidecar relative to the previous app's sidecar.
-            - If there are fewer anchors than apps, remaining apps default to
-            'split-right'.
+            - If multiple anchors are provided, each app is launched in a new
+            sidecar, and each anchor defines the new sidecar's position relative
+            to the previous sidecar.
 
         use_current_apps : bool, optional (default is `False`)
             If `True`, get the last constructed Imviz and
@@ -187,35 +189,28 @@ class AppSidecarManager:
         if not isinstance(anchor, list):
             anchor = [anchor]
 
-        if len(anchor) == 1:
-            # shared single sidecar
-            ctx = UpstreamSidecar(anchor=anchor[0], title=titles[0])
-            for app in apps:
-                app.sidecar = ctx
-
-        else:
-            # multiple sidecars
-            anchor = self._normalize_anchor(anchor, apps)
-            ref = None
-            for app, anc, title in zip(apps, anchor, titles):
-                ctx = UpstreamSidecar(anchor=anc, title=title, ref=ref)
-                app.sidecar = ctx
-                ref = ctx
+        anchor = self._normalize_anchor(anchor, apps)
+        ref = None
+        for app, anc, title in zip(apps, anchor, titles):
+            ctx = UpstreamSidecar(anchor=anc, title=title, ref=ref)
+            app.sidecar = ctx
+            ref = ctx
 
     def _normalize_anchor(self, anchor, apps):
         """
-        Ensure anchor is a list of correct length
+        Set the default (sidecar 1: split-bottom, otherwise: split-right relative
+        to last sidecar), and check that `anchor` such that `len(anchor)==len(apps)`
         """
+
+        if anchor is None:
+            anchor = [default_anchor]
+
         n_apps = len(apps)
         n_anchors = len(anchor)
 
         if n_anchors < n_apps:
-            warnings.warn(
-                f"Anchors must either be a single value or one per app. "
-                f"Filling missing anchors with `{default_anchor}`."
-            )
+            return anchor + ['split-right'] * (n_apps-n_anchors)
 
-            return anchor + [default_anchor] * (n_apps-n_anchors)
         return anchor
 
     def _display_sidecar_contents(self, apps, height):
