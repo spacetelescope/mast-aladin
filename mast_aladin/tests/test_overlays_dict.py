@@ -332,6 +332,38 @@ def test_invalid_overlay_type(
         MastOverlay(test_invalid_overlay, mast_aladin)
 
 
+@pytest.mark.parametrize("stcs_strings", test_stcs_iterables)
+def test_existing_overlay_name(
+    monkeypatch,
+    stcs_strings,
+):
+    """Test proper messages sent for existing overlays.
+
+    Parameters
+    ----------
+    stcs_strings : Union[Iterable[str], str]
+        The stcs strings to create region overlay info from.
+
+    """
+    test_name = "test"
+    mock_send = Mock()
+    monkeypatch.setattr(MastAladin, "send", mock_send)
+    mast_aladin.add_graphic_overlay_from_stcs(stcs_strings)
+    mast_aladin.add_graphic_overlay_from_stcs(stcs_strings, name=test_name)
+
+    # no name specified, no warning triggered
+    mast_aladin.add_graphic_overlay_from_stcs(stcs_strings)
+
+    # name specified, warning triggered
+    with pytest.warns(match="is already in use. Name `test_1`"):
+        mast_aladin.add_graphic_overlay_from_stcs(stcs_strings, name=test_name)
+
+    assert test_name in mast_aladin._overlays_dict
+    assert "overlay_python" in mast_aladin._overlays_dict
+    assert "overlay_python_1" in mast_aladin._overlays_dict
+    assert len(mast_aladin._overlays_dict.keys()) == 4
+
+
 test_marker_overlay = MastOverlay(
     {
         "type": "marker",
