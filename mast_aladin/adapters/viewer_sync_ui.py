@@ -81,5 +81,12 @@ class ViewerSyncUI():
 
         self.imviz.show()
         display(self.viewer_buttons)
-        display(widgets.HBox([self.center_button, self.fov_button, self.rotation_button, self.projection_button]))
+        display(
+            widgets.HBox([
+                self.center_button,
+                self.fov_button,
+                self.rotation_button,
+                self.projection_button
+            ])
+        )
         self.mast_aladin.show()

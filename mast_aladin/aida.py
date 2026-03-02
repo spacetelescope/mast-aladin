@@ -75,7 +75,15 @@ class AID:
 
         self.app.projection = projection
 
-    def set_viewport(self, center=None, fov=None, rotation=None, projection=None, image_label=None, **kwargs):
+    def set_viewport(
+        self,
+        center=None,
+        fov=None,
+        rotation=None,
+        projection=None,
+        image_label=None,
+        **kwargs
+    ):
         """
         Sets the viewport based on provided parameters.
 

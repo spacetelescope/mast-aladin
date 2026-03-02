@@ -2,7 +2,12 @@ from mast_aladin.aida import AIDA_aspects
 
 
 class SyncManager():
-    ASPECTS = (AIDA_aspects.CENTER, AIDA_aspects.FOV, AIDA_aspects.ROTATION, AIDA_aspects.PROJECTION)
+    ASPECTS = (
+        AIDA_aspects.CENTER,
+        AIDA_aspects.FOV,
+        AIDA_aspects.ROTATION,
+        AIDA_aspects.PROJECTION
+    )
 
     def __init__(self):
         self.source = None
