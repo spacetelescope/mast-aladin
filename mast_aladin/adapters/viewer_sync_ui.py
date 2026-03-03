@@ -68,7 +68,7 @@ class ViewerSyncUI():
             self.sync_manager.stop_real_time_sync()
             return
 
-        # imviz does not currently support setting projection, so we disable the projection 
+        # imviz does not currently support setting projection, so we disable the projection
         # syncing option when imviz is the destintation
         if dest == self.imviz:
             self.projection_button.value = False
