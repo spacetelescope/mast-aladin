@@ -99,8 +99,8 @@ class AID:
             degrees east of north (counter-clockwise). It can be set with
             an `~astropy.coordinates.Angle` or floats interpreted
             as angles in units of degrees.
-        projection: string
-            Set the projection of the viewer
+        projection: str, optional
+            Set the projection of the viewer.
         image_label : str, optional
             `image_label` is a required argument for ``AID`` API compatibility,
             but it is not relevant for HiPS browsers like aladin-lite. If not
@@ -154,8 +154,8 @@ class AID:
                 Length of the shorter viewport axis.
             - rotation : `~astropy.coordinates.Angle`
                 Angle of the view center to north pole angle in degrees.
-            - projection: `string`
-                A string representing the projection of the viewer
+            - projection: `str`
+                A string representing the projection of the viewer.
             - image_label: None
                 A string representing the label of the image, always `None`
                 for aladin-lite.
