@@ -9,6 +9,7 @@ class AIDA_aspects(StrEnum):
     FOV = "fov"
     ROTATION = "rotation"
     IMAGE_LABEL = "image_label"
+    PROJECTION = "projection"
 
 
 class AID:
@@ -68,7 +69,21 @@ class AID:
 
         self.app.rotation = rotation
 
-    def set_viewport(self, center=None, fov=None, rotation=None, image_label=None, **kwargs):
+    def _set_projection(self, projection=None):
+        if projection is None:
+            return
+
+        self.app.projection = projection
+
+    def set_viewport(
+        self,
+        center=None,
+        fov=None,
+        rotation=None,
+        projection=None,
+        image_label=None,
+        **kwargs
+    ):
         """
         Sets the viewport based on provided parameters.
 
@@ -84,6 +99,8 @@ class AID:
             degrees east of north (counter-clockwise). It can be set with
             an `~astropy.coordinates.Angle` or floats interpreted
             as angles in units of degrees.
+        projection: str, optional
+            Set the projection of the viewer.
         image_label : str, optional
             `image_label` is a required argument for ``AID`` API compatibility,
             but it is not relevant for HiPS browsers like aladin-lite. If not
@@ -109,6 +126,7 @@ class AID:
         self._set_center(center)
         self._set_fov(fov)
         self._set_rotation(rotation)
+        self._set_projection(projection)
 
     def get_viewport(
         self, sky_or_pixel="sky", image_label=None
@@ -136,6 +154,8 @@ class AID:
                 Length of the shorter viewport axis.
             - rotation : `~astropy.coordinates.Angle`
                 Angle of the view center to north pole angle in degrees.
+            - projection: str
+                A string representing the projection of the viewer.
             - image_label: None
                 A string representing the label of the image, always `None`
                 for aladin-lite.
@@ -166,6 +186,7 @@ class AID:
             center=self.app.target,
             fov=min(self.app.fov_xy),
             rotation=self.app.rotation,
+            projection=self.app.projection,
             image_label=None
         )
 

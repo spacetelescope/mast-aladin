@@ -10,10 +10,10 @@ class AladinSyncAdapter(ViewerSyncAdapter):
         self.aid = self.viewer.aid
 
     def add_callback(self, func):
-        self.viewer.observe(func, names=["_target", "_fov", "_rotation"])
+        self.viewer.observe(func, names=["_target", "_fov", "_rotation", "_projection"])
 
     def remove_callback(self, func):
-        self.viewer.unobserve(func, names=["_target", "_fov", "_rotation"])
+        self.viewer.unobserve(func, names=["_target", "_fov", "_rotation", "_projection"])
 
     def show(self):
         display(self.viewer)
