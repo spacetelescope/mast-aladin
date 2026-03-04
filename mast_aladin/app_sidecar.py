@@ -186,15 +186,11 @@ class AppSidecarManager:
         In the multiple case, each sidecar `n` will reference the
         `n-1` sidecar instance.
         """
-        if not isinstance(anchor, list):
-            anchor = [anchor]
-
         anchor = self._normalize_anchor(anchor, apps)
-        ref = None
+        ctx = None
         for app, anc, title in zip(apps, anchor, titles):
-            ctx = UpstreamSidecar(anchor=anc, title=title, ref=ref)
+            ctx = UpstreamSidecar(anchor=anc, title=title, ref=ctx)
             app.sidecar = ctx
-            ref = ctx
 
     def _normalize_anchor(self, anchor, apps):
         """
@@ -209,7 +205,7 @@ class AppSidecarManager:
         n_anchors = len(anchor)
 
         if n_anchors < n_apps:
-            return anchor + ['split-right'] * (n_apps-n_anchors)
+            return anchor + ['split-right'] * (n_apps - n_anchors)
 
         return anchor
 
