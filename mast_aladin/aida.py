@@ -154,7 +154,7 @@ class AID:
                 Length of the shorter viewport axis.
             - rotation : `~astropy.coordinates.Angle`
                 Angle of the view center to north pole angle in degrees.
-            - projection: `str`
+            - projection: str
                 A string representing the projection of the viewer.
             - image_label: None
                 A string representing the label of the image, always `None`
