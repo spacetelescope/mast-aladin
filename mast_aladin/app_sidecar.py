@@ -68,7 +68,6 @@ class AppSidecarManager:
             - If no anchor is provided, the first sidecar will have anchor
             'split-bottom', and subsequent sidecars will be 'split-right'
             relative to the previous sidecar.
-            - If a single anchor is provided, all apps share the same sidecar.
             - If multiple anchors are provided, each app is launched in a new
             sidecar, and each anchor defines the new sidecar's position relative
             to the previous sidecar.
