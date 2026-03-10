@@ -17,7 +17,7 @@ class ViewerSyncUI():
             disabled=False,
             button_style='',
             tooltips=['No Syncing', 'Sync to Imviz', 'Sync to Mast Aladin'],
-            style=widgets.ToggleButtonsStyle(button_width="25%")
+            style=widgets.ToggleButtonsStyle(button_width="24%")
         )
 
         self.viewer_buttons.observe(self._handle_viewer_sync, names="value")
@@ -26,7 +26,7 @@ class ViewerSyncUI():
             "value": True,
             "disabled": False,
             "button_style": "",
-            "layout": widgets.Layout(width="25%")
+            "layout": widgets.Layout(width="24%")
         }
 
         for aspect in self.aspects:
