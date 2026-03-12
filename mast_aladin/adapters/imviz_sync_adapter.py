@@ -2,6 +2,7 @@ from .viewer_sync_adapter import ViewerSyncAdapter
 import warnings
 import jdaviz
 
+
 class ImvizSyncAdapter(ViewerSyncAdapter):
     def __init__(self, viewer=None):
         if viewer:

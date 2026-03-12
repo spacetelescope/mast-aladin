@@ -144,7 +144,9 @@ class AppSidecarManager:
             jdaviz_instances = [app for app in apps if is_jdaviz(app)]
 
             if not len(jdaviz_instances) and include_jdaviz:
-                if not use_current_apps or (use_current_apps and viz is None):
+                viz = jdaviz.gca()
+                if not use_current_apps or viz is None:
+                    jdaviz.App()
                     viz = jdaviz.gca()
                 apps.append(viz)
 
