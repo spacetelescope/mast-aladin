@@ -44,8 +44,8 @@ class ViewportOutline(HasTraits):
         Parameters
         ----------
         jdaviz_viewer : jdaviz viewer object
-            Instance of a jdaviz viewer. The default viewer can be
-            retrieved from ``jdaviz_app.default_viewer``.
+            Instance of a jdaviz viewer. Can be retrieved from
+            ``jdaviz_app.viewers`` dict (e.g., ``app.viewers['imviz-0']``).
         aladin : `~mast_aladin.MastAladin`
             Instance of a Mast Aladin app.
         jdaviz_outline_in_aladin : bool
