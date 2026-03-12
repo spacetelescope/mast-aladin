@@ -49,7 +49,6 @@ class AppSidecarManager:
         close_existing=True,
         height=default_height,
     ):
-
         """
         Open ``apps`` in a sidecar [1]_. If none are given and
         ``include_aladin`` and ``include_jdaviz`` are `True`,
@@ -72,7 +71,7 @@ class AppSidecarManager:
             'split-right'.
 
         use_current_apps : bool, optional (default is `False`)
-            If `True`, get the last constructed Imviz and
+            If `True`, get the last constructed jdaviz and
             mast-aladin instances to open in the sidecar
 
         titles : list of str, or None, optional (default is `None`)
@@ -141,14 +140,12 @@ class AppSidecarManager:
             apps.append(mal)
 
         try:
-            from jdaviz.configs.imviz.helper import Imviz, _current_app as viz
-
+            import jdaviz
             jdaviz_instances = [app for app in apps if is_jdaviz(app)]
 
-            # construct new imviz if not using current app or no current app exists:
             if not len(jdaviz_instances) and include_jdaviz:
                 if not use_current_apps or (use_current_apps and viz is None):
-                    viz = Imviz()
+                    viz = jdaviz.gca()
                 apps.append(viz)
 
         except ImportError:

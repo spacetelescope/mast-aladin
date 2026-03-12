@@ -2,7 +2,7 @@ import os
 import pytest
 from astropy.table import Table
 from mast_aladin import MastAladin
-from jdaviz import Imviz
+import jdaviz
 
 
 @pytest.fixture
@@ -12,7 +12,7 @@ def MastAladin_app():
 
 @pytest.fixture
 def imviz_helper():
-    return Imviz()
+    return jdaviz.gca()
 
 
 @pytest.fixture
