@@ -30,6 +30,8 @@ test = [
     "pytest"
 ]
 docs = [
+    "sphinx",
+    "sphinx-automodapi",
     "sphinx-astropy[confv2]>=1.9.1",
     "sphinx_design"
 ]

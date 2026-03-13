@@ -32,7 +32,10 @@ intersphinx_mapping = {
     'jdaviz': ('https://jdaviz.readthedocs.io/en/latest/', None),
     'python': ('https://docs.python.org/3/',
                (None, 'http://data.astropy.org/intersphinx/python3.inv')),
-    'astropy': ('https://docs.astropy.org/en/stable/', None)
+    'astropy': ('https://docs.astropy.org/en/stable/', None),
+    'roman_datamodels': ('https://roman-datamodels.readthedocs.io/en/latest/', None),
+    'regions': ('https://astropy-regions.readthedocs.io/en/stable/', None),
+    'ipyaladin': ('https://cds-astro.github.io/ipyaladin/', None),
 }
 
 # Add any Sphinx extension module names here, as strings. They can be
