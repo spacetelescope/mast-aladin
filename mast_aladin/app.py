@@ -244,6 +244,47 @@ class MastAladin(Aladin, DelayUntilRendered):
         region,
         **graphic_options,
     ):
+        """Add an overlay graphic layer to the Aladin Lite widget.
+
+        Parameters
+        ----------
+        region: `~regions.CircleSkyRegion`, `~regions.EllipseSkyRegion`,
+                `~regions.LineSkyRegion`,`~regions.PolygonSkyRegion`,
+                `~regions.RectangleSkyRegion`, `~regions.Regions`, or a list of these.
+            The region(s) to add in Aladin Lite. It can be given as a supported region
+            or a list of regions from the
+            `regions package <https://astropy-regions.readthedocs.io>`_.
+        graphic_options: keyword arguments
+            The options for the graphic overlay. Use Region visual for region options.
+            See `Aladin Lite's graphic overlay options
+            <https://cds-astro.github.io/aladin-lite/A.html>`_
+
+        See Also
+        --------
+        add_graphic_overlay_from_stcs: for shapes described as STC-S strings.
+
+        Notes
+        -----
+        The possible `~regions.RegionVisual` options correspond to the
+        Aladin Lite / ipyaladin parameters:
+
+        .. table:: Correspondence between options
+            :widths: auto
+
+            ============== ===================== ======================
+            RegionVisual        AladinLite              ipyaladin
+            ============== ===================== ======================
+            edgecolor      color                 color
+            facecolor      fillColor             fill_color
+            color          color and fillColor   color and fill_color
+            alpha          opacity               opacity
+            linewidth      lineWidth             line_width
+            ============== ===================== ======================
+
+        """
+        # Remove this docstring in favor of inheritance after this PR is merged:
+        # https://github.com/cds-astro/ipyaladin/pull/175
+
         # Wraps add_graphic_overlay_from_region in ipyaladin to add overlay handling.
         # See ipyaladin for definitions of parameters.
 

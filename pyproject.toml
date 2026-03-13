@@ -32,6 +32,7 @@ test = [
 docs = [
     "sphinx",
     "sphinx-automodapi",
+    "sphinx-toml",
     "sphinx-astropy[confv2]>=1.9.1",
     "sphinx_design"
 ]
@@ -58,3 +59,9 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
+
+[tool.sphinx]
+nitpick = true
+nitpick_ignore_regex = [
+    ['Field list ends without a blank line', 'Unexpected indentation.', 'Block quote ends without a blank line']
+]
