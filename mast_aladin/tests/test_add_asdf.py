@@ -1,16 +1,11 @@
-import os
 import pytest
-import re
 import warnings
-import tempfile
-import gc
 
 import numpy as np
 import astropy.units as u
 from astropy.modeling import models
 from gwcs import coordinate_frames as cf, wcs as gwcs_wcs
 from astropy.coordinates import ICRS
-import asdf
 
 
 def create_example_gwcs(shape):
@@ -103,42 +98,3 @@ def test_image_options(MastAladin_app, roman_imagemodel):
     with warnings.catch_warnings(record=True) as w:
         MastAladin_app.add_asdf(roman_imagemodel, name="test", colormap="viridis")
         assert len(w) == 0
-
-
-def test_invalid_filepath(MastAladin_app):
-    """Test add_asdf raises error for invalid filepaths."""
-
-    invalid_filepath = os.path.join(
-        os.path.dirname(__file__), "data", "this_is_fake.asdf"
-    )
-
-    with pytest.raises(
-        ValueError,
-        match=re.escape(
-            f"The file path given {invalid_filepath} does not exist, so no ASDF file "
-            "can be loaded."
-        )
-    ):
-        MastAladin_app.add_asdf(invalid_filepath)
-
-
-def test_invalid_asdf(MastAladin_app):
-    """Test add_asdf raises error for invalid ASDF file."""
-
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        invalid_asdf_filepath = tmp_dir + "/invalid.asdf"
-        tree = {'hst': 'fantastic', 'jwst': 'phenomenal'}
-        with asdf.AsdfFile(tree) as f:
-            f.write_to(invalid_asdf_filepath)
-
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                f"Invalid Roman Datamodel ASDF structure in {invalid_asdf_filepath}. "
-                "Ensure the file is accessible and a valid Roman Datamodel."
-            )
-        ):
-            MastAladin_app.add_asdf(invalid_asdf_filepath)
-
-        del f
-        gc.collect()

@@ -1,5 +1,4 @@
 import io
-import os
 
 from ipyaladin import Aladin
 from mast_table import MastTable
@@ -84,7 +83,7 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         Parameters
         ----------
-        asdf : Union[str, rdd]
+        asdf : Union[str or Path-like, rdd]
             The ASDF image to load in the widget. It can be given as a path (either a
             string or as a `roman_datamodels.datamodels._datamodels.ImageModel`).
         image_options : any
@@ -92,29 +91,10 @@ class MastAladin(Aladin, DelayUntilRendered):
             <https://cds-astro.github.io/aladin-lite/global.html#ImageOptions>`_
 
         """
-
-        if isinstance(asdf, str):
-            if not os.path.exists(asdf):
-                raise ValueError(
-                    f"The file path given {asdf} does not exist, so no ASDF file "
-                    "can be loaded."
-                )
-
-            try:
-                asdf_file = rdd.open(asdf)
-            except Exception as e:
-                raise ValueError(
-                    f"Invalid Roman Datamodel ASDF structure in {asdf}. "
-                    "Ensure the file is accessible and a valid Roman Datamodel."
-                ) from e
-
-        elif isinstance(asdf, rdd._datamodels.ImageModel):
+        if isinstance(asdf, rdd._datamodels.ImageModel):
             asdf_file = asdf
         else:
-            raise TypeError(
-                "The provided ASDF was not given as a string or roman_datamodel, "
-                "so no ASDF file could be loaded."
-            )
+            asdf_file = rdd.open(asdf)
 
         wcs_header = fits.Header(asdf_file.meta.wcs.to_fits_sip())
 
