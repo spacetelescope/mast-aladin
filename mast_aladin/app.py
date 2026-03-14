@@ -34,7 +34,11 @@ _latest_instantiated_app = None
 
 
 class MastAladin(Aladin, DelayUntilRendered):
-
+    """
+    An Aladin-lite widget with enhanced support for
+    datasets from `MAST <https://mast.stsci.edu/>`_, built on
+    top of `ipyaladin.widget.Aladin`.
+    """
     def __init__(self, *args, **kwargs):
         # set ICRSd as the default visible coordinate system
         # in aladin-lite:
@@ -133,10 +137,9 @@ class MastAladin(Aladin, DelayUntilRendered):
     def add_markers(
         self, markers, **catalog_options
     ):
-        """Wraps add_markers in ipyaladin to add overlay handling.
+        # Wraps add_markers in ipyaladin to add overlay handling.
+        # See ipyaladin for definitions of parameters.
 
-        See ipyaladin for definitions of parameters.
-        """
         if not isinstance(markers, list):
             markers = [markers]
 
@@ -160,10 +163,8 @@ class MastAladin(Aladin, DelayUntilRendered):
     def add_catalog_from_URL(
         self, votable_URL, votable_options
     ):
-        """Wraps add_catalog_from_URL in ipyaladin to add overlay handling.
-
-        See ipyaladin for definitions of parameters.
-        """
+        # Wraps add_catalog_from_URL in ipyaladin to add overlay handling.
+        # See ipyaladin for definitions of parameters.
         if votable_options is None:
             votable_options = {}
 
@@ -190,10 +191,8 @@ class MastAladin(Aladin, DelayUntilRendered):
         shape="cross",
         **table_options,
     ):
-        """Wraps add_table in ipyaladin to add overlay handling.
-
-        See ipyaladin for definitions of parameters.
-        """
+        # Wraps add_table in ipyaladin to add overlay handling.
+        # See ipyaladin for definitions of parameters.
         if isinstance(shape, CircleError):
             table_options["circle_error"] = {
                 "radius": shape.radius,
@@ -245,10 +244,50 @@ class MastAladin(Aladin, DelayUntilRendered):
         region,
         **graphic_options,
     ):
-        """Wraps add_graphic_overlay_from_region in ipyaladin to add overlay handling.
+        """Add an overlay graphic layer to the Aladin Lite widget.
 
-        See ipyaladin for definitions of parameters.
+        Parameters
+        ----------
+        region: `~regions.CircleSkyRegion`, `~regions.EllipseSkyRegion`,
+                `~regions.LineSkyRegion`,`~regions.PolygonSkyRegion`,
+                `~regions.RectangleSkyRegion`, `~regions.Regions`, or a list of these.
+            The region(s) to add in Aladin Lite. It can be given as a supported region
+            or a list of regions from the
+            `regions package <https://astropy-regions.readthedocs.io>`_.
+        graphic_options: keyword arguments
+            The options for the graphic overlay. Use Region visual for region options.
+            See `Aladin Lite's graphic overlay options
+            <https://cds-astro.github.io/aladin-lite/A.html>`_
+
+        See Also
+        --------
+        add_graphic_overlay_from_stcs: for shapes described as STC-S strings.
+
+        Notes
+        -----
+        The possible `~regions.RegionVisual` options correspond to the
+        Aladin Lite / ipyaladin parameters:
+
+        .. table:: Correspondence between options
+            :widths: auto
+
+            ============== ===================== ======================
+            RegionVisual        AladinLite              ipyaladin
+            ============== ===================== ======================
+            edgecolor      color                 color
+            facecolor      fillColor             fill_color
+            color          color and fillColor   color and fill_color
+            alpha          opacity               opacity
+            linewidth      lineWidth             line_width
+            ============== ===================== ======================
+
         """
+        # Remove this docstring in favor of inheritance after this PR is merged:
+        # https://github.com/cds-astro/ipyaladin/pull/175
+
+        # Wraps add_graphic_overlay_from_region in ipyaladin to add overlay handling.
+        # See ipyaladin for definitions of parameters.
+
         # Check if the region is a list of regions or a single
         # Region and convert it to a list of Regions
         if isinstance(region, Regions):
@@ -291,10 +330,8 @@ class MastAladin(Aladin, DelayUntilRendered):
     def add_graphic_overlay_from_stcs(
         self, stc_string, **overlay_options
     ):
-        """Wraps add_graphic_overlay_from_stcs in ipyaladin to add overlay handling.
-
-        See ipyaladin for definitions of parameters.
-        """
+        # Wraps add_graphic_overlay_from_stcs in ipyaladin to add overlay handling.
+        # See ipyaladin for definitions of parameters.
 
         overlay_options = self._overlays_dict.common_overlay_handling(
             overlay_options, "overlay_python"
@@ -324,21 +361,19 @@ class MastAladin(Aladin, DelayUntilRendered):
         return overlay_info
 
     def remove_overlay(self, overlay):
-        """Wraps remove_overlay in ipyaladin to add overlay handling.
+        """Remove an overlay.
 
         Parameters
         ----------
-        overlay : str(s) or MastOverlay(s)
+        overlay : str(s) or `~mast_aladin.MastOverlay`
             The overlay name (str) or MastOverlay object to be removed.
 
         Raises
         ------
         TypeError
-            Overlays are not provided as MastOverlay or names.
+            Overlays are not provided as `~mast_aladin.MastOverlay` or names.
         ValueError
             Overlay does not exist.
-
-        See ipyaladin for definitions of its parameters.
         """
 
         if isinstance(overlay, MastOverlay):
@@ -365,7 +400,7 @@ class MastAladin(Aladin, DelayUntilRendered):
             self._overlays_dict.pop(name)
 
     def get_viewport_region(self, center=False):
-        """Return a `~regions.PolygonSkyRegion` representing the perimeter of the
+        """Return a `regions.PolygonSkyRegion` representing the perimeter of the
         MastAladin viewport.
 
         Parameters
@@ -377,7 +412,7 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         Returns
         -------
-        `~regions.PolygonSkyRegion`
+        `regions.PolygonSkyRegion`
             Region with vertices representing the corners of the current field
             of view in the viewport.
         """
@@ -396,7 +431,7 @@ def gca():
 
     Returns
     -------
-    MastAladin
+    `~mast_aladin.app.MastAladin`
     """
     if _latest_instantiated_app is None:
         return MastAladin()

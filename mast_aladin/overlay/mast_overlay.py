@@ -10,6 +10,7 @@ class MastOverlayType(Enum):
 
 
 class MastOverlay(dict):
+    """Dictionary describing an overlay within `mast_aladin.MastAladin`."""
     def __init__(self, overlay_info, mast_aladin):
         self.app = mast_aladin
         overlay_type = overlay_info.get("type")
