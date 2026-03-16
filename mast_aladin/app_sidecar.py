@@ -185,6 +185,12 @@ class AppSidecarManager:
         In the multiple case, each sidecar `n` will reference the
         `n-1` sidecar instance.
         """
+        if isinstance(anchor, str):
+            anchor = [anchor] * len(apps)
+
+        if isinstance(titles, str):
+            titles = [titles] * len(apps)
+
         anchor = self._normalize_anchor(anchor, apps)
         ctx = None
         for app, anc, title in zip(apps, anchor, titles):
