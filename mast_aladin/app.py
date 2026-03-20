@@ -120,7 +120,9 @@ class MastAladin(Aladin, DelayUntilRendered):
                 "so no ASDF file could be loaded."
             )
 
-        wcs_header = fits.Header(asdf_file.meta.wcs.to_fits_sip())
+        wcs_header = fits.Header(asdf_file.meta.wcs.to_fits()[0])
+        wcs_header["CTYPE1"] = "RA---TAN"
+        wcs_header["CTYPE2"] = "DEC--TAN"
 
         hdu_list = fits.HDUList(
             [

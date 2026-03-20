@@ -76,7 +76,7 @@ class AppSidecarManager:
             If `True`, get the last constructed Imviz and
             mast-aladin instances to open in the sidecar
 
-        titles : list of str, or None, optional (default is `None`)
+        titles : str or list of str, optional (default: None)
             Title to appear in the tab label for each sidecar in
             jupyterlab. If `None`, label sidecars sequentially wit
             "Sidecar 0", "Sidecar 1", etc.
@@ -108,7 +108,9 @@ class AppSidecarManager:
             apps, include_aladin, include_jdaviz, use_current_apps
         )
 
-        if titles is None:
+        if isinstance(titles, str):
+            titles = [titles]
+        elif titles is None:
             titles = default_titles
 
         if not apps:
@@ -185,6 +187,7 @@ class AppSidecarManager:
         In the multiple case, each sidecar `n` will reference the
         `n-1` sidecar instance.
         """
+
         anchor = self._normalize_anchor(anchor, apps)
         ctx = None
         for app, anc, title in zip(apps, anchor, titles):
@@ -197,7 +200,9 @@ class AppSidecarManager:
         to last sidecar), and check that `anchor` such that `len(anchor)==len(apps)`
         """
 
-        if anchor is None:
+        if isinstance(anchor, str):
+            anchor = [anchor]
+        elif anchor is None:
             anchor = [default_anchor]
 
         n_apps = len(apps)
