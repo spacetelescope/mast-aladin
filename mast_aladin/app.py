@@ -11,6 +11,7 @@ from regions import (
     Regions,
     PolygonSkyRegion
 )
+from pathlib import Path
 
 from mast_aladin.aida import AID
 from mast_aladin.mixins import DelayUntilRendered
@@ -135,6 +136,53 @@ class MastAladin(Aladin, DelayUntilRendered):
         )
 
         self.add_fits(hdu_list, **image_options)
+
+    def add_fits(
+        self, f, **image_options
+    ):
+        """Load a FITS image into the widget.
+
+        Parameters
+        ----------
+        f : Union[str, Path, HDUList]
+            The FITS image to load in the widget. It can be given as a path (either a
+            string or a `pathlib.Path` object), or as an `astropy.io.fits.HDUList`.
+        image_options : any
+            The options for the image. See the `Aladin Lite image options
+            <https://cds-astro.github.io/aladin-lite/global.html#ImageOptions>`_
+
+        """
+
+        # Wraps add_fits in ipyaladin to temporarily handle "SIP" .
+        # See ipyaladin for definitions of parameters.
+
+        is_path = isinstance(f, (Path, str))
+        if is_path:
+            with fits.open(f) as fits_file:
+                fits_bytes = io.BytesIO()
+                for hdu in fits_file:
+                    if hdu.data is not None:
+                        wcs_header = hdu.header
+                        data = hdu.data
+                        break
+
+                wcs_header["CTYPE1"] = "RA---TAN"
+                wcs_header["CTYPE2"] = "DEC--TAN"
+
+                hdu_list = fits.HDUList(
+                    [
+                        fits.PrimaryHDU(header=wcs_header),
+                        fits.ImageHDU(
+                            header=wcs_header,
+                            data=data
+                        )
+                    ]
+                )
+                hdu_list.writeto(fits_bytes)
+        else:
+            hdu_list = f
+
+        super().add_fits(hdu_list, **image_options)
 
     def add_markers(
         self, markers, **catalog_options
