@@ -153,13 +153,12 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         """
 
-        # Wraps add_fits in ipyaladin to temporarily handle "SIP" .
+        # Wraps add_fits in ipyaladin to temporarily handle SIP.
         # See ipyaladin for definitions of parameters.
 
         is_path = isinstance(f, (Path, str))
         if is_path:
             with fits.open(f) as fits_file:
-                fits_bytes = io.BytesIO()
                 for hdu in fits_file:
                     if hdu.data is not None:
                         wcs_header = hdu.header
@@ -178,7 +177,6 @@ class MastAladin(Aladin, DelayUntilRendered):
                         )
                     ]
                 )
-                hdu_list.writeto(fits_bytes)
         else:
             hdu_list = f
 
