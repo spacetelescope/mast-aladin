@@ -160,10 +160,15 @@ class MastAladin(Aladin, DelayUntilRendered):
         if is_path:
             with fits.open(f) as fits_file:
                 for hdu in fits_file:
-                    if hdu.data is not None:
+                    data = hdu.data
+                    if data is not None:
                         wcs_header = hdu.header
-                        data = hdu.data
                         break
+
+                if data is None:
+                    raise ValueError(
+                        f"No FITS image in {f}. Ensure the file is a valid FITS image."
+                    )
 
                 wcs_header["CTYPE1"] = "RA---TAN"
                 wcs_header["CTYPE2"] = "DEC--TAN"
