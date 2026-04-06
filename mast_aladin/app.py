@@ -12,6 +12,7 @@ from regions import (
     PolygonSkyRegion
 )
 from pathlib import Path
+from astropy.wcs import WCS
 
 from mast_aladin.aida import AID
 from mast_aladin.mixins import DelayUntilRendered
@@ -122,8 +123,6 @@ class MastAladin(Aladin, DelayUntilRendered):
             )
 
         wcs_header = fits.Header(asdf_file.meta.wcs.to_fits()[0])
-        wcs_header["CTYPE1"] = "RA---TAN"
-        wcs_header["CTYPE2"] = "DEC--TAN"
 
         hdu_list = fits.HDUList(
             [
@@ -158,32 +157,35 @@ class MastAladin(Aladin, DelayUntilRendered):
 
         is_path = isinstance(f, (Path, str))
         if is_path:
-            with fits.open(f) as fits_file:
-                for hdu in fits_file:
-                    data = hdu.data
-                    if data is not None:
-                        wcs_header = hdu.header
-                        break
-
-                if data is None:
-                    raise ValueError(
-                        f"No FITS image in {f}. Ensure the file is a valid FITS image."
-                    )
-
-                wcs_header["CTYPE1"] = "RA---TAN"
-                wcs_header["CTYPE2"] = "DEC--TAN"
-
-                hdu_list = fits.HDUList(
-                    [
-                        fits.PrimaryHDU(header=wcs_header),
-                        fits.ImageHDU(
-                            header=wcs_header,
-                            data=data
-                        )
-                    ]
-                )
+            fits_file = fits.open(f)
         else:
-            hdu_list = f
+            fits_file = f
+
+        for hdu in fits_file:
+            data = hdu.data
+            if data is not None:
+                wcs = WCS(hdu.header)
+                break
+
+        if data is None:
+            raise ValueError(
+                "No FITS image in the data. Ensure the file is a valid FITS image."
+            )
+
+        if wcs.sip is not None:
+            wcs.sip = None
+
+        wcs_header = wcs.to_header()
+
+        hdu_list = fits.HDUList(
+            [
+                fits.PrimaryHDU(header=wcs_header),
+                fits.ImageHDU(
+                    header=wcs_header,
+                    data=data
+                )
+            ]
+        )
 
         super().add_fits(hdu_list, **image_options)
 
