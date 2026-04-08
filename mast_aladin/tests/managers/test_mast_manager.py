@@ -1,11 +1,11 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, MagicMock
 from mast_aladin.managers.mast_manager import MastManager
 
 
 class TestMastManager:
     """Test suite for MastManager class."""
-   
+
     @pytest.fixture
     def mock_mast_manager(self):
         """Create a mock MastManager instance."""

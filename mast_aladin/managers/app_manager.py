@@ -1,11 +1,11 @@
-from traitlets import HasTraits, Dict, observe, Int
+from traitlets import HasTraits, Dict
 
 
 class AppManager(HasTraits):
     """
     This class is responsible for managing the state of all applications within the
     MAST Aladin ecosystem. Any application registered to the AppManager will be tracked
-    and can be accessed by other components (e.g. plugins, sidecars) to facilitate 
+    and can be accessed by other components (e.g. plugins, sidecars) to facilitate
     communication and synchronization between different parts of the system.
     """
 
@@ -35,7 +35,7 @@ class AppManager(HasTraits):
             A unique identifier for the application.
         """
         if idx in self._apps:
-            raise ValueError(   
+            raise ValueError(
                 f"id: {idx} already registered to an application. Please use a different, unique, identifier"  # noqa: E501
             )
         self._apps[idx] = app

@@ -3,7 +3,7 @@ from .app_manager import AppManager
 
 class MastManager():
     """
-    This class serves as the central hub for coordinating interactions between 
+    This class serves as the central hub for coordinating interactions between
     different components of the MAST Aladin ecosystem, ensuring seamless
     integration and communication between applications, plugins, and sidecars.
     State management is relegated to the individual managers, while MastManager
@@ -12,7 +12,7 @@ class MastManager():
     """
     def __init__(self):
         self._app_manager = AppManager(self)
-        # todo: add the other managers here 
+        # todo: add the other managers here
         # - sidecar manager: responsible for managing sidecar windows.abs
         # - plugin manager: responsible for managing plugins (viewer sync, viewport sync, etc.)
 
@@ -26,9 +26,10 @@ class MastManager():
 
     def register_app(self, app, idx):
         """
-        This is a passthrough method that allows users to register an app to the AppManager directly from the MastManager.
-        This is the recommended way to register apps, as it allows the MastManager to keep track of all registered applications
-        and facilitate communication between them as needed.
+        This is a passthrough method that allows users to register an app to the AppManager
+        directly from the MastManager.This is the recommended way to register apps, as it
+        allows the MastManager to keep track of all registered applications and facilitate
+        communication between them as needed.
 
         Parameters
         ----------

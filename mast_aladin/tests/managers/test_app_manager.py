@@ -30,22 +30,21 @@ class TestAppManager:
         assert app_manager.apps["test_app"] is mock_app
 
     def test_register_app_multiple(self, app_manager):
-        """Test registering multiple apps."""
-        mock_app1 = Mock()
-        mock_app2 = Mock()
-        mock_app3 = Mock()
+        mock_aladin = MagicMock(name="aladin")
+        mock_imviz = MagicMock(name="imviz")
+        mock_custom = MagicMock(name="custom_app")
 
         # Test with underscores
-        app_manager.register_app(mock_app1, "mast_aladin_1")
-        assert "mast_aladin_1" in app_manager.apps
+        app_manager.register_app(mock_aladin, "mast_aladin")
+        assert "mast_aladin" in app_manager.apps
 
         # Test with hyphens
-        app_manager.register_app(mock_app2, "imviz-viewer")
+        app_manager.register_app(mock_imviz, "imviz-viewer")
         assert "imviz-viewer" in app_manager.apps
 
         # Test with just alphanumeric
-        app_manager.register_app(mock_app3, "app123")
-        assert "app123" in app_manager.apps
+        app_manager.register_app(mock_custom, "custom_app")
+        assert "custom_app" in app_manager.apps
 
     def test_register_app_duplicate_id_raises_error(self, app_manager):
         """Test that registering an app with duplicate ID raises ValueError."""
