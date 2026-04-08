@@ -1,9 +1,4 @@
-import json
-
 from .app_manager import AppManager
-
-from mast_aladin.app import MastAladin
-from jdaviz import Imviz
 
 
 class MastManager():

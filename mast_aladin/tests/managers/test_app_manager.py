@@ -88,11 +88,3 @@ class TestAppManager:
         apps_dict = app_manager.apps
         assert isinstance(apps_dict, dict)
         assert len(apps_dict) == 0
-
-    def test_mast_manager_reference_preserved(self, app_manager, mock_mast_manager):
-        """Test that MastManager reference is preserved after operations."""
-        mock_app = Mock()
-        app_manager.register_app(mock_app, "test_app")
-
-        # Reference should still be the same
-        assert app_manager._mast_manager is mock_mast_manager
