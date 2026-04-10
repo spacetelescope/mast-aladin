@@ -11,7 +11,7 @@ class ImvizSyncAdapter(ViewerSyncAdapter):
             self.app = jdaviz.gca()
 
         # Get the first available image viewer
-        image_viewers = self.app.app.get_viewers_of_cls('ImvizImageView')
+        image_viewers = self.app._app.get_viewers_of_cls('ImvizImageView')
         if image_viewers:
             glue_viewer = image_viewers[0]
         else:
