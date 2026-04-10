@@ -137,7 +137,7 @@ class MastAladin(Aladin, DelayUntilRendered):
         self.add_fits(hdu_list, **image_options)
 
     def add_fits(
-        self, f, extension = 1, **image_options
+        self, f, extension=1, **image_options
     ):
         """Load a FITS image into the widget.
 
