@@ -137,7 +137,7 @@ class MastAladin(Aladin, DelayUntilRendered):
         self.add_fits(hdu_list, **image_options)
 
     def add_fits(
-        self, f, **image_options
+        self, f, extension = 1, **image_options
     ):
         """Load a FITS image into the widget.
 
@@ -146,6 +146,8 @@ class MastAladin(Aladin, DelayUntilRendered):
         f : Union[str, Path, HDUList]
             The FITS image to load in the widget. It can be given as a path (either a
             string or a `pathlib.Path` object), or as an `astropy.io.fits.HDUList`.
+        extension: int, optional
+            FITS extension containing the image data to load. Default is 1.
         image_options : any
             The options for the image. See the `Aladin Lite image options
             <https://cds-astro.github.io/aladin-lite/global.html#ImageOptions>`_
@@ -161,19 +163,18 @@ class MastAladin(Aladin, DelayUntilRendered):
         else:
             fits_file = f
 
-        for hdu in fits_file:
-            data = hdu.data
-            if data is not None:
-                wcs = WCS(hdu.header)
-                break
+        if len(fits_file) == 1:
+            extension = 0
+
+        data = fits_file[extension].data
+        wcs = WCS(fits_file[extension].header)
 
         if data is None:
             raise ValueError(
-                "No FITS image in the data. Ensure the file is a valid FITS image."
+                f"No data in extension {extension}."
             )
 
-        if wcs.sip is not None:
-            wcs.sip = None
+        wcs.sip = None
 
         wcs_header = wcs.to_header()
 

@@ -97,7 +97,7 @@ def test_empty_fits(MastAladin_app, fits_empty):
 
     with pytest.raises(
         ValueError,
-        match=re.escape("No FITS image")
+        match=re.escape("No data in extension 0")
     ):
         MastAladin_app.add_fits(fits_empty)
 
