@@ -232,7 +232,7 @@ class AppSidecarManager:
                     elif is_jdaviz(app):
                         # jdaviz:
                         with solara.Column(gap='0px', style=style):
-                            solara.display(app.app)
+                            solara.display(app._app)
 
                     else:
                         # other:
@@ -254,7 +254,7 @@ class AppSidecarManager:
         for app in self.loaded_apps:
             # close jdaviz apps within the sidecar:
             if is_jdaviz(app):
-                app.app.close()
+                app._app.close()
 
             # now close sidecar(s):
             if getattr(app, 'sidecar', None) is not None:
@@ -279,8 +279,8 @@ def set_app_height(app, height):
         if isinstance(height, int):
             height = f"{height}px"
 
-        app.app.layout.height = height
-        app.app.state.settings['context']['notebook']['max_height'] = height
+        app._app.layout.height = height
+        app._app.state.settings['context']['notebook']['max_height'] = height
 
     elif is_aladin(app):
         if height == '100%':
