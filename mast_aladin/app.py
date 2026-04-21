@@ -10,6 +10,8 @@ from regions import (
     Regions,
     PolygonSkyRegion
 )
+from pathlib import Path
+from astropy.wcs import WCS
 
 from mast_aladin.aida import AID
 from mast_aladin.mixins import DelayUntilRendered
@@ -101,8 +103,6 @@ class MastAladin(Aladin, DelayUntilRendered):
             asdf_file = rdd.open(asdf)
 
         wcs_header = fits.Header(asdf_file.meta.wcs.to_fits()[0])
-        wcs_header["CTYPE1"] = "RA---TAN"
-        wcs_header["CTYPE2"] = "DEC--TAN"
 
         hdu_list = fits.HDUList(
             [
@@ -115,6 +115,60 @@ class MastAladin(Aladin, DelayUntilRendered):
         )
 
         self.add_fits(hdu_list, **image_options)
+
+    def add_fits(
+        self, f, extension=1, **image_options
+    ):
+        """Load a FITS image into the widget.
+
+        Parameters
+        ----------
+        f : Union[str, Path, HDUList]
+            The FITS image to load in the widget. It can be given as a path (either a
+            string or a `pathlib.Path` object), or as an `astropy.io.fits.HDUList`.
+        extension: int, optional
+            FITS extension containing the image data to load. Default is 1.
+        image_options : any
+            The options for the image. See the `Aladin Lite image options
+            <https://cds-astro.github.io/aladin-lite/global.html#ImageOptions>`_
+
+        """
+
+        # Wraps add_fits in ipyaladin to temporarily handle SIP.
+        # See ipyaladin for definitions of parameters.
+
+        is_path = isinstance(f, (Path, str))
+        if is_path:
+            fits_file = fits.open(f)
+        else:
+            fits_file = f
+
+        if len(fits_file) == 1:
+            extension = 0
+
+        data = fits_file[extension].data
+        wcs = WCS(fits_file[extension].header)
+
+        if data is None:
+            raise ValueError(
+                f"No data in extension {extension}."
+            )
+
+        wcs.sip = None
+
+        wcs_header = wcs.to_header()
+
+        hdu_list = fits.HDUList(
+            [
+                fits.PrimaryHDU(header=wcs_header),
+                fits.ImageHDU(
+                    header=wcs_header,
+                    data=data
+                )
+            ]
+        )
+
+        super().add_fits(hdu_list, **image_options)
 
     def add_markers(
         self, markers, **catalog_options
