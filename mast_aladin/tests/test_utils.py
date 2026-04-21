@@ -23,10 +23,10 @@ class BaseImviz:
             'CRVAL2': -33.71313687167955,
             'NAXIS2': 0
         })
-        imviz_helper.load(hdu1, data_label='has_wcs_1')
+        imviz_helper.load(hdu1, format="Image", data_label='has_wcs_1')
 
         self.imviz = imviz_helper
-
-        self.viewer = imviz_helper.default_viewer._obj
+        glue_viewer = imviz_helper._app.get_viewers_of_cls('ImvizImageView')[0]
+        self.viewer = glue_viewer
         self.viewer.shape = (100, 100)
-        self.viewer.glue_viewer.state._set_axes_aspect_ratio(1)
+        self.viewer.state._set_axes_aspect_ratio(1)

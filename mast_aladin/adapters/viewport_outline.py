@@ -3,6 +3,7 @@ from echo import delay_callback
 from traitlets import Unicode, Bool, Float, observe, HasTraits
 
 from mast_aladin import gca
+import jdaviz
 
 
 class ViewportOutline(HasTraits):
@@ -43,9 +44,9 @@ class ViewportOutline(HasTraits):
         """
         Parameters
         ----------
-        jdaviz_viewer : `~jdaviz.configs.imviz.plugins.viewers.ImvizImageView`
-            Instance of a jdaviz viewer. The default viewer in Imviz can be
-            retrieved from ``imviz_helper.default_viewer``.
+        jdaviz_viewer : `jdaviz.configs.imviz.plugins.viewers.ImvizImageView`
+            Instance of a jdaviz viewer. Can be retrieved from
+            ``jdaviz_app.viewers`` dict (e.g., ``app.viewers['imviz-0']``).
         aladin : `~mast_aladin.MastAladin`
             Instance of a Mast Aladin app.
         jdaviz_outline_in_aladin : bool
@@ -207,25 +208,29 @@ class ViewportOutline(HasTraits):
         Parameters
         ----------
         jdaviz_viewer_name : str or None
-            Name for one viewer in jdaviz.
-            Two viewport instances. Currently supports only an iterable of two inputs:
-            `mast_aladin.MastAladin`, and
-            `~jdaviz.configs.imviz.plugins.viewers.ImvizImageView`.
+            Name for one viewer in jdaviz. If None, uses the first available viewer.
         """
-        try:
-            from jdaviz.configs.imviz.helper import _current_app as current_jdaviz_app
-        except ImportError:
-            current_jdaviz_app = None
 
-        if not current_jdaviz_app:
-            raise ValueError("No available jdaviz instance found.")
+        current_jdaviz_app = jdaviz.gca()
 
         mast_aladin = gca()
 
         if jdaviz_viewer_name is None:
-            # todo: this will need updates for deconfigged:
-            jdaviz_viewer_name = 'imviz-0'
-
-        jdaviz_viewer = current_jdaviz_app.viewers[jdaviz_viewer_name]
+            # Get first available image viewer
+            image_viewers = current_jdaviz_app.app.get_viewers_of_cls(
+                'ImvizImageView'
+            )
+            if image_viewers:
+                glue_viewer = image_viewers[0]
+                jdaviz_viewer = current_jdaviz_app.viewers[
+                    glue_viewer._ref_or_id
+                ]
+            else:
+                raise ValueError(
+                    "No image viewers available in jdaviz app. "
+                    "Load image data or create a viewer first."
+                )
+        else:
+            jdaviz_viewer = current_jdaviz_app.viewers[jdaviz_viewer_name]
 
         return cls(jdaviz_viewer, mast_aladin)

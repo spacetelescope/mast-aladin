@@ -4,6 +4,7 @@ from ipyaladin import Aladin
 from sidecar import Sidecar as UpstreamSidecar
 from mast_table import MastTable
 from mast_aladin.app import MastAladin, gca
+import jdaviz
 
 try:
     from jdaviz.core.helpers import ConfigHelper
@@ -49,7 +50,6 @@ class AppSidecarManager:
         close_existing=True,
         height=default_height,
     ):
-
         """
         Open ``apps`` in a sidecar [1]_. If none are given and
         ``include_aladin`` and ``include_jdaviz`` are `True`,
@@ -73,7 +73,7 @@ class AppSidecarManager:
             to the previous sidecar.
 
         use_current_apps : bool, optional (default is `False`)
-            If `True`, get the last constructed Imviz and
+            If `True`, get the last constructed jdaviz and
             mast-aladin instances to open in the sidecar
 
         titles : str or list of str, optional (default: None)
@@ -144,14 +144,12 @@ class AppSidecarManager:
             apps.append(mal)
 
         try:
-            from jdaviz.configs.imviz.helper import Imviz, _current_app as viz
-
             jdaviz_instances = [app for app in apps if is_jdaviz(app)]
 
-            # construct new imviz if not using current app or no current app exists:
             if not len(jdaviz_instances) and include_jdaviz:
-                if not use_current_apps or (use_current_apps and viz is None):
-                    viz = Imviz()
+                if not use_current_apps or jdaviz.gca() is None:
+                    jdaviz.new_app()
+                viz = jdaviz.gca()
                 apps.append(viz)
 
         except ImportError:
@@ -229,7 +227,7 @@ class AppSidecarManager:
                     elif is_jdaviz(app):
                         # jdaviz:
                         with solara.Column(gap='0px', style=style):
-                            solara.display(app.app)
+                            solara.display(app._app)
 
                     else:
                         # other:
@@ -251,7 +249,7 @@ class AppSidecarManager:
         for app in self.loaded_apps:
             # close jdaviz apps within the sidecar:
             if is_jdaviz(app):
-                app.app.close()
+                app._app.close()
 
             # now close sidecar(s):
             if getattr(app, 'sidecar', None) is not None:
@@ -276,8 +274,8 @@ def set_app_height(app, height):
         if isinstance(height, int):
             height = f"{height}px"
 
-        app.app.layout.height = height
-        app.app.state.settings['context']['notebook']['max_height'] = height
+        app._app.layout.height = height
+        app._app.state.settings['context']['notebook']['max_height'] = height
 
     elif is_aladin(app):
         if height == '100%':

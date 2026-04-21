@@ -16,7 +16,6 @@ class TestSyncAdapters(BaseImviz):
         mast_aladin_sync_adapter.viewer._fov_xy = {'x': 60, 'y': 12.583892617449665}
 
         imviz_sync_adapter = ImvizSyncAdapter()
-        imviz_sync_adapter.app.link_data(align_by='wcs')
 
         # assert starting coordinate is approximately on Cartwheel Galaxy
         center = mast_aladin_sync_adapter.aid.get_viewport()[AIDA_aspects.CENTER]
@@ -40,7 +39,6 @@ class TestSyncAdapters(BaseImviz):
         mast_aladin_sync_adapter.viewer._fov_xy = {'x': 60, 'y': 12.583892617449665}
 
         imviz_sync_adapter = ImvizSyncAdapter()
-        imviz_sync_adapter.app.link_data(align_by='wcs')
 
         # assert starting coordinate is approximately on Cartwheel Galaxy
         center = imviz_sync_adapter.aid.get_viewport(sky_or_pixel="sky")[AIDA_aspects.CENTER]
