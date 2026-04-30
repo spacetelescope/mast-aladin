@@ -18,10 +18,10 @@ class AppManager(HasTraits):
     def apps(self):
         return self._apps
 
-    def get_app(self, idx):
-        return self._apps.get(idx, None)
+    def get_app(self, id):
+        return self._apps.get(id, None)
 
-    def register_app(self, app, idx):
+    def register_app(self, app, id):
         """
         Registers an application to the AppManager with a unique identifier.
         If the identifier is already in use, a ValueError is raised.
@@ -31,11 +31,11 @@ class AppManager(HasTraits):
         app : object
             The application instance to be registered.
 
-        idx : str
+        id : str
             A unique identifier for the application.
         """
-        if idx in self._apps:
+        if id in self._apps:
             raise ValueError(
-                f"id: {idx} already registered to an application. Please use a different, unique, identifier"  # noqa: E501
+                f"id: {id} already registered to an application. Please use a different, unique, identifier"  # noqa: E501
             )
-        self._apps[idx] = app
+        self._apps[id] = app

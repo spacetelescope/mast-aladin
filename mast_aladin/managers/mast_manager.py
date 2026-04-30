@@ -24,7 +24,7 @@ class MastManager():
     def apps(self):
         return self._app_manager.apps
 
-    def register_app(self, app, idx):
+    def register_app(self, app, id):
         """
         This is a passthrough method that allows users to register an app to the AppManager
         directly from the MastManager.This is the recommended way to register apps, as it
@@ -36,8 +36,8 @@ class MastManager():
         app : object
             The application instance to be registered.
 
-        idx : str
+        id : str
             A unique identifier for the application.
         """
-        self._app_manager.register_app(app, idx)
+        self._app_manager.register_app(app, id)
         # communicate this change to other managers as needed (e.g. plugin manager, sidecar manager)
