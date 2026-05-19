@@ -3,10 +3,9 @@ from traitlets import HasTraits, Dict
 
 class AppManager(HasTraits):
     """
-    This class is responsible for managing the state of all applications within the
-    MAST Aladin ecosystem. Any application registered to the AppManager will be tracked
-    and can be accessed by other components (e.g. plugins, sidecars) to facilitate
-    communication and synchronization between different parts of the system.
+    Manages the state of applications within the MAST Aladin ecosystem. Tracks registered apps
+    for access by other components (e.g. plugins, sidecars), and facilitates communication
+    and synchronization between different parts of the system.
     """
 
     _apps = Dict(default_value={}).tag(sync=True)

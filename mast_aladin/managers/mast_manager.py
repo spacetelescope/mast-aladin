@@ -3,12 +3,8 @@ from .app_manager import AppManager
 
 class MastManager():
     """
-    This class serves as the central hub for coordinating interactions between
-    different components of the MAST Aladin ecosystem, ensuring seamless
-    integration and communication between applications, plugins, and sidecars.
-    State management is relegated to the individual managers, while MastManager
-    focuses on orchestrating the overall workflow and interactions between these
-    components.
+    Coordinates interactions and overall workflow between components of the MAST Aladin ecosystem
+    Ensures seamless integration and communication between applications, plugins, and sidecars.
     """
     def __init__(self):
         self._app_manager = AppManager(self)
