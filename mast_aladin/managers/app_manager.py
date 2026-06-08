@@ -1,0 +1,40 @@
+from traitlets import HasTraits, Dict
+
+
+class AppManager(HasTraits):
+    """
+    Manages the state of applications within the MAST Aladin ecosystem. Tracks registered apps
+    for access by other components (e.g. plugins, sidecars), and facilitates communication
+    and synchronization between different parts of the system.
+    """
+
+    _apps = Dict(default_value={}).tag(sync=True)
+
+    def __init__(self, mast_manager):
+        self._mast_manager = mast_manager
+
+    @property
+    def apps(self):
+        return self._apps
+
+    def get_app(self, id):
+        return self._apps.get(id, None)
+
+    def register_app(self, app, id):
+        """
+        Registers an application to the AppManager with a unique identifier.
+        If the identifier is already in use, a ValueError is raised.
+
+        Parameters
+        ----------
+        app : object
+            The application instance to be registered.
+
+        id : str
+            A unique identifier for the application.
+        """
+        if id in self._apps:
+            raise ValueError(
+                f"id: {id} already registered to an application. Please use a different, unique, identifier"  # noqa: E501
+            )
+        self._apps[id] = app

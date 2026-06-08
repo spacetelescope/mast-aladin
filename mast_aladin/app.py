@@ -1,13 +1,9 @@
-import io
-
 from ipyaladin import Aladin
 from mast_table import MastTable
 
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from regions import (
-    Region,
-    Regions,
     PolygonSkyRegion
 )
 from pathlib import Path
@@ -15,13 +11,6 @@ from astropy.wcs import WCS
 
 from mast_aladin.aida import AID
 from mast_aladin.mixins import DelayUntilRendered
-from mast_aladin.overlay.overlay_manager import OverlayManager
-from mast_aladin.overlay.mast_overlay import MastOverlay
-from ipyaladin.elements.error_shape import (
-    CircleError,
-    EllipseError,
-    _error_radius_conversion_factor,
-)
 
 import roman_datamodels.datamodels as rdd
 
@@ -54,7 +43,6 @@ class MastAladin(Aladin, DelayUntilRendered):
         global _latest_instantiated_app
         _latest_instantiated_app = self
 
-        self._overlays_dict = OverlayManager(self)
         self.sidecar = kwargs.get("sidecar", None)
 
     def load_table(
@@ -169,271 +157,6 @@ class MastAladin(Aladin, DelayUntilRendered):
         )
 
         super().add_fits(hdu_list, **image_options)
-
-    def add_markers(
-        self, markers, **catalog_options
-    ):
-        # Wraps add_markers in ipyaladin to add overlay handling.
-        # See ipyaladin for definitions of parameters.
-
-        if not isinstance(markers, list):
-            markers = [markers]
-
-        catalog_options = self._overlays_dict.common_overlay_handling(
-            catalog_options, "catalog_python"
-        )
-
-        overlay_info = self._overlays_dict.add_overlay(
-            {
-                "type": "marker",
-                "markers": [marker.__dict__ for marker in markers],
-                "update_info": markers,
-                "options": catalog_options,
-            }
-        )
-
-        super().add_markers(markers, **catalog_options)
-
-        return overlay_info
-
-    def add_catalog_from_URL(
-        self, votable_URL, votable_options
-    ):
-        # Wraps add_catalog_from_URL in ipyaladin to add overlay handling.
-        # See ipyaladin for definitions of parameters.
-        if votable_options is None:
-            votable_options = {}
-
-        votable_options = self._overlays_dict.common_overlay_handling(
-            votable_options, "catalog_python"
-        )
-
-        overlay_info = self._overlays_dict.add_overlay(
-            {
-                "type": "catalog",
-                "votable_URL": votable_URL,
-                "options": votable_options,
-            }
-        )
-
-        super().add_catalog_from_URL(votable_URL, votable_options)
-
-        return overlay_info
-
-    def add_table(
-        self,
-        table,
-        *,
-        shape="cross",
-        **table_options,
-    ):
-        # Wraps add_table in ipyaladin to add overlay handling.
-        # See ipyaladin for definitions of parameters.
-        if isinstance(shape, CircleError):
-            table_options["circle_error"] = {
-                "radius": shape.radius,
-                "conversion_radius": _error_radius_conversion_factor(
-                    table[shape.radius].unit, shape.probability_threshold
-                ),
-            }
-            table_options["shape"] = shape.default_shape
-        elif isinstance(shape, EllipseError):
-            table_options["ellipse_error"] = {
-                "maj_axis": shape.maj_axis,
-                "min_axis": shape.min_axis,
-                "angle": shape.angle,
-                "conversion_angle": _error_radius_conversion_factor(
-                    table[shape.angle].unit
-                ),
-                "conversion_maj_axis": _error_radius_conversion_factor(
-                    table[shape.maj_axis].unit, shape.probability_threshold
-                ),
-                "conversion_min_axis": _error_radius_conversion_factor(
-                    table[shape.min_axis].unit, shape.probability_threshold
-                ),
-            }
-            table_options["shape"] = shape.default_shape
-        else:
-            table_options["shape"] = shape
-        table_bytes = io.BytesIO()
-        table.write(table_bytes, format="votable")
-
-        table_options = self._overlays_dict.common_overlay_handling(
-            table_options, "catalog_python"
-        )
-
-        overlay_info = self._overlays_dict.add_overlay(
-            {
-                "type": "table",
-                "table": table,
-                "options": table_options,
-            }
-        )
-        shape = table_options.pop("shape", None)
-
-        super().add_table(table, shape=shape, **table_options)
-
-        return overlay_info
-
-    def add_graphic_overlay_from_region(
-        self,
-        region,
-        **graphic_options,
-    ):
-        """Add an overlay graphic layer to the Aladin Lite widget.
-
-        Parameters
-        ----------
-        region: `~regions.CircleSkyRegion`, `~regions.EllipseSkyRegion`,
-                `~regions.LineSkyRegion`,`~regions.PolygonSkyRegion`,
-                `~regions.RectangleSkyRegion`, `~regions.Regions`, or a list of these.
-            The region(s) to add in Aladin Lite. It can be given as a supported region
-            or a list of regions from the
-            `regions package <https://astropy-regions.readthedocs.io>`_.
-        graphic_options: keyword arguments
-            The options for the graphic overlay. Use Region visual for region options.
-            See `Aladin Lite's graphic overlay options
-            <https://cds-astro.github.io/aladin-lite/A.html>`_
-
-        See Also
-        --------
-        add_graphic_overlay_from_stcs: for shapes described as STC-S strings.
-
-        Notes
-        -----
-        The possible `~regions.RegionVisual` options correspond to the
-        Aladin Lite / ipyaladin parameters:
-
-        .. table:: Correspondence between options
-            :widths: auto
-
-            ============== ===================== ======================
-            RegionVisual        AladinLite              ipyaladin
-            ============== ===================== ======================
-            edgecolor      color                 color
-            facecolor      fillColor             fill_color
-            color          color and fillColor   color and fill_color
-            alpha          opacity               opacity
-            linewidth      lineWidth             line_width
-            ============== ===================== ======================
-
-        """
-        # Remove this docstring in favor of inheritance after this PR is merged:
-        # https://github.com/cds-astro/ipyaladin/pull/175
-
-        # Wraps add_graphic_overlay_from_region in ipyaladin to add overlay handling.
-        # See ipyaladin for definitions of parameters.
-
-        # Check if the region is a list of regions or a single
-        # Region and convert it to a list of Regions
-        if isinstance(region, Regions):
-            region_list = region.regions
-        elif not isinstance(region, list):
-            region_list = [region]
-        else:
-            region_list = region
-
-        regions_infos = []
-        for region_element in region_list:
-            if not isinstance(region_element, Region):
-                raise ValueError(
-                    "region must a `regions` object or a list of `regions` objects. "
-                    "See the documentation for the supported region types."
-                )
-
-            from ipyaladin.utils._region_converter import RegionInfos
-
-            # Define behavior for each region type
-            regions_infos.append(RegionInfos(region_element).to_clean_dict())
-
-        graphic_options = self._overlays_dict.common_overlay_handling(
-            graphic_options, "overlay_python"
-        )
-
-        overlay_info = self._overlays_dict.add_overlay(
-            {
-                "type": "overlay_region",
-                "regions_infos": regions_infos,
-                "update_info": region_list,
-                "options": graphic_options,
-            }
-        )
-
-        super().add_graphic_overlay_from_region(region, **graphic_options)
-
-        return overlay_info
-
-    def add_graphic_overlay_from_stcs(
-        self, stc_string, **overlay_options
-    ):
-        # Wraps add_graphic_overlay_from_stcs in ipyaladin to add overlay handling.
-        # See ipyaladin for definitions of parameters.
-
-        overlay_options = self._overlays_dict.common_overlay_handling(
-            overlay_options, "overlay_python"
-        )
-
-        region_list = [stc_string] if isinstance(stc_string, str) else stc_string
-        regions_infos = [
-            {
-                "region_type": "stcs",
-                "infos": {"stcs": region_element},
-                "options": overlay_options,
-            }
-            for region_element in region_list
-        ]
-
-        overlay_info = self._overlays_dict.add_overlay(
-            {
-                "type": "overlay_stcs",
-                "regions_infos": regions_infos,
-                "update_info": region_list,
-                "options": overlay_options,
-            }
-        )
-
-        super().add_graphic_overlay_from_stcs(stc_string, **overlay_options)
-
-        return overlay_info
-
-    def remove_overlay(self, overlay):
-        """Remove an overlay.
-
-        Parameters
-        ----------
-        overlay : str(s) or `~mast_aladin.MastOverlay`
-            The overlay name (str) or MastOverlay object to be removed.
-
-        Raises
-        ------
-        TypeError
-            Overlays are not provided as `~mast_aladin.MastOverlay` or names.
-        ValueError
-            Overlay does not exist.
-        """
-
-        if isinstance(overlay, MastOverlay):
-            overlay_names = [overlay.name]
-        elif isinstance(overlay, str):
-            overlay_names = [overlay]
-        elif isinstance(overlay, (list, tuple)):
-            overlay_names = [
-                o.name if isinstance(o, MastOverlay) else o for o in overlay
-            ]
-        else:
-            raise TypeError(
-                "overlay must be a str, MastOverlay, or iterable of these."
-            )
-
-        super().remove_overlay(overlay_names)
-
-        for name in overlay_names:
-            if name not in self._overlays_dict:
-                raise ValueError(
-                    f"Cannot remove overlayer `{name}` since this layer does not exist."
-                )
-
-            self._overlays_dict.pop(name)
 
     def get_viewport_region(self, center=False):
         """Return a `regions.PolygonSkyRegion` representing the perimeter of the
