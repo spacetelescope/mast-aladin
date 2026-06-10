@@ -85,17 +85,40 @@ class ViewerSyncUI():
         )
 
     def display(self):
-        self.imviz.layout = widgets.Layout(width="70%", height="100px")
-        self.mast_aladin.layout = widgets.Layout(width="70%", height="100px")
-
-        self.imviz.show()
-        display(self.viewer_buttons)
-        display(
-            widgets.HBox([
-                self.center_button,
-                self.fov_button,
-                self.rotation_button,
-                self.projection_button
-            ])
+        header_style = (
+            "font-size: 12px; "
+            "font-weight: 600; "
         )
-        self.mast_aladin.show()
+        
+        viewer_target_label = widgets.HTML(
+            f"<div style='{header_style}'>Source Widget</div>"
+        )
+        
+        sync_properties_label = widgets.HTML(
+            f"<div style='{header_style}'>Properties</div>"
+        )
+        
+        properties_row_1 = widgets.HBox([
+            self.center_button,
+            self.fov_button
+        ], layout=widgets.Layout(width="100%", gap="12px", margin="0"))
+        
+        properties_row_2 = widgets.HBox([
+            self.rotation_button,
+            self.projection_button
+        ], layout=widgets.Layout(width="100%", gap="12px", margin="0"))
+        
+
+        container = widgets.VBox([
+            viewer_target_label,
+            self.viewer_buttons,
+            sync_properties_label,
+            properties_row_1,
+            properties_row_2,
+        ], layout=widgets.Layout(
+            width="100%",
+            padding="20px",
+            border="1px solid"
+        ))
+        
+        display(container)
