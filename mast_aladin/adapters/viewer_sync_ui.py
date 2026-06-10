@@ -13,10 +13,10 @@ class ViewerSyncUI():
         self.aspects = self.sync_manager.aspects
 
         self.viewer_buttons = widgets.ToggleButtons(
-            options=['None', 'Imviz', 'Mast Aladin'],
+            options=['None', 'Jdaviz', 'Mast Aladin'],
             disabled=False,
             button_style='',
-            tooltips=['No Syncing', 'Sync to Imviz', 'Sync to Mast Aladin'],
+            tooltips=['No Syncing', 'Sync to Jdaviz', 'Sync to Mast Aladin'],
             style=widgets.ToggleButtonsStyle(button_width="24%")
         )
 
@@ -42,7 +42,7 @@ class ViewerSyncUI():
     def _current_sync_direction(self):
         """Return (source, destination) tuple or (None, None)."""
         match self.viewer_buttons.value:
-            case "Imviz":
+            case "Jdaviz":
                 return self.imviz, self.mast_aladin
             case "Mast Aladin":
                 return self.mast_aladin, self.imviz
@@ -68,8 +68,8 @@ class ViewerSyncUI():
             self.sync_manager.stop_real_time_sync()
             return
 
-        # imviz does not currently support setting projection, so we disable the projection
-        # syncing option when imviz is the destintation
+        # Jdaviz does not currently support setting projection, so we disable the projection
+        # syncing option when Jdaviz is the destintation
         if dest == self.imviz:
             self.projection_button.value = False
             self.projection_button.disabled = True
