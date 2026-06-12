@@ -13,10 +13,10 @@ class ViewerSyncUI():
         self.aspects = self.sync_manager.aspects
 
         self.viewer_buttons = widgets.ToggleButtons(
-            options=['None', 'Imviz', 'Mast Aladin'],
+            options=['None', 'Jdaviz', 'Mast Aladin'],
             disabled=False,
             button_style='',
-            tooltips=['No Syncing', 'Sync to Imviz', 'Sync to Mast Aladin'],
+            tooltips=['No Syncing', 'Sync to Jdaviz', 'Sync to Mast Aladin'],
             style=widgets.ToggleButtonsStyle(button_width="24%")
         )
 
@@ -42,7 +42,7 @@ class ViewerSyncUI():
     def _current_sync_direction(self):
         """Return (source, destination) tuple or (None, None)."""
         match self.viewer_buttons.value:
-            case "Imviz":
+            case "Jdaviz":
                 return self.imviz, self.mast_aladin
             case "Mast Aladin":
                 return self.mast_aladin, self.imviz
@@ -68,8 +68,8 @@ class ViewerSyncUI():
             self.sync_manager.stop_real_time_sync()
             return
 
-        # imviz does not currently support setting projection, so we disable the projection
-        # syncing option when imviz is the destintation
+        # Jdaviz does not currently support setting projection, so we disable the projection
+        # syncing option when Jdaviz is the destintation
         if dest == self.imviz:
             self.projection_button.value = False
             self.projection_button.disabled = True
@@ -85,17 +85,43 @@ class ViewerSyncUI():
         )
 
     def display(self):
-        self.imviz.layout = widgets.Layout(width="70%", height="100px")
-        self.mast_aladin.layout = widgets.Layout(width="70%", height="100px")
-
-        self.imviz.show()
-        display(self.viewer_buttons)
-        display(
-            widgets.HBox([
-                self.center_button,
-                self.fov_button,
-                self.rotation_button,
-                self.projection_button
-            ])
+        header_style = (
+            "font-size: 12px; "
+            "font-weight: 600; "
         )
-        self.mast_aladin.show()
+
+        viewer_target_label = widgets.HTML(
+            f"<div style='{header_style}'>Source Widget</div>"
+        )
+
+        sync_properties_label = widgets.HTML(
+            f"<div style='{header_style}'>Properties</div>"
+        )
+
+        properties_row_1 = widgets.HBox([
+            self.center_button,
+            self.fov_button
+        ], layout=widgets.Layout(width="100%", gap="12px", margin="0"))
+
+        properties_row_2 = widgets.HBox([
+            self.rotation_button,
+            self.projection_button
+        ], layout=widgets.Layout(width="100%", gap="12px", margin="0"))
+
+        contents = [
+            viewer_target_label,
+            self.viewer_buttons,
+            sync_properties_label,
+            properties_row_1,
+            properties_row_2,
+        ]
+        container = widgets.VBox(
+            contents,
+            layout=widgets.Layout(
+                width="100%",
+                padding="20px",
+                border="1px solid"
+            )
+        )
+
+        display(container)
