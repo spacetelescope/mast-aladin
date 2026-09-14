@@ -1,7 +1,9 @@
 import ipywidgets as widgets
+import ipyvuetify as v
 from IPython.display import display
 from mast_aladin.aida import AIDA_aspects
 from .viewer_sync_adapters import get_adapter, JdavizSyncAdapter
+from mast_aladin.components import CheckboxSelector, ColumnSelection, InputSelector, Switch
 
 
 class ViewerSyncPlugin():
@@ -14,183 +16,124 @@ class ViewerSyncPlugin():
 
         self.sync_manager = ViewerSyncManager()
         self.aspects = self.sync_manager.aspects
-        self._pause_updates = False
+        self._syncing = False
 
-        self.source_dropdown = widgets.Dropdown(
-            options=['', *self._adapters.keys()],
-            value='',
-            description='Source:',
-            disabled=False
+        self.source_dropdown = InputSelector(
+            columns=list(self._adapters.keys()),
+            title="Source Widget",
+            label="Choose source"
         )
+        self.source_dropdown.observe(self._source_on_change, names="selected_column")
 
-        self.destination_dropdown = widgets.Dropdown(
-            options=['', *self._adapters.keys()],
-            value='',
-            description='Destination:',
-            disabled=False
+        self.destination_dropdown = ColumnSelection(
+            columns=list(self._adapters.keys()),
+            title="Destination Widget",
+            label="Choose destination"
         )
+        self.destination_dropdown.observe(self._destination_on_change, names="selected_columns")
 
-        self.sync_button = widgets.Button(
-            description='Sync',
-            disabled=False,
-            button_style='success',
-            tooltip='Sync source to destination',
+        self.aspects_selector = CheckboxSelector(
+            options=list(self.aspects),
+            title="Properties to Sync",
         )
+        self.aspects_selector.observe(self._aspects_on_change, names="selected")
 
-        self.clear_button = widgets.Button(
-            description='Clear',
-            disabled=False,
-            button_style='success',
-            tooltip='Clear sync',
-        )
-
-        self.sync_button.on_click(self._sync_button_on_click)
-        self.clear_button.on_click(self._clear_button_on_click)
-        self.source_dropdown.observe(self._on_source_destination_change, names="value")
-        self.destination_dropdown.observe(self._on_source_destination_change, names="value")
-
-        common_togglebutton_args = {
-            "value": True,
-            "disabled": False,
-            "button_style": "",
-            "layout": widgets.Layout(width="24%")
-        }
-
-        for aspect in self.aspects:
-            _attr = f"{aspect}_button"
-            _togglebutton_args = {"description": aspect, "tooltip": f"Sync {aspect}"}
-            setattr(
-                self,
-                _attr,
-                widgets.ToggleButton(**common_togglebutton_args, **_togglebutton_args)
-            )
-            getattr(self, _attr).observe(self._sync_button_on_click, names="value")
+        self.sync_switch = Switch()
+        self.sync_switch.observe(self._sync_switch_on_change, names="value")
 
     @property
     def ui(self):
-        header_style = (
-            "font-size: 12px; "
-            "font-weight: 600; "
+        return v.Container(
+            children=[
+                v.Row(
+                    children=[
+                        v.Col(children=[
+                            self.source_dropdown,
+                        ]),
+                        v.Col(children=[
+                            self.destination_dropdown,
+                        ]),
+                    ]
+                ),
+                self.aspects_selector,
+                self.sync_switch
+            ],
+            style_="width: 100%; padding: 20px;",
         )
 
-        viewer_source_label = widgets.HTML(
-            f"<div style='{header_style}'>Source Widget</div>"
-        )
+    def _source_on_change(self, change):
+        # if the source changes while syncing, we want to stop syncing.
+        if self._syncing:
+            self.sync_switch.value = "Sync"
+        self.destination_dropdown.set_disabled_columns(self.source_dropdown.selected_column)
+        self._update_sync_switch_status()
 
-        viewer_dest_label = widgets.HTML(
-            f"<div style='{header_style}'>Destination Widget</div>"
-        )
+    def _destination_on_change(self, change):
+        # if the destination changes while syncing, we want to stop syncing.
+        if self._syncing:
+            self.sync_switch.value = "Sync"
+        self._update_sync_switch_status()
 
-        sync_properties_label = widgets.HTML(
-            f"<div style='{header_style}'>Properties</div>"
-        )
+    def _update_sync_switch_status(self):
+        # Enable the sync switch only if a source and at least one destination are selected
+        if self.source_dropdown.selected_column and any(self.destination_dropdown.selected_columns):
+            self.sync_switch.disabled = False
+        else:
+            self.sync_switch.disabled = True
 
-        properties_row_1 = widgets.HBox([
-            self.center_button,
-            self.fov_button
-        ], layout=widgets.Layout(width="100%", gap="12px", margin="0"))
+    def _sync_switch_on_change(self, change):
+        self._update_sync_switch_status()
 
-        properties_row_2 = widgets.HBox([
-            self.rotation_button,
-            self.projection_button
-        ], layout=widgets.Layout(width="100%", gap="12px", margin="0"))
+        if self._syncing:
+            self._end_sync()
+        else:
+            self._start_sync()
 
-        contents = [
-            viewer_source_label,
-            self.source_dropdown,
-            viewer_dest_label,
-            self.destination_dropdown,
-            sync_properties_label,
-            properties_row_1,
-            properties_row_2,
-            self.sync_button,
-            self.clear_button,
-        ]
-        container = widgets.VBox(
-            contents,
-            layout=widgets.Layout(
-                width="100%",
-                padding="20px",
-            )
-        )
+    def _aspects_on_change(self, change):
+        if self._syncing:
+            self._start_sync()
 
-        return container
-
-    def _sync_button_on_click(self, btn):
-        if self._pause_updates:
-            return
-
-        source = self.source_dropdown.value
-        destination = self.destination_dropdown.value
-
-        if source == destination:
-            raise ValueError("Cannot sync a widget to itself.")
-
-        if '' in [source, destination]:
-            raise ValueError("Please choose a value for both source and destination.")
+    def _start_sync(self, btn=None):
+        source = self.source_dropdown.selected_column
+        destinations = self.destination_dropdown.selected_columns
 
         source_adapter = self._adapters[source]
-        dest_adapter = self._adapters[destination]
-
-        self._update_projection_button_state()
+        dest_adapters = [self._adapters[d] for d in destinations]
 
         aspects = self._get_active_aspects()
         self.sync_manager.start_real_time_sync(
             source=source_adapter,
-            destination=dest_adapter,
+            destinations=dest_adapters,
             aspects=aspects
         )
+        self._syncing = True
 
-    def _clear_button_on_click(self, btn):
+    def _end_sync(self):
         self.sync_manager.stop_real_time_sync()
+        self._syncing = False
 
     def _get_active_aspects(self):
-        return [
-            aspect for aspect in self.aspects
-            if getattr(
-                getattr(self, f"{aspect}_button", None),
-                "value",
-                False
-            )
+        selected_aspects = list(self.aspects_selector.selected)
+        source_adapter = self._adapters.get(self.source_dropdown.selected_column)
+        destination_adapters = [
+            self._adapters.get(dest) for dest in self.destination_dropdown.selected_columns
         ]
+
+        if any(isinstance(adapter, JdavizSyncAdapter)
+               for adapter in [source_adapter, *destination_adapters]):
+            if AIDA_aspects.PROJECTION in selected_aspects:
+                selected_aspects.remove(AIDA_aspects.PROJECTION)
+
+        return selected_aspects
 
     def _on_apps_changed(self, change):
         self._refresh_adapters()
         self._refresh_dropdowns()
-        self._update_projection_button_state()
-
-    def _on_source_destination_change(self, change):
-        self._update_projection_button_state()
-
-    def _update_projection_button_state(self):
-        """
-        TODO: Remove this method once projection is supported by jdaviz
-        https://github.com/spacetelescope/jdaviz/pull/4076
-        """
-        source_adapter = self._adapters.get(self.source_dropdown.value)
-        destination_adapter = self._adapters.get(self.destination_dropdown.value)
-
-        disable_projection = any([
-            isinstance(source_adapter, JdavizSyncAdapter),
-            isinstance(destination_adapter, JdavizSyncAdapter)
-        ])
-
-        self.projection_button.disabled = disable_projection
-        if disable_projection and self.projection_button.value:
-            try:
-                # updating projection causes a callback to be triggered to the
-                # _sync_button_on_click method which can cause and error if source
-                # and destination are not set, so we pause updates while we update
-                # the projection button value.
-                self._pause_updates = True
-                self.projection_button.value = False
-            finally:
-                self._pause_updates = False
 
     def _refresh_dropdowns(self):
-        new_options = ['', *self._adapters.keys()]
-        self.source_dropdown.options = new_options
-        self.destination_dropdown.options = new_options
+        new_options = list(self._adapters.keys())
+        self.source_dropdown.columns = new_options
+        self.destination_dropdown.columns = new_options
 
     def _refresh_adapters(self):
         for idx, app in self.app_manager.apps.items():
@@ -210,7 +153,7 @@ class ViewerSyncPlugin():
 class ViewerSyncManager():
     def __init__(self):
         self.source = None
-        self.destination = None
+        self.destinations = []
         self.aspects = (
             AIDA_aspects.CENTER,
             AIDA_aspects.FOV,
@@ -219,18 +162,20 @@ class ViewerSyncManager():
         )
 
     def _callback(self, caller):
-        self.destination.sync_to(self.source, self.aspects)
+        for destination in self.destinations:
+            destination.sync_to(self.source, self.aspects)
 
-    def start_real_time_sync(self, source, destination, aspects):
+    def start_real_time_sync(self, source, destinations, aspects):
         # ensure we stop any previously configured real time sync
         self.stop_real_time_sync()
 
         self.source = source
-        self.destination = destination
+        self.destinations = destinations
         self.aspects = aspects
 
         # call the sync method once manually to align the views
-        self.destination.sync_to(self.source, self.aspects)
+        for destination in self.destinations:
+            destination.sync_to(self.source, self.aspects)
 
         # add a callback to the source to update the destination when the view changes
         self.source.add_callback(self._callback)
@@ -238,7 +183,7 @@ class ViewerSyncManager():
     def stop_real_time_sync(self):
         prev_source = self.source
         self.source = None
-        self.destination = None
+        self.destinations = []
         self.aspects = []
 
         if prev_source:

@@ -44,7 +44,7 @@ class ViewerSyncAdapter(ABC):
 class MastAladinSyncAdapter(ViewerSyncAdapter):
     def __init__(self, viewer=None):
         self.viewer = viewer if viewer else gca()
-        self.aid = self.viewer.aid
+        self.aid = self.viewer
 
     def add_callback(self, func):
         self.viewer.observe(func, names=["_target", "_fov", "_rotation", "_projection"])
