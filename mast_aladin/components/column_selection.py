@@ -14,7 +14,7 @@ class ColumnSelection(v.VuetifyTemplate):
     selected_columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     column_items = traitlets.List(traitlets.Dict(), default_value=[]).tag(sync=True)
-    disabled_columns = traitlets.List(traitlets.Unicode(allow_none=True), default_value=[]).tag(sync=True)
+    disabled_columns = traitlets.List(traitlets.Unicode(allow_none=True), default_value=[]).tag(sync=True)  # noqa: E501
     title = traitlets.Unicode().tag(sync=True)
     label = traitlets.Unicode().tag(sync=True)
 
@@ -66,7 +66,7 @@ class ColumnSelection(v.VuetifyTemplate):
             columns = []
         if isinstance(columns, str):
             columns = [columns]
-        
+
         self.disabled_columns = columns
 
     def vue_select_all(self, data=None):

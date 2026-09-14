@@ -1,8 +1,7 @@
-import ipywidgets as widgets
 import ipyvuetify as v
 from IPython.display import display
 from mast_aladin.aida import AIDA_aspects
-from .viewer_sync_adapters import get_adapter, JdavizSyncAdapter
+from .viewer_sync_adapters import get_adapter
 from mast_aladin.components import CheckboxSelector, ColumnSelection, InputSelector, Switch
 
 
@@ -18,27 +17,27 @@ class ViewerSyncPlugin():
         self.aspects = self.sync_manager.aspects
         self._syncing = False
 
+        # create UI components
         self.source_dropdown = InputSelector(
             columns=list(self._adapters.keys()),
             title="Source Widget",
             label="Choose source"
         )
-        self.source_dropdown.observe(self._source_on_change, names="selected_column")
-
         self.destination_dropdown = ColumnSelection(
             columns=list(self._adapters.keys()),
             title="Destination Widget",
             label="Choose destination"
         )
-        self.destination_dropdown.observe(self._destination_on_change, names="selected_columns")
-
         self.aspects_selector = CheckboxSelector(
             options=list(self.aspects),
             title="Properties to Sync",
         )
-        self.aspects_selector.observe(self._aspects_on_change, names="selected")
-
         self.sync_switch = Switch()
+
+        # set up observers for UI components
+        self.source_dropdown.observe(self._source_on_change, names="selected_column")
+        self.destination_dropdown.observe(self._destination_on_change, names="selected_columns")
+        self.aspects_selector.observe(self._aspects_on_change, names="selected")
         self.sync_switch.observe(self._sync_switch_on_change, names="value")
 
     @property
@@ -113,18 +112,7 @@ class ViewerSyncPlugin():
         self._syncing = False
 
     def _get_active_aspects(self):
-        selected_aspects = list(self.aspects_selector.selected)
-        source_adapter = self._adapters.get(self.source_dropdown.selected_column)
-        destination_adapters = [
-            self._adapters.get(dest) for dest in self.destination_dropdown.selected_columns
-        ]
-
-        if any(isinstance(adapter, JdavizSyncAdapter)
-               for adapter in [source_adapter, *destination_adapters]):
-            if AIDA_aspects.PROJECTION in selected_aspects:
-                selected_aspects.remove(AIDA_aspects.PROJECTION)
-
-        return selected_aspects
+        return self.aspects_selector.selected
 
     def _on_apps_changed(self, change):
         self._refresh_adapters()
