@@ -3,12 +3,6 @@ import traitlets
 
 
 class ColumnSelection(v.VuetifyTemplate):
-    """Select result columns from normalized column metadata.
-
-    Each entry in ``columns`` must contain ``column_name`` and may contain
-    ``field_name``, ``description``, and ``default_output``.
-    """
-
     template_file = __file__, "column_selection.vue"
 
     selected_columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)

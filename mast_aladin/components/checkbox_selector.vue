@@ -83,11 +83,7 @@
   color-scheme: light dark;
 }
 
-#checkbox_selector .select-all-btn {
-  background-color: #013b4d;
-  color: white;
-  font-weight: 900;
-}
+#checkbox_selector .select-all-btn
 #checkbox_selector .select-none-btn {
   background-color: #013b4d;
   color: white;
