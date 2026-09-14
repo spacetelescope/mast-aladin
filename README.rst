@@ -33,7 +33,7 @@ version conflicts with other packages you may have installed, for example:
 
 .. code-block:: bash
 
-   conda create -n mast-aladin-env python=3.11
+   conda create -n mast-aladin-env python=3.12
    conda activate mast-aladin-env
 
 You can install the latest stable release version of ``mast-aladin`` using pip:
