@@ -1,7 +1,7 @@
 [project]
 name = "mast-aladin"
 description = "Visualize MAST data products in Aladin Lite"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
     { name = "mast-aladin developers" },
 ]
@@ -9,10 +9,10 @@ dependencies = [
     "ipyaladin",
     "astroquery",
     "sidecar >= 0.8.1",
-    "jdaviz >= 5.0.1",
+    "jdaviz @ git+https://github.com/spacetelescope/jdaviz.git@main",
     "traitlets",
     "ipypopout",
-    "ipyvuetify",
+    "ipyvuetify >= v3.0.0",
     "ipywidgets",
     "solara",
     "roman-datamodels",
