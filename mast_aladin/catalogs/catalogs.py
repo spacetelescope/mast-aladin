@@ -145,7 +145,7 @@ class PerformanceCatalog:
         if n_sources < self.n_sources_max:
             # if the viewport has changed and few enough sources will be visible,
             self.show_catalog_without_optimization(sources_in_viewport)
-        elif n_sources > self.n_sources_max:
+        elif n_sources >= self.n_sources_max:
             # if the viewport contains too many sources
             self.show_catalog_with_optimization(sources_in_viewport)
 
@@ -176,7 +176,8 @@ class ConvexHull(PerformanceCatalog):
 
     def show_catalog_with_optimization(self, *args):
         # add the convex hull *only* if the STC-S overlay isn't already displayed:
-        if self.overlay_info.get('type', '') != 'overlay_stcs':
+        # if self.overlay_info.get('type', '') != 'overlay_stcs':
+        if True:
 
             # remove overlay if one is present:
             self.remove_overlay()
@@ -233,10 +234,6 @@ class RandomSubset(PerformanceCatalog):
         )
         # update before calling `add_table` so `add_source_count_to_name` works
         self.n_sources_drawn = random_sources_in_viewport.size
-
-        # prevent redrawing an existing catalog:
-        if self.name_with_source_count(sources_in_viewport) in self.mast_aladin.overlays:
-            return
 
         self.overlay_info = self.mast_aladin.add_table(
             self.table[random_sources_in_viewport],
