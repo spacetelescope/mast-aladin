@@ -11,7 +11,7 @@ __all__ = [
     "ConvexHull",
     "RandomSubset",
     "is_likely_an_observation",
-    "PerformanceLayer"
+    "PerformanceCatalog"
 ]
 
 
@@ -31,13 +31,12 @@ def is_likely_an_observation(table):
     return any(colname.lower().startswith('s_region') for colname in table.colnames)
 
 
-class PerformanceLayer:
+class PerformanceCatalog:
     overlay_info = {}
 
     def __init__(
             self,
             table,
-            mast_aladin,
             name=None,
             ra_column='RAJ2000',
             dec_column='DEJ2000',
@@ -45,7 +44,7 @@ class PerformanceLayer:
             **catalog_options
     ):
         self.table = table
-        self.mast_aladin = mast_aladin
+        # self.mast_aladin = mast_aladin
         self.catalog_options = dict(**catalog_options)
         self.n_sources_max = n_sources_max
         self.n_sources_drawn = 0
@@ -64,6 +63,11 @@ class PerformanceLayer:
 
         self.source_coords = SkyCoord(ra=ra, dec=dec, unit=u.deg)
         self.__post_init__()
+
+    def attach_to_mast_aladin(self, mast_aladin):
+        # to be called by MastAladin.add_table to attach this catalog to
+        # an instance of MastAladin
+        self.mast_aladin = mast_aladin
 
         # trigger an update once on init to draw the catalog for the first time:
         self.on_viewport_update()
@@ -93,8 +97,10 @@ class PerformanceLayer:
 
     def remove_overlay(self):
         overlay_names = [
-            dict(basename=self.remove_source_count_from_name(fullname), fullname=fullname)
-            for fullname in self.mast_aladin.overlays
+            dict(
+                basename=self.remove_source_count_from_name(fullname),
+                fullname=fullname
+            ) for fullname in self.mast_aladin.overlays
         ]
         for names in overlay_names:
             if names['basename'] == self.name:
@@ -153,7 +159,7 @@ class PerformanceLayer:
         return f"{self.name} [{self.n_sources_drawn}/{n_sources_total}]"
 
 
-class ConvexHull(PerformanceLayer):
+class ConvexHull(PerformanceCatalog):
     """
     Visualize a source catalog as scatter marks up to some number of points N.
     For >N sources, swap out the scatter marks for a region representing the
@@ -201,10 +207,10 @@ class ConvexHull(PerformanceLayer):
             self.n_sources_drawn = 0
 
 
-class RandomSubset(PerformanceLayer):
+class RandomSubset(PerformanceCatalog):
     """
     Visualize a source catalog as scatter marks up to some number of points N.
-    For >N sources, only display a randomly selected subset of sources.
+    For >N sources, only display a randomly selected subset of sources within the viewport.
     """
 
     def __post_init__(self):
@@ -217,7 +223,7 @@ class RandomSubset(PerformanceLayer):
         # convert boolean mask to an array index (integer) mask:
         indices_in_viewport = np.flatnonzero(sources_in_viewport)
 
-        # Note: `choice`` draws from a uniform probability distribution.
+        # Note: `choice` draws from a uniform probability distribution.
         # Non-uniform weights can be given to each entry with the kwarg `p`.
         # This may be useful for mimicking the behavior of HiPSCat
         random_sources_in_viewport = self.rng.choice(
