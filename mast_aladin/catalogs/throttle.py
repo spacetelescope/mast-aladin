@@ -1,8 +1,8 @@
 """
-This module makes use of the throttling example from the ipywidgets docs.
+The `throttle` module makes use of the example snippets from the ipywidgets docs [1]_.
 
-Source
-------
+References
+----------
 .. [1] https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#throttling
 """
 
@@ -16,11 +16,9 @@ __all__ = ['throttle']
 class Timer:
     """
     Asynchronous timer to keep track of the time between successive
-    calls to the same function, used in ``throttle``.
-
-    Source
-    ------
-    .. [1] https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#throttling
+    calls to the same function, used in ``throttle``
+    (`Source
+    <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#throttling>`_).
     """
     def __init__(self, timeout, callback):
         """
@@ -48,17 +46,15 @@ class Timer:
 def throttle(wait):
     """
     Decorator that prevents a function from being called
-    more than once every wait period.
+    more than once every wait period
+    (`Source
+    <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#throttling>`_).
 
     Parameters
     ----------
     wait : float
         Repeated updates to the decorated function will be called at most
         once per ``wait`` seconds.
-
-    Source
-    ------
-    .. [1] https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#throttling
     """
     def decorator(fn):
         time_of_last_call = 0
@@ -67,10 +63,10 @@ def throttle(wait):
 
         @wraps(fn)
         def throttled(self, *args, **kwargs):
-            nonlocal new_args, new_kwargs, time_of_last_call, scheduled, timer
+            nonlocal new_args, new_kwargs, time_of_last_call, scheduled, timer  # noqa: F824
 
             def call_it():
-                nonlocal new_args, new_kwargs, time_of_last_call, scheduled, timer
+                nonlocal new_args, new_kwargs, time_of_last_call, scheduled, timer  # noqa: F824
                 time_of_last_call = time()
                 result = fn(self, *new_args, **new_kwargs)
                 scheduled = False
