@@ -7,7 +7,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import MaskedColumn
 
 __all__ = [
-    "ConvexHull",
+    "ConvexHullRegion",
     "RandomSubset",
     "PriorityColumnSubset",
     "is_likely_an_observation_table",
@@ -91,7 +91,9 @@ class PerformanceCatalog:
         self.table = table
         self.catalog_options = dict(**catalog_options)
         self.n_sources_max = n_sources_max
-        self.n_sources_drawn = 0
+
+        # set a private attribute, and make a read-only public attribute
+        self._n_sources_drawn = 0
 
         if name is None:
             self.name = 'catalog'
@@ -117,12 +119,16 @@ class PerformanceCatalog:
         raise NotImplementedError
 
     def attach_to_mast_aladin(self, mast_aladin):
-
         """
         After `PerformanceCatalog` initialization, one must call
         `~mast_aladin.catalogs.PerformanceCatalog.attach_to_mast_aladin` to listen for updates
         to `~mast_aladin.app.MastAladin`'s viewport, and to trigger the first
         visualization of the source catalog in `~mast_aladin.app.MastAladin`.
+
+        Parameters
+        ----------
+        mast_aladin : `~mast_aladin.app.MastAladin`
+            Instance of `MastAladin`.
         """
         # an instance of MastAladin
         self.mast_aladin = mast_aladin
@@ -164,6 +170,10 @@ class PerformanceCatalog:
         return np.count_nonzero(sources_in_viewport)
 
     def _remove_overlay(self):
+        """
+        Get the names of overlays in the Aladin overlay menu, remove source counts from
+        names if present, remove any layer with a name that matches `self.name`.
+        """
         overlay_names = [
             dict(
                 basename=self._remove_source_count_from_name(fullname),
@@ -173,6 +183,8 @@ class PerformanceCatalog:
         for names in overlay_names:
             if names['basename'] == self.name:
                 self.mast_aladin.remove_overlay(names['fullname'])
+
+                # assume there's only one overlay to find, break here:
                 break
 
     def _show_catalog_without_optimization(self, sources_in_viewport):
@@ -194,7 +206,7 @@ class PerformanceCatalog:
         # overlays, then add back the table of visible sources
         self._remove_overlay()
 
-        self.n_sources_drawn = np.count_nonzero(sources_in_viewport)
+        self._n_sources_drawn = np.count_nonzero(sources_in_viewport)
 
         # prevent redrawing an existing catalog:
         # if self.append_source_count_to_name(sources_in_viewport) in self.mast_aladin.overlays:
@@ -282,21 +294,21 @@ class PerformanceCatalog:
             Name of the catalog without the source count suffix, like `"Gaia"`.
         """
         n_sources_total = sources_in_viewport.size
-        if self.n_sources_drawn == n_sources_total:
+        if self._n_sources_drawn == n_sources_total:
             return self.name
-        return f"{self.name} [{self.n_sources_drawn}/{n_sources_total}]"
+        return f"{self.name} [{self._n_sources_drawn}/{n_sources_total}]"
 
     def __repr__(self):
         return f"<{self.__class__.__name__}: {self.name} (n={len(self.table)})>"
 
 
-class ConvexHull(PerformanceCatalog):
+class ConvexHullRegion(PerformanceCatalog):
     """
     Visualize a source catalog as scatter marks up to some number of points `n_sources_max`.
     For `>n_sources_max` sources, swap out the scatter marks for a region representing a
     polygon that connects the outermost catalog coordinates (the convex hull).
 
-    Compute the convex hull with `~scipy.spatial.ConvexHull`
+    Compute the convex hull with `~scipy.spatial.ConvexHull`.
     """
     def __post_init__(self):
         """
@@ -346,7 +358,19 @@ class ConvexHull(PerformanceCatalog):
                 name=self.name,
                 **overlay_options
             )
-            self.n_sources_drawn = 0
+            self._n_sources_drawn = 0
+
+    @property
+    def n_sources_drawn(self):
+        """
+        Number of sources drawn as scatter marks in
+        `~mast_aladin.app.MastAladin`. Read only.
+
+        Returns
+        -------
+        int
+        """
+        return self._n_sources_drawn
 
 
 class RandomSubset(PerformanceCatalog):
