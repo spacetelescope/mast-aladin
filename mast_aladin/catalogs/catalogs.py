@@ -40,19 +40,19 @@ class PerformanceCatalog:
     1. Implement a `__post_init__` method which contains any
     initialization tasks specific to the subclass.
 
-    2. Implement a `show_catalog_with_optimization` method which
+    2. Implement a `_show_catalog_with_optimization` method which
     vizualizes the catalog sources within the viewport without
     plotting every source.
 
-    3. `show_catalog_with_optimization` must update the attribute with
+    3. `_show_catalog_with_optimization` must update the attribute with
     the number of sources drawn in the viewport,
     `~mast_aladin.catalogs.PerformanceCatalog.n_sources_drawn`.
 
-    Peformance catalogs are not associated with an instance of `~mast_aladin.MastAladin`
+    Peformance catalogs are not associated with an instance of `~mast_aladin.app.MastAladin`
     at initialization. After initialization, one must call
     `~mast_aladin.catalogs.PerformanceCatalog.attach_to_mast_aladin` to listen for updates
-    to `~mast_aladin.MastAladin`'s viewport, and to trigger the first
-    visualization of the source catalog in `~mast_aladin.MastAladin`.
+    to `~mast_aladin.app.MastAladin`'s viewport, and to trigger the first
+    visualization of the source catalog in `~mast_aladin.app.MastAladin`.
 
     """
     overlay_info = {}
@@ -112,19 +112,39 @@ class PerformanceCatalog:
         # implement in subclasses
         raise NotImplementedError
 
-    def show_catalog_with_optimization(self, *args):
+    def _show_catalog_with_optimization(self, *args):
         # implement in subclasses
         raise NotImplementedError
 
     def attach_to_mast_aladin(self, mast_aladin):
-        # to be called by MastAladin.add_table to attach this catalog to
+
+        """
+        After `PerformanceCatalog` initialization, one must call
+        `~mast_aladin.catalogs.PerformanceCatalog.attach_to_mast_aladin` to listen for updates
+        to `~mast_aladin.app.MastAladin`'s viewport, and to trigger the first
+        visualization of the source catalog in `~mast_aladin.app.MastAladin`.
+        """
         # an instance of MastAladin
         self.mast_aladin = mast_aladin
 
         # trigger an update once on init to draw the catalog for the first time:
-        self.on_viewport_update()
+        self._on_viewport_update()
 
-    def polygon_vertices_to_stcs(self, vertices):
+    def _polygon_vertices_to_stcs(self, vertices):
+        """
+        Convert an array of sky coordinates into a polygon STC-S region.
+
+        Parameters
+        ----------
+        vertices : array with shape (N, 2)
+            The vertices array has one column for RA and another for Dec in degrees
+            in the ICRS coordinate frame for N vertices.
+
+        Returns
+        -------
+        str
+            STC-S region
+        """
         return 'POLYGON ICRS ' + ' '.join(
             map(lambda x: " ".join(map("{0:f}".format, x)),
                 vertices)
@@ -143,10 +163,10 @@ class PerformanceCatalog:
         sources_in_viewport = viewport.contains(self.source_coords, self.mast_aladin.wcs)
         return np.count_nonzero(sources_in_viewport)
 
-    def remove_overlay(self):
+    def _remove_overlay(self):
         overlay_names = [
             dict(
-                basename=self.remove_source_count_from_name(fullname),
+                basename=self._remove_source_count_from_name(fullname),
                 fullname=fullname
             ) for fullname in self.mast_aladin.overlays
         ]
@@ -155,13 +175,13 @@ class PerformanceCatalog:
                 self.mast_aladin.remove_overlay(names['fullname'])
                 break
 
-    def show_catalog_without_optimization(self, sources_in_viewport):
+    def _show_catalog_without_optimization(self, sources_in_viewport):
         """
         Show sources in the viewport "without optimization," meaning
         that all sources *in the viewport* are displayed. However, note that
         this method more memory efficient than the standard `Aladin.add_table`
         because only the sources in the viewport are added to
-        `~mast_aladin.MastAladin`.
+        `~mast_aladin.app.MastAladin`.
 
         Parameters
         ----------
@@ -172,7 +192,7 @@ class PerformanceCatalog:
         # if the viewport has changed and few enough sources
         # will be visible, find and remove any catalog or stcs_region
         # overlays, then add back the table of visible sources
-        self.remove_overlay()
+        self._remove_overlay()
 
         self.n_sources_drawn = np.count_nonzero(sources_in_viewport)
 
@@ -182,12 +202,12 @@ class PerformanceCatalog:
 
         self.overlay_info = self.mast_aladin.add_table(
             self.table[sources_in_viewport],
-            name=self.append_source_count_to_name(sources_in_viewport),
+            name=self._append_source_count_to_name(sources_in_viewport),
             performance_catalog=False,  # prevents performance layer checks
             **self.catalog_options
         )
 
-    def on_viewport_update(self, msg={}):
+    def _on_viewport_update(self, msg={}):
         """
         Triggered on changes to the viewport position, zoom, rotation, and aspect ratio.
         Updates the performance catalog visualization given the number of sources in the
@@ -203,7 +223,7 @@ class PerformanceCatalog:
         n_sources = np.count_nonzero(sources_in_viewport)
 
         overlay_names = [
-            self.remove_source_count_from_name(name) for name in self.mast_aladin.overlays
+            self._remove_source_count_from_name(name) for name in self.mast_aladin.overlays
         ]
         if self.name not in overlay_names and self.overlay_info:
             # catalog was once shown, but has since been removed from aladin
@@ -211,22 +231,21 @@ class PerformanceCatalog:
 
         if n_sources < self.n_sources_max:
             # if the viewport has changed and few enough sources will be visible,
-            self.show_catalog_without_optimization(sources_in_viewport)
+            self._show_catalog_without_optimization(sources_in_viewport)
         else:
             # if the viewport contains too many sources
-            self.show_catalog_with_optimization(sources_in_viewport)
+            self._show_catalog_with_optimization(sources_in_viewport)
 
-    def remove_source_count_from_name(self, name):
+    def _remove_source_count_from_name(self, name):
         """
         Remove the source count suffix applied to performance catalog names
-        in `~mast_aladin.MastAladin` when a subset of sources are shown.
+        in `~mast_aladin.app.MastAladin` when a subset of sources are shown.
 
         For example, if a catalog with name `Gaia` has been added and
-        1000 out of the 5000 total sources are in the viewport, the catalog layer
+        1000 out of the 5000 total sources are in the viewport, the catalog layer
         name in the Aladin overlays menu will appear as `"Gaia [1000/5000]"`. This
         regex method will strip the suffix and return `"Gaia"`. If the name contains
         no suffix, it is returned unchanged.
-
 
         Parameters
         ----------
@@ -241,10 +260,10 @@ class PerformanceCatalog:
         """
         return re.sub(r'\s*\[\d+/\d+\]$', '', name)
 
-    def append_source_count_to_name(self, sources_in_viewport):
+    def _append_source_count_to_name(self, sources_in_viewport):
         """
         Append a source count suffix to a performance catalog name
-        in `~mast_aladin.MastAladin` when a subset of sources are shown.
+        in `~mast_aladin.app.MastAladin` when a subset of sources are shown.
 
         For example, if a catalog with name `Gaia` has been added and
         1000 out of the 5000 total sources are in the viewport, this method
@@ -276,20 +295,21 @@ class ConvexHull(PerformanceCatalog):
     Visualize a source catalog as scatter marks up to some number of points `n_sources_max`.
     For `>n_sources_max` sources, swap out the scatter marks for a region representing a
     polygon that connects the outermost catalog coordinates (the convex hull).
+
+    Compute the convex hull with `~scipy.spatial.ConvexHull`
     """
     def __post_init__(self):
         """
-        Compute the convex hull with `~scipy.spatial.ConvexHull` and save the result
-        as an STC-S region.
+        Compute the convex hull and save the result as an STC-S region.
         """
         ra_dec_stack = np.column_stack(
             (self.source_coords.ra.degree, self.source_coords.dec.degree)
         )
         convex_hull = ScipyConvexHullImpl(ra_dec_stack)
         convex_hull_vertices = ra_dec_stack[convex_hull.vertices]
-        self.convex_hull_stcs = self.polygon_vertices_to_stcs(convex_hull_vertices)
+        self.convex_hull_stcs = self._polygon_vertices_to_stcs(convex_hull_vertices)
 
-    def show_catalog_with_optimization(self, *args):
+    def _show_catalog_with_optimization(self, *args):
         """
         If scatter marks for this catalog are currently shown, remove them and
         add a graphic overlay from the STC-S region of the convex hull vertices.
@@ -301,7 +321,7 @@ class ConvexHull(PerformanceCatalog):
         if self.overlay_info.get('type', '') != 'overlay_stcs':
 
             # remove overlay if one is present:
-            self.remove_overlay()
+            self._remove_overlay()
 
             # add the convex hull region overlay
             overlay_options = dict(**self.catalog_options)
@@ -338,13 +358,13 @@ class RandomSubset(PerformanceCatalog):
     def __post_init__(self):
         self.rng = np.random.default_rng(seed=0)
 
-    def show_catalog_with_optimization(self, sources_in_viewport):
+    def _show_catalog_with_optimization(self, sources_in_viewport):
         """
         Randomly select up to `n_sources_max` sources from the sources
         contained within the viewport.
         """
         # remove catalog overlay if one is present:
-        self.remove_overlay()
+        self._remove_overlay()
 
         # convert boolean mask to an array index (integer) mask:
         indices_in_viewport = np.flatnonzero(sources_in_viewport)
@@ -359,7 +379,7 @@ class RandomSubset(PerformanceCatalog):
 
         self.overlay_info = self.mast_aladin.add_table(
             self.table[random_sources_in_viewport],
-            name=self.append_source_count_to_name(sources_in_viewport),
+            name=self._append_source_count_to_name(sources_in_viewport),
             performance_catalog=False,
             **self.catalog_options
         )
@@ -440,7 +460,7 @@ class PriorityColumnSubset(PerformanceCatalog):
     def __post_init__(self):
         pass
 
-    def show_catalog_with_optimization(self, sources_in_viewport):
+    def _show_catalog_with_optimization(self, sources_in_viewport):
         """
         Plot the `n_sources_max` sources with the highest priority
         values in `table[priority_column_table]`. E.g., if
@@ -448,7 +468,7 @@ class PriorityColumnSubset(PerformanceCatalog):
         smallest values.
         """
         # remove catalog overlay if one is present:
-        self.remove_overlay()
+        self._remove_overlay()
 
         # convert boolean mask to an array index (integer) mask:
         indices_in_viewport = np.flatnonzero(sources_in_viewport)
@@ -476,7 +496,7 @@ class PriorityColumnSubset(PerformanceCatalog):
 
         self.overlay_info = self.mast_aladin.add_table(
             self.table[indices_in_viewport][top_priority_indices],
-            name=self.append_source_count_to_name(sources_in_viewport),
+            name=self._append_source_count_to_name(sources_in_viewport),
             performance_catalog=False,
             **self.catalog_options
         )
