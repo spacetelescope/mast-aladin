@@ -56,6 +56,8 @@ class PerformanceCatalog:
 
     """
     overlay_info = {}
+    _last_viewport_region_vertices = None
+    _last_source_indices_in_viewport = None
 
     def __init__(
             self,
@@ -219,11 +221,27 @@ class PerformanceCatalog:
             **self.catalog_options
         )
 
-    def _on_viewport_update(self, msg={}):
+    def _on_viewport_update(self, msg={}, redraw_relative_separation=0.01):
         """
         Triggered on changes to the viewport position, zoom, rotation, and aspect ratio.
         Updates the performance catalog visualization given the number of sources in the
         viewport.
+
+        Several checks are done before redrawing a catalog on viewport udpates:
+
+        1. On each call, the coordinates of the current viewport corners are compared to the
+        previous `_on_viewport_update` call. If the coordinates are identical, don't redraw
+        the catalog.
+
+        2. If the change in the corners is very small, don't redraw the catalog. The tolerance is
+        defined as the maximum separation between the old and new corner coordinates in
+        units of the viewport's span in right ascension, set by `redraw_relative_separation`.
+
+        3. If the corners have shifted by more than the maximum tolerance in step (2), check which
+        sources from the catalog are now visible within the viewport. If visible sources
+        do not change after the viewport update, do not redraw.
+
+        4. Otherwise, redraw.
 
         Parameters
         ----------
@@ -231,7 +249,64 @@ class PerformanceCatalog:
             Message from traitlet change.
         """
         viewport = self.mast_aladin.get_viewport_region()
-        sources_in_viewport = viewport.contains(self.source_coords, self.mast_aladin.wcs)
+
+        if self._last_viewport_region_vertices is None:
+            # on the first call, save the viewport corners and visible source indices
+            self._last_viewport_region_vertices = viewport.vertices.copy()
+            sources_in_viewport = viewport.contains(
+                self.source_coords,
+                self.mast_aladin.wcs
+            )
+            source_indices_in_viewport = np.flatnonzero(sources_in_viewport)
+            self._last_source_indices_in_viewport = source_indices_in_viewport.copy()
+
+        elif np.any(viewport.vertices != self._last_viewport_region_vertices):
+            # the viewport has moved.
+
+            # now we check if it's moved more than the threshold for redrawing
+            # the catalog, which is the separation between the old and new
+            # catalog coordinates, normalized by the viewport's span in RA:
+            corner_separation = viewport.vertices.separation(
+                self._last_viewport_region_vertices
+            )
+            ra_span = np.ptp(np.concatenate([
+                viewport.vertices.ra,
+                self._last_viewport_region_vertices.ra
+            ]))
+
+            if np.all(corner_separation / ra_span < redraw_relative_separation):
+                # if the viewport has moved <redraw_relative_separation of the
+                # viewport's span in RA, don't update the performance catalog
+                return
+
+            else:
+                # At this step, the viewport has moved by more than the required
+                # separation to trigger a redraw. Now check if the number of visible
+                # sources has changed.
+                sources_in_viewport = viewport.contains(
+                    self.source_coords,
+                    self.mast_aladin.wcs
+                )
+                source_indices_in_viewport = np.flatnonzero(sources_in_viewport)
+
+                if (
+                    source_indices_in_viewport.size ==
+                    self._last_source_indices_in_viewport.size
+                ) and np.all(
+                    source_indices_in_viewport ==
+                    self._last_source_indices_in_viewport
+                ):
+                    # The same sources are visible before and after, don't update
+                    return
+                else:
+                    # Save the viewport stats, and continue below to redraw the catalog:
+                    self._last_source_indices_in_viewport = source_indices_in_viewport.copy()
+                    self._last_viewport_region_vertices = viewport.vertices.copy()
+
+        else:
+            # the viewport hasn't changed, don't update the performance catalog
+            return
+
         n_sources = np.count_nonzero(sources_in_viewport)
 
         overlay_names = [
