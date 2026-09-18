@@ -42,7 +42,7 @@ def test_add_parquet_table(mock_table_from_s3, MastAladin_app):
     result = MastAladin_app.add_table(
         parquet_uri,
         shape="circle",
-        include_names=["ra", "dec"]
+        include_column_names=["ra", "dec"]
     )
 
     mock_table_from_s3.assert_called_once_with(

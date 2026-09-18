@@ -6,7 +6,7 @@ authors = [
     { name = "mast-aladin developers" },
 ]
 dependencies = [
-    "ipyaladin",
+    "ipyaladin >= 0.8.1",
     "astroquery",
     "sidecar >= 0.8.1",
     "jdaviz >= 5.0.1",

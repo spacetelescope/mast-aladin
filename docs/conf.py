@@ -36,6 +36,7 @@ intersphinx_mapping = {
     'roman_datamodels': ('https://roman-datamodels.readthedocs.io/en/latest/', None),
     'regions': ('https://astropy-regions.readthedocs.io/en/stable/', None),
     'ipyaladin': ('https://cds-astro.github.io/ipyaladin/', None),
+    'scipy': ("https://docs.scipy.org/doc/scipy/", None),
 }
 
 # Add any Sphinx extension module names here, as strings. They can be
