@@ -26,26 +26,30 @@ def is_likely_an_observation_table(table):
 
 class PerformanceCatalog(ABC):
     """
-    Base class for source catalog overlays with optimization for
-    large catalogs.
+    Abstract base class for source catalog overlays with
+    optimization for large catalogs. This class is not meant to
+    be initialized by users.
 
     Subclasses of `PerformanceCatalog` must:
-    1. Implement a `__post_init__` method which contains any
+    1. Implement a ``__post_init__`` method which contains any
     initialization tasks specific to the subclass.
 
-    2. Implement a `_show_catalog_with_optimization` method which
+    2. Implement a ``_show_catalog_with_optimization`` method which
     vizualizes the catalog sources within the viewport without
     plotting every source.
 
-    3. `_show_catalog_with_optimization` must update the attribute with
-    the number of sources drawn in the viewport,
-    `~mast_aladin.catalogs.PerformanceCatalog.n_sources_drawn`.
+    3. ``_show_catalog_with_optimization`` must update the attribute
+    with the number of sources drawn in the viewport,
+    ``PerformanceCatalog.n_sources_drawn``.
 
-    Peformance catalogs are not associated with an instance of `~mast_aladin.app.MastAladin`
-    at initialization. After initialization, one must call
-    `~mast_aladin.catalogs.PerformanceCatalog.attach_to_mast_aladin` to listen for updates
-    to `~mast_aladin.app.MastAladin`'s viewport, and to trigger the first
-    visualization of the source catalog in `~mast_aladin.app.MastAladin`.
+    Peformance catalogs are not associated with an instance of
+    `~mast_aladin.app.MastAladin` at initialization. After
+    initialization, one must call
+    `~mast_aladin.catalogs.PerformanceCatalog._attach_to_mast_aladin`
+    to listen for updates to the viewport in `~mast_aladin.app.MastAladin`,
+    and to trigger the first visualization of the source catalog
+    in `~mast_aladin.app.MastAladin`. The attach method is called within
+    `~mast_aladin.app.MastAladin.add_table`.
 
     """
     overlay_info = {}
@@ -121,9 +125,10 @@ class PerformanceCatalog(ABC):
     def _attach_to_mast_aladin(self, mast_aladin):
         """
         After `PerformanceCatalog` initialization, one must call
-        `~mast_aladin.catalogs.PerformanceCatalog.attach_to_mast_aladin` to listen for updates
-        to `~mast_aladin.app.MastAladin`'s viewport, and to trigger the first
-        visualization of the source catalog in `~mast_aladin.app.MastAladin`.
+        `~mast_aladin.catalogs.performance.PerformanceCatalog._attach_to_mast_aladin`
+        to listen for updates to `~mast_aladin.app.MastAladin`'s viewport, and to
+        trigger the first visualization of the source catalog in
+        `~mast_aladin.app.MastAladin`.
 
         Parameters
         ----------

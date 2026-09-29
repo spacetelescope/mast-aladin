@@ -26,11 +26,12 @@ def _polygon_vertices_to_stcs(vertices):
 
 class ConvexHullRegion(PerformanceCatalog):
     """
-    Visualize a source catalog as scatter marks up to some number of points `n_sources_max`.
-    For `>n_sources_max` sources, swap out the scatter marks for a region representing a
-    polygon that connects the outermost catalog coordinates (the convex hull).
+    Visualize a source catalog as scatter marks up to some number of points
+    ``n_sources_max``. For ``>n_sources_max`` sources, swap out the scatter
+    marks for a region representing a polygon that connects the outermost
+    catalog coordinates (the convex hull).
 
-    Compute the convex hull with `~scipy.spatial.ConvexHull`.
+    Uses scipy's `~scipy.spatial.ConvexHull`.
     """
     def __post_init__(self):
         """
@@ -78,7 +79,8 @@ class ConvexHullRegion(PerformanceCatalog):
 
         self.overlay_info = self.mast_aladin.add_graphic_overlay_from_stcs(
             self.convex_hull_stcs,
-            # omit the number of sources in the name a region graphic overlay:
+            # display the catalog's name unmodified, don't show fraction of
+            # sources visulaized:
             name=self.name,
             **overlay_options
         )

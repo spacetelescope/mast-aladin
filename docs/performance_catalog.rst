@@ -30,7 +30,7 @@ the number of sources within the viewport.
 The `~ipyaladin.widget.Aladin` method `~ipyaladin.widget.Aladin.add_table` always
 displays all sources as scatter marks within the viewport. `~mast_aladin.app.MastAladin`'s
 `~mast_aladin.app.MastAladin.add_table` method has the same default behavior for 
-source catalogs when less than ``n_sources_max = 5_000`` sources are visible in the viewport.
+source catalogs when less than ``n_sources_max`` sources are visible in the viewport (default: 5,000).
 If more than ``n_sources_max`` sources fall within the viewport, `~mast_aladin.app.MastAladin`
 visualizes the catalog using `~mast_aladin.catalogs.convex_hull_region.ConvexHullRegion`
 by default.
@@ -117,9 +117,9 @@ default performance catalog implementation in the `~mast_aladin.app.MastAladin` 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When the number of visible catalog sources is greater than ``n_sources_max``, 
-mast-aladin shows only the ``n_sources_max`` highest priority sources. The 
-priority comes from one of the source catalog's table columns. For example, 
-to plot the brightest ```n_sources_max``` sources a Gaia source catalog based on 
+mast-aladin shows only the ``n_sources_max`` "top priority" sources. The 
+priority values come from one of the source catalog's table columns. For example, 
+to plot the brightest ``n_sources_max`` sources a Gaia source catalog based on 
 their values in the ``"Gmag"`` column:
 
 .. code-block:: python
@@ -155,13 +155,13 @@ you could get the same visualization by setting:
 .. code-block:: python
 
     ...
-    priority_column_name='FG',
+    priority_column_name="FG",
     small_value_high_priority=False,
     ...
 
 
 Define your own performant catalog visualization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------
 
 Users can build their own performant catalog visualization strategies by 
 subclassing `~mast_aladin.catalogs.performance.PerformanceCatalog`. 
@@ -180,12 +180,6 @@ meet the following requirements:
     the number of sources drawn in the viewport,
     ``PerformanceCatalog.n_sources_drawn``.
 
-Peformance catalogs are not associated with an instance of `~mast_aladin.app.MastAladin`
-at initialization. After initialization, one must call
-`~mast_aladin.catalogs.PerformanceCatalog.attach_to_mast_aladin` to listen for updates
-to `~mast_aladin.app.MastAladin`'s viewport, and to trigger the first
-visualization of the source catalog in `~mast_aladin.app.MastAladin`.
-
 Below is an example performance catalog implementation that plots up to ``n_sources_max``
 *random* sources from within the viewport. This isn't meant to be a practical performance
 catalog, but rather an example for illustrative purposes:
@@ -203,6 +197,7 @@ catalog, but rather an example for illustrative purposes:
         viewport.
         """
         def __post_init__(self):
+            # add a class attribute for a random number generator
             self.rng = np.random.default_rng(seed=0)
 
         def _show_catalog_with_optimization(self, sources_in_viewport):
@@ -216,6 +211,7 @@ catalog, but rather an example for illustrative purposes:
             # convert boolean mask to an array index (integer) mask:
             indices_in_viewport = np.flatnonzero(sources_in_viewport)
 
+            # select ``n_sources_max`` random sources from within the viewport
             random_sources_in_viewport = self.rng.choice(
                 indices_in_viewport,
                 size=self.n_sources_max,
@@ -226,6 +222,8 @@ catalog, but rather an example for illustrative purposes:
             self.n_sources_drawn = random_sources_in_viewport.size
 
             self.overlay_info = self.mast_aladin.add_table(
+
+                # add only the randomly selected sources from the viewport:
                 self.table[random_sources_in_viewport],
 
                 # label the Aladin overlay with the catalog name and the 
@@ -233,9 +231,18 @@ catalog, but rather an example for illustrative purposes:
                 # total, like "Gaia [5000/93257]".
                 name=self._append_source_count_to_name(sources_in_viewport),
 
-                # prevent another performance catalog from being applied:
+                # since this method defines how to visualize a subset or summary 
+                # of the full source catalog, we set `performance_cls=None` to ensure
+                # no other performance catalog will be applied to these sources:
                 performance_cls=None,
                 **self.catalog_options
             )
 
 
+Note: peformance catalogs are not associated with an instance of `~mast_aladin.app.MastAladin`
+at initialization. After initialization, one must call
+``PerformanceCatalog._attach_to_mast_aladin`` to
+listen for updates to `~mast_aladin.app.MastAladin`'s viewport, and to trigger
+the first visualization of the source catalog in `~mast_aladin.app.MastAladin`.
+``PerformanceCatalog._attach_to_mast_aladin`` is called within
+`~mast_aladin.app.MastAladin.add_table`.
