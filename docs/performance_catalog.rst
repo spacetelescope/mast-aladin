@@ -4,7 +4,7 @@ Improve Aladin performance for large source catalogs
 
 The `~mast_aladin.app.MastAladin` method `~mast_aladin.app.MastAladin.add_table` 
 adds a source catalog to an Aladin instance. 
-Pan and zoom operations in Aladin become less responsive When the number of sources
+Pan and zoom operations in Aladin become less responsive when the number of sources
 in the viewport exceeds ~10k. MAST users on the Roman Research Nexus can expect to
 work frequently with source catalogs exceeding 10k sources.
 
