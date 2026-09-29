@@ -12,7 +12,7 @@ To improve Aladin performance for large source catalogs, mast-aladin
 provides implementations of "performance catalogs" via 
 `~mast_aladin.catalogs.convex_hull_region.ConvexHullRegion` and 
 `~mast_aladin.catalogs.priority_column_subset.PriorityColumnSubset`.
-These visualizations enforce an upper limit the number of sources
+These visualizations enforce an upper limit on the number of sources
 displayed from each catalog, set by the keyword argument 
 ``n_sources_max``. If the number of visible sources from a given catalog
 exceeds ``n_sources_max``, `~mast_aladin.app.MastAladin` swaps in a more
