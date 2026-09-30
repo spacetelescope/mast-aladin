@@ -1,4 +1,5 @@
 import re
+import warnings
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -232,6 +233,15 @@ class PerformanceCatalog(ABC):
             Message from traitlet change.
         """
         viewport = self.mast_aladin.get_viewport_region()
+
+        if np.isnan(viewport.vertices.ra).any():
+            msg = (
+                "Sources in performance catalogs may not be drawn at this zoom level "
+                "for this projection, since not all viewport display coordinates map "
+                "to sky coordinates. Sources will be redrawn after zooming in sufficiently. "
+                ""
+            )
+            warnings.warn(msg, UserWarning)
 
         if self._last_viewport_region_vertices is None:
             # on the first call, save the viewport corners and visible source indices
