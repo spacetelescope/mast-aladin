@@ -60,8 +60,8 @@ class PerformanceCatalog(ABC):
             self,
             table,
             name=None,
-            ra_column='RAJ2000',
-            dec_column='DEJ2000',
+            ra_field='RAJ2000',
+            dec_field='DEJ2000',
             n_sources_max=5_000,
             **catalog_options
     ):
@@ -74,11 +74,11 @@ class PerformanceCatalog(ABC):
         name : str, optional
             Name for the catalog layer. Default is "catalog".
 
-        ra_column : str, optional
+        ra_field : str, optional
             Name of the column in `table` which specifies the RA coordinate for the
             scatter markers. Default: 'RAJ2000'.
 
-        dec_column : str, optional
+        dec_field : str, optional
             Name of the column in `table` which specifies the Dec coordinate for the
             scatter markers. Default: 'DEJ2000'.
 
@@ -87,6 +87,8 @@ class PerformanceCatalog(ABC):
             viewport. The actual number will depend on the subclass, the catalog, and
             the viewport center and zoom. Default: 5_000.
         """
+        self.ra_field = ra_field
+        self.dec_field = dec_field
         self.table = table
         self.catalog_options = dict(**catalog_options)
         self.n_sources_max = n_sources_max
@@ -98,12 +100,12 @@ class PerformanceCatalog(ABC):
 
         self.name = name.strip()
 
-        for col, name in [[ra_column, 'RA'], [dec_column, 'Dec']]:
+        for col, name in [[ra_field, 'RA'], [dec_field, 'Dec']]:
             if col not in table.colnames:
                 raise ValueError(f"{name} column '{col}' not found in table.")
 
-        ra = table[ra_column]
-        dec = table[dec_column]
+        ra = table[ra_field]
+        dec = table[dec_field]
 
         if isinstance(ra, MaskedColumn):
             ra = ra.filled(np.nan)
@@ -197,6 +199,8 @@ class PerformanceCatalog(ABC):
             self.table[sources_in_viewport],
             name=self._name_with_source_count(sources_in_viewport),
             performance_cls=None,  # prevents another performance catalog from being applied
+            ra_field=self.ra_field,
+            dec_field=self.dec_field,
             **self.catalog_options
         )
 

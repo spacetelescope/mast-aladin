@@ -76,8 +76,8 @@ scatter marks and show a region representing the convex hull of the source coord
 
         # performance viz config:
         n_sources_max=5_000,  # [default]
-        ra_column='RAJ2000',  # [default]
-        dec_column='DEJ2000', # [default]
+        ra_field='RAJ2000',  # [default]
+        dec_field='DEJ2000', # [default]
 
         # marker settings:
         size=10,
@@ -104,8 +104,8 @@ default performance catalog implementation in the `~mast_aladin.app.MastAladin` 
 
         # performance viz config:
         n_sources_max=5_000,  # [default]
-        ra_column='RAJ2000',  # [default]
-        dec_column='DEJ2000', # [default]
+        ra_field='RAJ2000',  # [default]
+        dec_field='DEJ2000', # [default]
 
         # marker settings:
         size=10,
@@ -136,8 +136,8 @@ their values in the ``"Gmag"`` column:
 
         # viz config:
         n_sources_max=1_000,
-        ra_column='RAJ2000',
-        dec_column='DEJ2000',
+        ra_field='RAJ2000',
+        dec_field='DEJ2000',
         priority_column_name='Gmag',
         small_value_high_priority=True,
 

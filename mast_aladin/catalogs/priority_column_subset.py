@@ -26,8 +26,8 @@ class PriorityColumnSubset(PerformanceCatalog):
 
             # optional keyword arguments:
             name=None,
-            ra_column='RAJ2000',
-            dec_column='DEJ2000',
+            ra_field='RAJ2000',
+            dec_field='DEJ2000',
             n_sources_max=5_000,
             **catalog_options
     ):
@@ -52,11 +52,11 @@ class PriorityColumnSubset(PerformanceCatalog):
         name : str, optional
             Name for the catalog layer. Default is "catalog".
 
-        ra_column : str, optional
+        ra_field : str, optional
             Name of the column in `table` which specifies the RA coordinate for the
             scatter markers. Default: 'RAJ2000'.
 
-        dec_column : str, optional
+        dec_field : str, optional
             Name of the column in `table` which specifies the Dec coordinate for the
             scatter markers. Default: 'DEJ2000'.
 
@@ -77,8 +77,8 @@ class PriorityColumnSubset(PerformanceCatalog):
         super().__init__(
             table,
             name=name,
-            ra_column=ra_column,
-            dec_column=dec_column,
+            ra_field=ra_field,
+            dec_field=dec_field,
             n_sources_max=n_sources_max,
             **catalog_options
         )
