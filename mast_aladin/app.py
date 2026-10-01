@@ -17,7 +17,7 @@ from mast_table import MastTable
 from mast_aladin.aida import AIDA
 from mast_aladin.mixins import DelayUntilRendered
 import mast_aladin.utils.parquet as parquet
-from mast_aladin.utils.validators import is_valid_s3_uri
+from mast_aladin.utils.validators import is_valid_s3_uri, check_table_for_columns
 from mast_aladin.catalogs import (
     PerformanceCatalog,
     ConvexHullRegion,
@@ -241,6 +241,8 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
             if dec_field is None:
                 dec_field = "DEJ2000"
+
+            check_table_for_columns(table, ra_field, dec_field)
 
             if name is None:
                 name = f"Catalog {len(self.performance_catalogs) + 1}"

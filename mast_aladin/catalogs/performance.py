@@ -7,6 +7,7 @@ import numpy as np
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import MaskedColumn
+from mast_aladin.utils.validators import check_table_for_columns
 
 
 def is_likely_an_observation_table(table):
@@ -101,9 +102,7 @@ class PerformanceCatalog(ABC):
 
         self.name = name.strip()
 
-        for col, name in [[ra_field, 'RA'], [dec_field, 'Dec']]:
-            if col not in table.colnames:
-                raise ValueError(f"{name} column '{col}' not found in table.")
+        check_table_for_columns(table, ra_field, dec_field)
 
         ra = table[ra_field]
         dec = table[dec_field]
