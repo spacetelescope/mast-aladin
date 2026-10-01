@@ -461,10 +461,11 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
         elif mission and mission_mast:
             warnings.warn(
-                "`search_this_area` was called with values for both `mission` and " 
-                "`mission_mast`. `mission` takes precedent. `mission_mast` will be "
+                "`search_this_area` was called with values for both `mission` and "
+                "`mission_mast`. `mission_mast` takes precedent. `mission` will be "
                 "ignored."
             )
+            mission = mission_mast.mission.lower()
 
         else:
             raise ValueError("One of the arguments `mission` or `mission_mast` must be given.")
@@ -490,7 +491,6 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         if add_footprints and len(query_result):
             ra_field, dec_field = mission_mast_ra_dec_colnames[mission]
 
-            # temporary workaround until release of spacetelescope/mast-table#45
             if mission == 'jwst':
                 dec_field = 'targ_dec'
 
@@ -523,7 +523,6 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                 "`search_this_area` returning None. "
             )
             return None
-
 
 
 def gca():
