@@ -6,4 +6,4 @@ from mast_aladin.app import MastAladin, gca  # noqa: F401
 from mast_aladin.app_sidecar import AppSidecar, set_app_height  # noqa: F401
 from mast_aladin.adapters import ViewportOutline  # noqa: F401
 from mast_aladin.managers import MastManager  # noqa: F401
-from mast_aladin.catalogs import *  # noqa
+from mast_aladin.catalogs import *  # noqa: F401, F403 
