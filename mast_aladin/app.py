@@ -392,31 +392,31 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             name="MAST Search",
             clear_existing=False,
             **query_region_kwargs):
-        """`~astroquery.mast.missions.MastMissions`
+        """
         Search Missions MAST for observations from ``mission``, and return
         query results in a  `~mast_table.cross_filter_widget.MastTable`.
 
-        Runs a cone search via `~astroquery.mast.missions.MastMissions.query_region` where
+        Runs a cone search via `~astroquery.mast.missions.MastMissionsClass.query_region` where
         the center coordinate is the center of the viewport, and the radius angle
         is half the length of the viewport's longest dimension.
 
         Extra keyword arguments are passed to
-        `~astroquery.mast.missions.MastMissions.query_region`.
+        `~astroquery.mast.missions.MastMissionsClass.query_region`.
 
-        Users can also provide a pre-configured `~astroquery.mast.missions.MastMissions`
+        Users can also provide a pre-configured `~astroquery.mast.missions.MastMissionsClass`
         instance via ``mission_mast``. If both ``mission`` and ``mission_mast``
         are specified, ``mission`` takes precedent.
 
         Note: the maximum cone search radius supported by
-        `~astroquery.mast.missions.MastMissions` is 30 arcmin.
+        `~astroquery.mast.missions.MastMissionsClass` is 30 arcmin.
 
         Parameters
         ----------
         mission : str {'hst', 'jwst', 'roman'}, optional
             Mission to query via Missions Mast. If None, ``mission_mast`` must
             be given.
-        mission_mast : `~astroquery.mast.missions.MastMissions`, optional
-            User-defined instance of `~astroquery.mast.missions.MastMissions`. If None,
+        mission_mast : `~astroquery.mast.missions.MastMissionsClass`, optional
+            User-defined instance of `~astroquery.mast.missions.MastMissionsClass`. If None,
             ``mission`` must be given.
         add_footprints : bool, default True
             Add the query results' observation footprints to Aladin
