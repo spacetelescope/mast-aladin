@@ -1,8 +1,12 @@
 import ipyvuetify as v
+from pathlib import Path
 from IPython.display import display
 from mast_aladin.aida import AIDA_aspects
 from .viewer_sync_adapters import get_adapter
-from mast_aladin.components import CheckboxSelector, ColumnSelection, InputSelector, Switch
+from mast_aladin.components import AspectSelector, DestinationSelector, SourceSelector, Switch
+
+
+VIEWER_SYNC_CSS = Path(__file__).with_name("viewer_sync.css").read_text()
 
 
 class ViewerSyncPlugin():
@@ -18,19 +22,20 @@ class ViewerSyncPlugin():
         self._syncing = False
 
         # create UI components
-        self.source_dropdown = InputSelector(
+        self.source_dropdown = SourceSelector(
             columns=list(self._adapters.keys()),
-            title="Source Widget",
-            label="Source ="
         )
-        self.destination_dropdown = ColumnSelection(
+        self.destination_dropdown = DestinationSelector(
             columns=list(self._adapters.keys()),
-            title="Destination Widget",
-            label="Destination ="
         )
-        self.aspects_selector = CheckboxSelector(
-            options=list(self.aspects),
-            title="Properties to Sync",
+        self.aspects_selector = AspectSelector(
+            options=["center", "fov", "rotation", "projection"],
+            descriptions={
+                "center": "Synchronize the Center of the viewers.",
+                "fov": "Synchronize the Field of View (FOV) of the viewers.",
+                "rotation": "Synchronize the WCS rotation applied to the viewers.",
+                "projection": "Synchronize the WCS projection applied to the viewers.",
+            },
         )
         self.sync_switch = Switch()
 
@@ -42,15 +47,27 @@ class ViewerSyncPlugin():
 
     @property
     def ui(self):
+        styles = v.Html(tag="style", children=[VIEWER_SYNC_CSS])
+        header = v.Html(tag="h3", children=["Viewer Sync Plugin"])
+        description = v.Html(tag="p", children=[
+            """
+            Choose a source widget, select the destination widgets that should follow it,
+            and specify which viewport properties to keep synchronized.
+            """
+        ]) 
+
         return v.Container(
             children=[
+                styles,
+                header,
+                description,
                 self.source_dropdown,
                 self.destination_dropdown,
                 self.aspects_selector,
                 self.sync_switch,
             ],
             class_="flex-column",
-            style_="display: flex; width: fit-content;",
+            style_="display: flex; width: min-content; max-width: 100%;",
         )
 
     def _source_on_change(self, change):

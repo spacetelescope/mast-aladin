@@ -2,30 +2,31 @@ import ipyvuetify as v
 import traitlets
 
 
-class ColumnSelection(v.VuetifyTemplate):
-    template_file = __file__, "column_selection.vue"
+class DestinationSelector(v.VuetifyTemplate):
+    template_file = __file__, "destination_selector.vue"
 
     selected_columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     column_items = traitlets.List(traitlets.Dict(), default_value=[]).tag(sync=True)
     disabled_columns = traitlets.List(traitlets.Unicode(allow_none=True), default_value=[]).tag(sync=True)  # noqa: E501
     title = traitlets.Unicode().tag(sync=True)
+    description = traitlets.Unicode().tag(sync=True)
     label = traitlets.Unicode().tag(sync=True)
 
     def __init__(
         self,
         columns,
         selected_columns=None,
-        title="Select Columns",
-        label="Choose columns",
         **kwargs
     ):
         super().__init__(**kwargs)
         self.columns = columns
         self.selected_columns = selected_columns or []
         self.disabled_columns = []
-        self.title = title
-        self.label = label
+
+        self.title="Destination Widget(s)"
+        self.description="The Widget(s) that will follow the Source Widgets's position and display settings."
+        self.label="dest ="
 
     def _get_selected_columns(self):
         return [column for column in self.selected_columns if column not in self.disabled_columns]

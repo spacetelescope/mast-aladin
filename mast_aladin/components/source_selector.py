@@ -2,24 +2,24 @@ import ipyvuetify as v
 import traitlets
 
 
-class InputSelector(v.VuetifyTemplate):
-    template_file = __file__, "input_selector.vue"
+class SourceSelector(v.VuetifyTemplate):
+    template_file = __file__, "source_selector.vue"
 
     selected_column = traitlets.Unicode(allow_none=True).tag(sync=True)
     columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     column_items = traitlets.List(traitlets.Dict(), default_value=[]).tag(sync=True)
     title = traitlets.Unicode(default_value="Select Column").tag(sync=True)
+    description = traitlets.Unicode(default_value="").tag(sync=True)
     label = traitlets.Unicode(default_value="Choose column").tag(sync=True)
 
-    def __init__(self, columns, selected_column=None, title=None, label=None, **kwargs):
+    def __init__(self, columns, selected_column=None, **kwargs):
         super().__init__(**kwargs)
         self.columns = columns
         self.selected_column = selected_column
 
-        if title:
-            self.title = title
-        if label:
-            self.label = label
+        self.title="Source Widget"
+        self.description="The Widget whose current position and display settings control the synchronized view."
+        self.label="source ="
 
     @traitlets.observe("columns")
     def _update_column_items(self, change):
