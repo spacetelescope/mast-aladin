@@ -21,7 +21,7 @@
             <v-btn
               class="select-all-btn"
               :disabled="disabled"
-              size="small"
+              size="x-small"
               aria-label="Select all"
               @click="select_all"
               rounded="0"
@@ -31,7 +31,7 @@
             <v-btn
               class="select-none-btn ml-1"
               :disabled="disabled"
-              size="small"
+              size="x-small"
               aria-label="Select none"
               @click="select_none"
               rounded="0"
@@ -70,7 +70,7 @@
               </v-btn>
               <v-divider
                   v-if="index < options.length - 1"
-                  class="option-divider border-opacity-100 my-3 mx-0"
+                  class="option-divider border-opacity-100 my-1 mx-0"
                   vertical
                 >
                 </v-divider>
@@ -83,13 +83,6 @@
 </template>
 
 <style>
-
-
-
-#checkbox_selector {
-  color-scheme: light dark;
-}
-
 #checkbox_selector .select-all-btn,
 #checkbox_selector .select-none-btn {
   background-color: #013b4d;
@@ -99,7 +92,7 @@
 
 #checkbox_selector .label-btn {
   color: light-dark(#013b4d, #b4dbe9);
-  opacity: .6;
+  opacity: 1;
   font-weight: 900;
   letter-spacing: 1.25px;
 }
@@ -107,14 +100,15 @@
 #checkbox_selector .v-label {
   color: light-dark(#013b4d, #b4dbe9);
   font-weight: 900;
+  opacity: 1;
 }
 
 #checkbox_selector .border {
-  color: light-dark(#013b4d, #b4dbe9);
+  color: light-dark(black, white);
 }
 
 #checkbox_selector .option-divider {
-  color: light-dark(#013b4d, #b4dbe9);
+  color: light-dark(black, white);
 }
 
 #checkbox_selector .option-btn {

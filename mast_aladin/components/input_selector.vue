@@ -31,13 +31,10 @@
 </template>
 
 <style>
-#input_selector {
-  color-scheme: light dark;
-}
-
 #input_selector .v-label {
   color: light-dark(#013b4d, #b4dbe9);
   font-weight: 900;
+  opacity: 1;
 }
 
 #input_selector .v-list .v-list-item--link:not(.v-list-item--prepend):hover,
@@ -71,14 +68,14 @@
 #input_selector .v-field--variant-outlined .v-field__outline__notch::after,
 #input_selector .v-field--variant-outlined .v-field__outline__end {
   /* v-autocomplete outline border color */
-  color: light-dark(#013b4d, #b4dbe9);
+  color: light-dark(black, white);
   opacity: 1;
 }
 
 #input_selector .v-field--variant-outlined:not(.v-field--active) .v-field__outline__notch::before {
   /* only force full opacity while the label is resting; leave it alone when
      active so vuetify can still cut the notch gap for the floating label */
-  color: light-dark(#013b4d, #b4dbe9);
+  color: light-dark(black, white);
   opacity: 1;
 }
 </style>

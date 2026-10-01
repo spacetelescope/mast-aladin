@@ -18,7 +18,7 @@
         <v-btn
           class="select-all-btn"
           :disabled="disabled"
-          size="small"
+          size="x-small"
           aria-label="Select all columns"
           @click="select_all"
           rounded="0"
@@ -28,7 +28,7 @@
         <v-btn
           class="select-none-btn ml-1"
           :disabled="disabled"
-          size="small"
+          size="x-small"
           aria-label="Select no columns"
           @click="select_none"
           rounded="0"
@@ -76,13 +76,10 @@
 </template>
 
 <style>
-#column_selection {
-  color-scheme: light dark;
-}
-
 #column_selection .v-label {
   color: light-dark(#013b4d, #b4dbe9);
   font-weight: 900;
+  opacity: 1;
 }
 
 #column_selection .select-all-btn,
@@ -149,14 +146,14 @@
 #column_selection .v-field--variant-outlined .v-field__outline__notch::after,
 #column_selection .v-field--variant-outlined .v-field__outline__end {
   /* v-autocomplete outline border color */
-  color: light-dark(#013b4d, #b4dbe9);
+  color: light-dark(black, white);
   opacity: 1;
 }
 
 #column_selection .v-field--variant-outlined:not(.v-field--active) .v-field__outline__notch::before {
   /* only force full opacity while the label is resting; leave it alone when
      active so vuetify can still cut the notch gap for the floating label */
-  color: light-dark(#013b4d, #b4dbe9);
+  color: light-dark(black, white);
   opacity: 1;
 }
 </style>

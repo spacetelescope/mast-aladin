@@ -21,12 +21,12 @@ class ViewerSyncPlugin():
         self.source_dropdown = InputSelector(
             columns=list(self._adapters.keys()),
             title="Source Widget",
-            label="Choose source"
+            label="Source ="
         )
         self.destination_dropdown = ColumnSelection(
             columns=list(self._adapters.keys()),
             title="Destination Widget",
-            label="Choose destination"
+            label="Destination ="
         )
         self.aspects_selector = CheckboxSelector(
             options=list(self.aspects),
@@ -44,17 +44,8 @@ class ViewerSyncPlugin():
     def ui(self):
         return v.Container(
             children=[
-                v.Row(
-                    align="end",
-                    children=[
-                        v.Col(children=[
-                            self.source_dropdown,
-                        ]),
-                        v.Col(children=[
-                            self.destination_dropdown,
-                        ]),
-                    ],
-                ),
+                self.source_dropdown,
+                self.destination_dropdown,
                 self.aspects_selector,
                 self.sync_switch,
             ],
