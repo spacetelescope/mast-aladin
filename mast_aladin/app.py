@@ -392,7 +392,7 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             name="MAST Search",
             clear_existing=False,
             **query_region_kwargs):
-        """
+        """`~astroquery.mast.missions.MastMissions`
         Search Missions MAST for observations from ``mission``, and return
         query results in a  `~mast_table.cross_filter_widget.MastTable`.
 
@@ -403,20 +403,20 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         Extra keyword arguments are passed to
         `~astroquery.mast.MastMissions.query_region`.
 
-        Users can also provide a pre-configured `~astroquery.mast.MastMissions`
+        Users can also provide a pre-configured `~astroquery.mast.missions.MastMissions`
         instance via ``mission_mast``. If both ``mission`` and ``mission_mast``
         are specified, ``mission`` takes precedent.
 
         Note: the maximum cone search radius supported by
-        `~astroquery.mast.MastMissions` is 30 arcmin.
+        `~astroquery.mast.missions.MastMissions` is 30 arcmin.
 
         Parameters
         ----------
         mission : str {'hst', 'jwst', 'roman'}, optional
             Mission to query via Missions Mast. If None, ``mission_mast`` must
             be given.
-        mission_mast : `~astroquery.mast.MastMissions`, optional
-            User-defined instance of `~astroquery.mast.MastMissions`. If None,
+        mission_mast : `~astroquery.mast.missions.MastMissions`, optional
+            User-defined instance of `~astroquery.mast.missions.MastMissions`. If None,
             ``mission`` must be given.
         add_footprints : bool, default True
             Add the query results' observation footprints to Aladin
