@@ -47,7 +47,7 @@ class ViewportOutline(HasTraits):
         jdaviz_viewer : `jdaviz.configs.imviz.plugins.viewers.ImvizImageView`
             Instance of a jdaviz viewer. Can be retrieved from
             ``jdaviz_app.viewers`` dict (e.g., ``app.viewers['imviz-0']``).
-        aladin : `~mast_aladin.MastAladin`
+        aladin : `~mast_aladin.app.MastAladin`
             Instance of a Mast Aladin app.
         jdaviz_outline_in_aladin : bool
             Draw the outline of the jdaviz viewport in mast-aladin.
@@ -202,7 +202,7 @@ class ViewportOutline(HasTraits):
     def for_current_apps(cls, jdaviz_viewer_name=None):
         """
         Construct a ``ViewportOutline`` for the latest instantiated
-        instances of `mast_aladin.MastAladin` and
+        instances of `~mast_aladin.app.MastAladin` and
         `~jdaviz.configs.imviz.plugins.viewers.ImvizImageView`.
 
         Parameters

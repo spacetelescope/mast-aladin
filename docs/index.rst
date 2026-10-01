@@ -10,5 +10,6 @@ Institute.
    :maxdepth: 2
 
    installation
+   performance_catalog
    developer_guide
    api
