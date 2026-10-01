@@ -396,12 +396,12 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         Search Missions MAST for observations from ``mission``, and return
         query results in a  `~mast_table.cross_filter_widget.MastTable`.
 
-        Runs a cone search via `~astroquery.mast.MastMissions.query_region` where
+        Runs a cone search via `~astroquery.mast.missions.MastMissions.query_region` where
         the center coordinate is the center of the viewport, and the radius angle
         is half the length of the viewport's longest dimension.
 
         Extra keyword arguments are passed to
-        `~astroquery.mast.MastMissions.query_region`.
+        `~astroquery.mast.missions.MastMissions.query_region`.
 
         Users can also provide a pre-configured `~astroquery.mast.missions.MastMissions`
         instance via ``mission_mast``. If both ``mission`` and ``mission_mast``
