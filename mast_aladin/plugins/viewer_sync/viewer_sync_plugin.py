@@ -51,10 +51,11 @@ class ViewerSyncPlugin():
         header = v.Html(tag="h3", children=["Viewer Sync Plugin"])
         description = v.Html(tag="p", children=[
             """
-            Choose a source widget, select the destination widgets that should follow it,
-            and specify which viewport properties to keep synchronized.
+            To Sync: choose a source widget, select the destination widget(s) that
+            should follow it, and specify which viewport properties to keep
+            synchronized.
             """
-        ]) 
+        ])
 
         return v.Container(
             children=[
@@ -66,8 +67,8 @@ class ViewerSyncPlugin():
                 self.aspects_selector,
                 self.sync_switch,
             ],
-            class_="flex-column",
-            style_="display: flex; width: min-content; max-width: 100%;",
+            class_="viewer-sync-plugin flex-column",
+            style_="display: flex; align-items: flex-start; width: min-content; max-width: 100%; padding: 0;",  # noqa: E501
         )
 
     def _source_on_change(self, change):

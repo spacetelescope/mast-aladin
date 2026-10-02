@@ -20,10 +20,10 @@
           class="select-all-btn"
           :disabled="disabled"
           size="x-small"
-          aria-label="Select all available destination widgets"
+          aria-label="Select all destination widgets"
           @click="select_all"
           rounded="0"
-          v-tooltip:top="{ text: 'Select all available destination widgets', openDelay: 1000, contentClass: 'tooltip' }"
+          v-tooltip:top="{ text: 'Select all destination widgets.', openDelay: 1000, contentClass: 'tooltip' }"
         >
           <v-icon size="small">mdi-checkbox-multiple-marked</v-icon>
         </v-btn>
@@ -31,10 +31,10 @@
           class="select-none-btn"
           :disabled="disabled"
           size="x-small"
-          aria-label="Unselect all destination widgets"
+          aria-label="Deselect all destination widgets"
           @click="select_none"
           rounded="0"
-          v-tooltip:top="{ text: 'Unselect all selected destination widgets', openDelay: 1000, contentClass: 'tooltip' }"
+          v-tooltip:top="{ text: 'Deselect all destination widgets.', openDelay: 1000, contentClass: 'tooltip' }"
         >
           <v-icon size="small">mdi-checkbox-multiple-blank-outline</v-icon>
         </v-btn>

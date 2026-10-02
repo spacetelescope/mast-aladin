@@ -24,7 +24,7 @@
       </template>
       {{ disabled
         ? 'Select a source and at least one destination to enable synchronization.'
-        : `${value === 'Sync' ? 'Start' : 'Stop'} synchronizing the selected viewport properties.`
+        : `${value === 'Sync' ? 'Synchronize' : 'Stop synchronizing'} selected viewport properties.`
       }}
     </v-tooltip>
   </v-container>

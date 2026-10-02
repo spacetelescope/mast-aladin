@@ -17,9 +17,9 @@ class SourceSelector(v.VuetifyTemplate):
         self.columns = columns
         self.selected_column = selected_column
 
-        self.title="Source Widget"
-        self.description="The Widget whose current position and display settings control the synchronized view."
-        self.label="source ="
+        self.title = "Source Widget"
+        self.description = "The Widget whose current position and display settings control the synchronized view."  # noqa: E501
+        self.label = "source ="
 
     @traitlets.observe("columns")
     def _update_column_items(self, change):

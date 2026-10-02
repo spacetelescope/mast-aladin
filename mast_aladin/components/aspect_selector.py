@@ -25,7 +25,6 @@ class AspectSelector(v.VuetifyTemplate):
         self.label = "Aspects"
         self.descriptions = descriptions or {}
 
-
     @traitlets.observe("options", "descriptions")
     def _update_option_items(self, change):
         self.option_items = [

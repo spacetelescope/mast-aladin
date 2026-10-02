@@ -4,9 +4,27 @@
   opacity: 1;
 }
 
+.viewer-sync-plugin {
+  align-items: flex-start;
+  margin-inline: 0 !important;
+  padding: 12px !important;
+}
+
+.viewer-sync-plugin > h3,
+.viewer-sync-plugin > p {
+  margin: 0 0 4px;
+}
+
 .viewer-sync-selector,
-#aspect_selector .flex-shrink-1 {
+#aspect_selector .flex-shrink-1,
+#switch-component {
   width: 100%;
+}
+
+.viewer-sync-selector,
+#switch-component {
+  margin: 0;
+  padding: 6px 0 !important;
 }
 
 .tooltip-activator {
@@ -103,7 +121,6 @@
 
 .option-btn {
   background-color: transparent;
-  color: light-dark(#013b4d, #b4dbe9);
   font-weight: 900;
   letter-spacing: 1.25px;
 }
@@ -121,7 +138,7 @@
   overflow: visible !important;
   max-width: 280px !important;
   padding: 10px 12px !important;
-  border: 2px solid #013b4d;
+  border: 2px solid black;
   border-radius: 0 !important;
   background: white !important;
   box-shadow: 0 2px 5px rgb(0 0 0 / 18%);
@@ -148,9 +165,3 @@
   font-weight: normal;
   color: light-dark(black, white);
 }
-
-/* .v-selection-control__input:hover,
-.v-selection-control__input:focus {
-  background-color: light-dark(#FF9D42, #A75000);
-  color: light-dark(#FF9D42, #A75000);
-} */

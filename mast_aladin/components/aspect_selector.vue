@@ -23,10 +23,10 @@
               class="select-all-btn"
               :disabled="disabled"
               size="x-small"
-              aria-label="Select all available aspects"
+              aria-label="Select all aspects"
               @click="select_all"
               rounded="0"
-              v-tooltip:top="{ text: 'Select all available aspects', openDelay: 1000, contentClass: 'tooltip' }"
+              v-tooltip:top="{ text: 'Select all aspects.', openDelay: 1000, contentClass: 'tooltip' }"
             >
               <v-icon size="small">mdi-checkbox-multiple-marked</v-icon>
             </v-btn>
@@ -34,10 +34,10 @@
               class="select-none-btn"
               :disabled="disabled"
               size="x-small"
-              aria-label="Unselect all aspects"
+              aria-label="Deselect all aspects"
               @click="select_none"
               rounded="0"
-              v-tooltip:top="{ text: 'Unselect all selected aspects', openDelay: 1000, contentClass: 'tooltip' }"
+              v-tooltip:top="{ text: 'Deselect all aspects.', openDelay: 1000, contentClass: 'tooltip' }"
             >
               <v-icon size="small">mdi-checkbox-multiple-blank-outline</v-icon>
             </v-btn>
