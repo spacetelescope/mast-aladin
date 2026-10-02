@@ -398,7 +398,7 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
         Runs a cone search via ``MastMissions.query_region`` where
         the center coordinate is the center of the viewport, and the radius angle
-        is half the length of the viewport's longest dimension.
+        is the length of the viewport's center to its corner.
 
         Extra keyword arguments are passed to ``MastMissions.query_region``.
 
@@ -477,7 +477,10 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             )
 
         coordinates = self.target
-        radius = 0.5 * max(self.fov_xy)  # half of the longest side of the viewport
+        fov_x, fov_y = self.fov_xy
+
+        # measured from the center to the corner of the viewport:
+        radius = ((fov_x / 2) ** 2 + (fov_y / 2) ** 2) ** 0.5
 
         query_result = mission_mast.query_region(
             coordinates=coordinates,
