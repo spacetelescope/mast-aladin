@@ -1,11 +1,14 @@
 import os
+import warnings
 from pathlib import Path
-
 from traitlets import observe
+
 
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.wcs import WCS
+from astroquery.mast import MastMissions
+
 from regions import (
     PolygonSkyRegion
 )
@@ -13,6 +16,7 @@ from regions import (
 from ipyaladin import Aladin
 
 from mast_table import MastTable
+from mast_table.base import mission_mast_ra_dec_colnames
 
 from mast_aladin.aida import AIDA
 from mast_aladin.mixins import DelayUntilRendered
@@ -379,6 +383,148 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             unit='deg'
         )
         return PolygonSkyRegion(sky_corners)
+
+    def search_this_area(
+            self,
+            mission=None,
+            mission_mast=None,
+            add_footprints=True,
+            name="MAST Search",
+            clear_existing=False,
+            **query_region_kwargs):
+        """
+        Search Missions MAST for observations from ``mission``, and return
+        query results in a  `~mast_table.cross_filter_widget.MastTable`.
+
+        Runs a cone search via ``MastMissions.query_region`` where
+        the center coordinate is the center of the viewport, and the radius angle
+        is the length of the viewport's center to its corner.
+
+        Extra keyword arguments are passed to ``MastMissions.query_region``.
+
+        Users can also provide a pre-configured `~astroquery.mast.missions.MastMissionsClass`
+        instance via ``mission_mast``. If both ``mission`` and ``mission_mast``
+        are specified, ``mission`` takes precedent.
+
+        Note: the maximum cone search radius supported by
+        `~astroquery.mast.missions.MastMissionsClass` is 30 arcmin.
+
+        Parameters
+        ----------
+        mission : str {'hst', 'jwst', 'roman'}, optional
+            Mission to query via Missions Mast. If None, ``mission_mast`` must
+            be given.
+        mission_mast : `~astroquery.mast.missions.MastMissionsClass`, optional
+            User-defined instance of `~astroquery.mast.missions.MastMissionsClass`. If None,
+            ``mission`` must be given.
+        add_footprints : bool, default True
+            Add the query results' observation footprints to Aladin
+        name : str, optional
+            Name given to footprint overlays in Aladin.
+        clear_existing : bool, default False
+            If True, footprint overlays from previous calls to ``search_this_area``
+            will be removed.
+        limit : int
+            Default is 5000. The maximum number of dataset IDs in the results.
+        offset : int
+            Default is 0. The number of records you wish to skip before selecting
+            records.
+        select_cols: iterable or str or None, optional
+            Default is None. Names of columns that will be included in the result
+            table. If None, a default set of columns will be returned.
+            Can either be an iterable of column names, a comma-separated string
+            of column names, or 'all'/'*' to return all available columns.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will
+            be returned.
+        **criteria
+            Other mission-specific criteria arguments.
+            All valid filters can be found using
+            `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
+            For example, one can specify the output columns(select_cols) or use other
+            filters(conditions). To filter by multiple values for a single column,
+            pass in a list of values or a comma-separated string of values. For the
+            Roman mission, you can also use the special "pass_id"
+
+        Returns
+        -------
+        `~mast_table.cross_filter_widget.MastTable`
+            Observation query results.
+        """
+
+        if mission is not None and mission_mast is None:
+            mission_mast = MastMissions(mission=mission)
+
+        elif mission is None and mission_mast is not None:
+            mission = mission_mast.mission.lower()
+
+        elif mission and mission_mast:
+            warnings.warn(
+                "`search_this_area` was called with values for both `mission` and "
+                "`mission_mast`. `mission_mast` takes precedent. `mission` will be "
+                "ignored."
+            )
+            mission = mission_mast.mission.lower()
+
+        else:
+            raise ValueError("One of the arguments `mission` or `mission_mast` must be given.")
+
+        if 'coordinates' in query_region_kwargs or 'radius' in query_region_kwargs:
+            raise ValueError(
+                "`search_this_area` does not accept the MastMissions arguments "
+                "`coordinates` or `radius` as keyword arguments. The values for these "
+                "arguments are set by `search_this_area` based on the current viewport. "
+            )
+
+        coordinates = self.target
+        fov_x, fov_y = self.fov_xy
+
+        # measured from the center to the corner of the viewport:
+        radius = ((fov_x / 2) ** 2 + (fov_y / 2) ** 2) ** 0.5
+
+        query_result = mission_mast.query_region(
+            coordinates=coordinates,
+            radius=radius,
+            **query_region_kwargs
+        )
+
+        mast_table = MastTable(query_result)
+
+        if add_footprints and len(query_result):
+            ra_field, dec_field = mission_mast_ra_dec_colnames[mission]
+
+            if mission == 'jwst':
+                dec_field = 'targ_dec'
+
+            if clear_existing and name in self.overlays:
+                self.remove_overlay(name)
+
+            overlay = self.add_table(
+                query_result,
+                name=name,
+                ra_field=ra_field,
+                dec_field=dec_field,
+                only_footprints=True,
+            )
+
+            if 's_region' not in query_result.colnames:
+                raise ValueError(
+                    "Footprints can't be added because the query result "
+                    "contains no 's_region' column."
+                )
+
+            # store the overlay info on the mast_table
+            mast_table.overlay = overlay
+
+            return mast_table
+
+        if len(query_result) == 0:
+            # this warning will appear after astroquery.mast's warning that says:
+            #  "NoResultsWarning: Query returned no results."
+            warnings.warn(
+                "`search_this_area` returning None. "
+            )
+            return None
 
 
 def gca():
