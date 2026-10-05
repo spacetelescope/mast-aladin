@@ -94,7 +94,7 @@ def guess_coord_cols(col, table):
         return colnames[idx]
 
 
-def check_col_tokens(self, col, token_pattern, tokens):
+def check_col_tokens(col, token_pattern, tokens):
     if col in ("ra", "dec"):
         return (not any(token in COORD_WORDS_TO_EXCLUDE for token in tokens)
                 and any(token_pattern.search(t) for t in tokens)

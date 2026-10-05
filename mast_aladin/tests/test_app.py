@@ -1,6 +1,7 @@
 from mast_aladin.app import MastAladin, gca
+from mast_aladin.utils.validators import guess_coord_cols
 from unittest.mock import Mock, patch
-from astropy.table import Table
+from astropy.table import Table, QTable
 import pytest
 
 
@@ -66,3 +67,38 @@ def test_add_invalid_table(mock_table_from_s3, MastAladin_app):
         MastAladin_app.add_table(parquet_uri)
 
     mock_table_from_s3.assert_not_called()
+
+
+def test_guess_ra_dec_columns(MastAladin_app):
+    """
+    Test that the guess_coord_cols function correctly identifies RA and Dec columns
+    from a given astropy table.
+    """
+    # these are the unique variations in VO TAP query outputs
+    ra_variations = ['ALPHA_J2000', 'RA', 'RA_deg', 'matchra', 'ra', 'ra_img', 'radeg',
+                     'ramean', 's_ra', 'sci_ra', 'targ_ra', 'trgposra']
+    dec_variations = ['DEC', 'DEC_deg', 'DELTA_J2000', 'dec', 'decdeg', 'decl',
+                      'decl_img', 'decmean', 'matchdec', 's_dec', 'sci_dec', 'targ_dec',
+                      'trgposdec']
+
+    variations_to_pass = list(zip(ra_variations, dec_variations))
+
+    for v in variations_to_pass:
+        ra, dec = v
+        tab = QTable({ra: [10.0], dec: [-5.0]})
+
+        guess_ra = guess_coord_cols('ra', tab)
+        guess_dec = guess_coord_cols('dec', tab)
+        assert guess_ra == ra
+        assert guess_dec == dec
+        MastAladin_app.add_table(tab)
+
+    # check that certain strings that contain 'ra' and 'dec' substrings are not
+    # misidentified as coordinate columns
+    tab = QTable({'radial_velocity': [10.0], 'fluxradius': [5.0], 'decrement': [1.0]})
+    guess_ra = guess_coord_cols('ra', tab)
+    guess_dec = guess_coord_cols('dec', tab)
+    # none of the column names in the input table should have been identified as RA or Dec columns,
+    # so they should be set as a placeholder value of '---'
+    assert guess_ra == '---'
+    assert guess_dec == '---'
