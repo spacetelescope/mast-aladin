@@ -11,7 +11,6 @@ COORD_WORDS_TO_EXCLUDE = ['radius', 'radio', 'radial', 'extragalactic',
                           'err', 'bbox', 'min', 'max', 'error', 'xp']
 
 
-
 def is_valid_s3_uri(uri: str) -> bool:
     parsed = urlparse(uri)
     # Check scheme is 's3' and a bucket name exists in netloc
