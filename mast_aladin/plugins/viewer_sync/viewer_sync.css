@@ -4,6 +4,11 @@
   opacity: 1;
 }
 
+.input {
+  color: light-dark(black, white);
+  opacity: 1;
+}
+
 .viewer-sync-plugin {
   align-items: flex-start;
   margin-inline: 0 !important;
@@ -164,4 +169,5 @@
 .widget-title {
   font-weight: normal;
   color: light-dark(black, white);
+  margin-bottom: 8px;
 }
