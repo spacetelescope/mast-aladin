@@ -54,7 +54,7 @@
           closable-chips
           variant="outlined"
           hide-details
-          :menu-props="{ attach: '#destination_selection' }"
+          :menu-props="{ contentClass: 'viewer-sync-menu' }"
           rounded="0"
           density="compact"
           :description="description"

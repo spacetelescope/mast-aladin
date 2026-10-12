@@ -22,7 +22,7 @@
           :label="label"
           variant="outlined"
           hide-details
-          :menu-props="{ attach: '#source_selector' }"
+          :menu-props="{ contentClass: 'viewer-sync-menu' }"
           rounded="0" 
           density="compact"
           :description="description"
