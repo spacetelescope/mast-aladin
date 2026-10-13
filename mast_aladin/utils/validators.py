@@ -40,7 +40,9 @@ def check_table_for_columns(table, ra_field, dec_field):
             raise ValueError(f"{name} column '{col}' not found in table.")
 
 
-def guess_coord_cols(col, table):
+def guess_coord_cols(col,
+                     table,
+                     radec_field=None):
     """
     Rough guess at detecting RA/Dec columns from input table to determine
     the initial selections for the column select dropdown. This starts
@@ -58,16 +60,16 @@ def guess_coord_cols(col, table):
     }
 
     if not isinstance(table, (Table, QTable)):
-        return
+        return '---'
 
     colnames = table.colnames
 
     if colnames is None:
-        return
+        return '---'
 
     idx = None
     # if column is given as an astropy SkyCoord, find the first column that is a SkyCoord
-    if col in ['ra', 'dec']:
+    if col in ["ra", "dec"] and radec_field is None:
         col_is_sc = [isinstance(table[colnames[i]], SkyCoord) for i in range(len(colnames))]
         if np.any(col_is_sc):
             idx = np.where(col_is_sc)[0][0]

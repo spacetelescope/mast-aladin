@@ -238,17 +238,15 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # for large catalogs, show sources within the viewport up to `n_sources_max`;
             # otherwise use `performance_cls` to show an "optimized" vizualization.
             # construct a performance catalog layer:
-            if ra_field is None:
-                ra_field = guess_coord_cols("ra", table)
 
-            if dec_field is None:
-                dec_field = guess_coord_cols("dec", table)
+            ra_field = guess_coord_cols("ra", table, ra_field)
+            dec_field = guess_coord_cols("dec", table, dec_field)
 
             if isinstance(ra_field, SkyCoord):
                 ra_field = ra_field.ra
                 dec_field = ra_field.dec
 
-            if ra_field == "---" or dec_field == "---":
+            if '---' in [ra_field, dec_field]:
                 raise ValueError(
                     "Could not automatically determine RA/Dec columns in table. "
                     "Please specify `ra_field` and `dec_field` explicitly."
