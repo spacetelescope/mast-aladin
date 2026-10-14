@@ -40,8 +40,8 @@ def check_table_for_columns(table, ra_field, dec_field):
 
 
 def find_coord_col(col,
-                     table_colnames,
-                     radec_field=None):
+                   table_colnames,
+                   radec_field=None):
     """
     Determines the likely RA/Dec column name from a table. First checks
     for the presence of a SkyCoord (if col is 'ra' or 'dec'), and then checks
