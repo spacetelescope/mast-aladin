@@ -18,7 +18,7 @@ from mast_aladin.aida import AIDA
 from mast_aladin.mixins import DelayUntilRendered
 import mast_aladin.utils.parquet as parquet
 from mast_aladin.utils.validators import (
-    is_valid_s3_uri, check_table_for_columns, guess_coord_cols
+    is_valid_s3_uri, check_table_for_columns, find_coord_col
 )
 from mast_aladin.catalogs import (
     PerformanceCatalog,
@@ -125,13 +125,13 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
         ra_field : str, optional
             For source catalog tables, ``ra_field`` is the column name in ``table``
-            corresponding to the right ascension of a source. If not given, it is
-            guessed automatically from common RA column naming conventions.
+            corresponding to the right ascension of a source. If not specified,
+            it is automatically inferred from standard RA column naming conventions.
 
         dec_field : str, optional
             For source catalog tables, ``dec_field`` is the column name in ``table``
-            corresponding to the declination of a source. If not given, it is
-            guessed automatically from common Dec column naming conventions.
+            corresponding to the declination of a source. If not specified, it is
+            automatically inferred from standard Dec column naming conventions.
 
         performance_cls : Subclass of `~mast_aladin.catalogs.performance.PerformanceCatalog`
                           or None, optional
@@ -239,8 +239,10 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # otherwise use `performance_cls` to show an "optimized" vizualization.
             # construct a performance catalog layer:
 
-            ra_field = guess_coord_cols("ra", table, ra_field)
-            dec_field = guess_coord_cols("dec", table, dec_field)
+            if not ra_field:
+                ra_field = find_coord_col("ra", table, ra_field)
+            if not dec_field:
+                dec_field = find_coord_col("dec", table, dec_field)
 
             if isinstance(ra_field, SkyCoord):
                 ra_field = ra_field.ra
