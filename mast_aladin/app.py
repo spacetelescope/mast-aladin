@@ -14,6 +14,11 @@ from ipyaladin import Aladin
 
 from mast_table import MastTable
 
+from IPython.display import display
+from sidecar import Sidecar
+import ipywidgets as widgets
+from ipypopout import PopoutButton
+
 from mast_aladin.aida import AIDA
 from mast_aladin.mixins import DelayUntilRendered
 import mast_aladin.utils.parquet as parquet
@@ -56,6 +61,7 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         _latest_instantiated_app = self
 
         self.sidecar = kwargs.get("sidecar", None)
+        self.popout_button = PopoutButton(self, window_features="popup,width=800,height=600")
 
     def load_table(
         self,
@@ -392,6 +398,76 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             unit='deg'
         )
         return PolygonSkyRegion(sky_corners)
+
+    def show(self, loc="sidecar:split-right", title="mast-aladin", ref=None):
+        """
+        Display MastAladin.
+
+        Parameters
+        ----------
+        loc : str, optional (default "sidecar:split-right")
+            Location to display the MastAladin. Supported locations:
+                "inline": Displays the MastAladin inline in a notebook.
+                "sidecar": Displays the MastAladin in a separate JupyterLab window from the
+                    notebook, with location decided by 'anchor'. Anchor options available from
+                    ``jupyterlab-sidecar`` are:
+                        {'split-right', 'split-left', 'split-top', 'split-bottom', 'tab-before',
+                         'tab-after', 'right'}
+                    Example loc for a sidecar at the bottom is ``loc='sidecar:split-bottom'``.
+                "popout": Display the MastAladin in a detached display. By default, a new
+                    window will open (browser popup permissions required). Anchor options are:
+                        * ``popout:window`` (default, opens MastAladin in a new, detached popout)
+                        * ``popout:tab`` (opens MastAladin in a new, detached tab in your browser)
+
+        title : str, optional (default "mast-aladin")
+            The title of the sidecar tab, only applicable to a "sidecar" display.
+
+        ref: Sidecar, optional (default None)
+            An existing reference sidecar. Opens the new sidecar display with its anchor defined
+            relative to the ref sidecar. Only applicable to a "sidecar" display.
+
+        """
+        valid_anchors = [
+            "split-right", "split-left", "split-top", "split-bottom",
+            "tab-before", "tab-after", "right", None
+        ]
+
+        if type(loc) is not str:
+            raise ValueError("Invalid loc provided. Must be a string.")
+
+        if loc == "inline":
+            display(self)
+        elif loc.startswith("sidecar"):
+            anchor = None if loc == "sidecar" else loc.split(":")[-1]
+
+            if anchor not in valid_anchors:
+                raise ValueError(
+                    "Invalid anchor provided. Must be one of the available from "
+                    "``jupyterlab-sidecar``. Valid anchors are: "
+                    f"{valid_anchors[:-1]}")
+
+            sc = Sidecar(title=title, anchor=anchor, ref=ref)
+            with sc:
+                display(self)
+
+        elif loc.startswith("popout"):
+            anchor = None if loc == "popout" else loc.split(":")[-1]
+
+            if not hasattr(self, "_popout_output"):
+                self._popout_output = widgets.Output()
+
+            with self._popout_output:
+                self.height = 600
+                display(self.popout_button)
+
+            if anchor in (None, "window"):
+                self.popout_button.open_window()
+            elif anchor == "tab":
+                self.popout_button.open_tab()
+            else:
+                raise ValueError(
+                    "Invalid anchor provided. Must be 'window' or 'tab'."
+                )
 
 
 def gca():
