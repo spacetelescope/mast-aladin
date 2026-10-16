@@ -18,7 +18,7 @@ from mast_aladin.aida import AIDA
 from mast_aladin.mixins import DelayUntilRendered
 import mast_aladin.utils.parquet as parquet
 from mast_aladin.utils.validators import (
-    is_valid_s3_uri, check_table_for_columns, find_coord_col
+    is_valid_s3_uri, check_table_for_columns, guess_coord_cols
 )
 from mast_aladin.catalogs import (
     PerformanceCatalog,
@@ -239,10 +239,13 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # otherwise use `performance_cls` to show an "optimized" vizualization.
             # construct a performance catalog layer:
 
-            if not ra_field:
-                ra_field = find_coord_col("ra", table, ra_field)
-            if not dec_field:
-                dec_field = find_coord_col("dec", table, dec_field)
+            if ra_field is None and dec_field is None:
+                ra_field, dec_field = guess_coord_cols(table)
+            # covering the unlikely case that one of the two is provided but not the other:
+            if ra_field is None:
+                ra_field = guess_coord_cols(table)[0]
+            if dec_field is None:
+                dec_field = guess_coord_cols(table)[1]
 
             if isinstance(ra_field, SkyCoord):
                 ra_field = ra_field.ra

@@ -1,5 +1,5 @@
 from mast_aladin.app import MastAladin, gca
-from mast_aladin.utils.validators import find_coord_col
+from mast_aladin.utils.validators import guess_coord_cols
 from unittest.mock import Mock, patch
 from astropy.table import Table, QTable
 import pytest
@@ -87,8 +87,7 @@ def test_guess_ra_dec_columns(MastAladin_app):
         ra, dec = v
         tab = QTable({ra: [10.0], dec: [-5.0]})
 
-        guess_ra = find_coord_col('ra', tab.colnames)
-        guess_dec = find_coord_col('dec', tab.colnames)
+        guess_ra, guess_dec = guess_coord_cols(tab)
         assert guess_ra == ra
         assert guess_dec == dec
         MastAladin_app.add_table(tab)
@@ -96,8 +95,7 @@ def test_guess_ra_dec_columns(MastAladin_app):
     # check that certain strings that contain 'ra' and 'dec' substrings are not
     # misidentified as coordinate columns
     tab = QTable({'radial_velocity': [10.0], 'fluxradius': [5.0], 'decrement': [1.0]})
-    guess_ra = find_coord_col('ra', tab.colnames)
-    guess_dec = find_coord_col('dec', tab.colnames)
+    guess_ra, guess_dec = guess_coord_cols(tab)
     # none of the column names in the input table should have been identified as RA or Dec columns,
     # so they should be set as a placeholder value of '---'
     assert guess_ra == '---'

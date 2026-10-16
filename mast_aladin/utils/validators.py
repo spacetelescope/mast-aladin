@@ -1,13 +1,20 @@
 import re
 from urllib.parse import urlparse
-
-import numpy as np
 from astropy.coordinates import SkyCoord
+from astropy.table import QTable, Table
+
 COORD_WORDS_TO_EXCLUDE = ['radius', 'radio', 'radial', 'extragalactic',
                           'infrared', 'fraction', 'gradient', 'ratio',
                           'integrated', 'radian', 'random', 'parallax', 'range',
                           'decade', 'decadal', 'decrement', 'deconvolve',
                           'err', 'bbox', 'min', 'max', 'error', 'xp']
+# regular expressions to guess which columns correspond to ra, dec
+COORD_PATTERNS = {
+    "ra": re.compile(r'^ra$|^ra|ra$|^rightascension$|^rightascension|rightascension$|'
+                     r'^right$|^ascension$|^ALPHA$|^ALPHA|ALPHA$', re.IGNORECASE),
+    "dec": re.compile(r'^dec$|^dec|dec$|^declination$|^declination|declination$'
+                      r'|^DELTA$|^DELTA|DELTA$', re.IGNORECASE)
+}
 
 
 def is_valid_s3_uri(uri: str) -> bool:
@@ -39,65 +46,71 @@ def check_table_for_columns(table, ra_field, dec_field):
             raise ValueError(f"{name} column '{col}' not found in table.")
 
 
-def find_coord_col(col,
-                   table_colnames,
-                   radec_field=None):
+
+def guess_coord_cols(table, ra_field=None, dec_field=None):
     """
-    Determines the likely RA/Dec column name from a table. First checks
-    for the presence of a SkyCoord (if col is 'ra' or 'dec'), and then checks
-    against common source catalog RA/Dec column names. If no good
-    candidate column is found, this returns '---' (no selection).
+    Determine the likely RA and Dec column names in `table` in a single pass.
+
+    If `ra_field` and/or `dec_field` are explicitly provided, they are returned
+    as-is for that coordinate. Otherwise, this first checks for the presence of a
+    `~astropy.coordinates.SkyCoord` column, then checks if any columns contain
+    UCDs in the metadata that indicate they are RA/Dec columns, and then falls back
+    to matching column names against conventional source catalog RA/Dec
+    naming patterns. If no good candidate column is found for a coordinate,
+    `'---'` is returned for that coordinate (no selection).
 
     Parameters
     ----------
-    col : str
-        The coordinate column to guess ('ra' or 'dec').
-    table_colnames : list or tuple
-        The column names of the table to search.
-    radec_field : str, optional
-        If provided, this is the name of the RA/Dec column to use instead of guessing.
+    table : `~astropy.table.Table` or `~astropy.table.QTable`
+        The table to search for RA/Dec columns.
+    ra_field, dec_field : str, optional
+        If provided, used directly instead of guessing for that coordinate.
+
+    Returns
+    -------
+    tuple of str
+        ``(ra_column, dec_column)``. Either entry may be ``'---'`` if no good
+        candidate column was found (and none was given explicitly).
     """
 
-    # regular expressions to guess which columns correspond to ra, dec
-    COORD_PATTERNS = {
-        "ra": re.compile(r'^ra$|^ra|ra$|^rightascension$|^rightascension|rightascension$|'
-                         r'^right$|^ascension$|^ALPHA$|^ALPHA|ALPHA$', re.IGNORECASE),
-        "dec": re.compile(r'^dec$|^dec|dec$|^declination$|^declination|declination$'
-                          r'|^DELTA$|^DELTA|DELTA$', re.IGNORECASE)
-    }
+    if not isinstance(table, (Table, QTable)):
+        return ra_field or '---', dec_field or '---'
 
-    if not isinstance(table_colnames, (list, tuple)):
-        return '---'
+    if ra_field is not None and dec_field is not None:
+        return ra_field, dec_field
 
-    if table_colnames is None:
-        return '---'
+    table_colnames = table.colnames
 
-    idx = None
-    # if column is given as an astropy SkyCoord, find the first column that is a SkyCoord
-    if col in ["ra", "dec"] and radec_field is None:
-        col_is_sc = [isinstance(table_colnames[i], SkyCoord) for i in range(len(table_colnames))]
-        if np.any(col_is_sc):
-            idx = np.where(col_is_sc)[0][0]
+    skycoord_col = next(
+        (name for name in table_colnames if isinstance(table[name], SkyCoord)),
+        None
+    )
 
-    if idx is None:
-        all_column_names = [str(x).lower().strip() for x in table_colnames]
+    all_column_names = [str(x).lower().strip() for x in table_colnames]
 
-        get_idx = lambda x, s, d: s.index(x) if x in s else d  # noqa: E731
+    for col in ("ra", "dec"):
+        field = ra_field if col == "ra" else dec_field
+        if field is not None:
+            continue
 
-        if col in ("ra", "dec"):
+        if skycoord_col is not None:
+            guess = skycoord_col
+        else:
             token_pattern = COORD_PATTERNS[col]
+            guess = next(
+                (table_colnames[i] for i, name in enumerate(all_column_names)
+                 if check_col_tokens(col, token_pattern, re.split(r'[\s_\-\.]+', name))),
+                '---'
+            )
+
+        if col == "ra":
+            ra_field = guess
+        elif col == "dec":
+            dec_field = guess
         else:
             raise NotImplementedError(f"Not a valid coordinate column: {col}.")
 
-        idx = next((get_idx(c, all_column_names, None) for c in all_column_names
-                    if check_col_tokens(col, token_pattern, re.split(r'[\s_\-\.]+', c))),
-                   None)
-
-    # if no good candidate found, default to '---' (no selection)
-    if idx is None:
-        return '---'
-    else:
-        return table_colnames[idx]
+    return ra_field, dec_field
 
 
 def check_col_tokens(col, token_pattern, tokens):

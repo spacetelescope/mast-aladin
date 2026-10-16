@@ -22,21 +22,23 @@ class TestUtils:
 
 
 @pytest.mark.parametrize("ra", ['ALPHA_J2000', 'RA', 'RA_deg', 'matchra', 'ra', 'ra_img',
-                                'radeg', 'ramean', 's_ra', 'sci_ra', 'targ_ra', 'trgposra'])
+                                'radeg', 'ramean', 's_ra', 'sci_ra', 'targ_ra', 'trgposra'],
+                         ids=lambda x: f"ra={x}")
 def test_guess_ra_column(ra):
     tab = QTable({ra: [10.0], 'dec': [-5.0]})
 
-    guess_ra = validators.find_coord_col('ra', tab.colnames)
+    guess_ra = validators.guess_coord_cols(tab)[0]
     assert guess_ra == ra
 
 
 @pytest.mark.parametrize("dec", ['DEC', 'DEC_deg', 'DELTA_J2000', 'dec', 'decdeg', 'decl',
                                  'decl_img', 'decmean', 'matchdec', 's_dec', 'sci_dec',
-                                 'targ_dec', 'trgposdec'])
+                                 'targ_dec', 'trgposdec'],
+                         ids=lambda x: f"dec={x}")
 def test_guess_dec_column(dec):
     tab = QTable({'ra': [10.0], dec: [-5.0]})
 
-    guess_dec = validators.find_coord_col('dec', tab.colnames)
+    guess_dec = validators.guess_coord_cols(tab)[1]
     assert guess_dec == dec
 
 
@@ -46,7 +48,6 @@ def test_guess_dec_column(dec):
 def test_guess_coord_column_exclude(ra, dec):
     tab = QTable({ra: [10.0], dec: [-5.0]})
 
-    guess_ra = validators.find_coord_col('ra', tab.colnames)
+    guess_ra, guess_dec = validators.guess_coord_cols(tab)
     assert guess_ra == '---'
-    guess_dec = validators.find_coord_col('dec', tab.colnames)
     assert guess_dec == '---'
