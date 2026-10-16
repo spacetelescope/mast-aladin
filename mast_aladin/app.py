@@ -239,9 +239,11 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # otherwise use `performance_cls` to show an "optimized" vizualization.
             # construct a performance catalog layer:
 
+            check_table_for_columns(table, ra_field, dec_field)
+
             if ra_field is None and dec_field is None:
                 ra_field, dec_field = guess_coord_cols(table)
-            # covering the unlikely case that one of the two is provided but not the other:
+            # covering the unlikely case that one is provided but not the other:
             if ra_field is None:
                 ra_field = guess_coord_cols(table)[0]
             if dec_field is None:
@@ -256,8 +258,6 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                     "Could not automatically determine RA/Dec columns in table. "
                     "Please specify `ra_field` and `dec_field` explicitly."
                 )
-
-            check_table_for_columns(table, ra_field, dec_field)
 
             if name is None:
                 name = f"Catalog {len(self.performance_catalogs) + 1}"

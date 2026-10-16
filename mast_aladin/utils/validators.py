@@ -46,7 +46,6 @@ def check_table_for_columns(table, ra_field, dec_field):
             raise ValueError(f"{name} column '{col}' not found in table.")
 
 
-
 def guess_coord_cols(table, ra_field=None, dec_field=None):
     """
     Determine the likely RA and Dec column names in `table` in a single pass.
@@ -57,7 +56,7 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
     UCDs in the metadata that indicate they are RA/Dec columns, and then falls back
     to matching column names against conventional source catalog RA/Dec
     naming patterns. If no good candidate column is found for a coordinate,
-    `'---'` is returned for that coordinate (no selection).
+    '---' is returned for that coordinate (no selection).
 
     Parameters
     ----------
@@ -69,7 +68,7 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
     Returns
     -------
     tuple of str
-        ``(ra_column, dec_column)``. Either entry may be ``'---'`` if no good
+        (ra_column, dec_column). Either entry may be '---' if no good
         candidate column was found (and none was given explicitly).
     """
 
@@ -96,12 +95,26 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
         if skycoord_col is not None:
             guess = skycoord_col
         else:
-            token_pattern = COORD_PATTERNS[col]
-            guess = next(
-                (table_colnames[i] for i, name in enumerate(all_column_names)
-                 if check_col_tokens(col, token_pattern, re.split(r'[\s_\-\.]+', name))),
-                '---'
+            # check if any columns have a UCD that indicates they are RA/Dec columns
+            ucd_key = f'pos.eq.{col}'
+            ucd_col = next(
+                (name for name in table_colnames
+                 if ucd_key in [atom.strip().lower()
+                                for atom in table[name].meta.get('ucd', '').split(';')]),
+                None
             )
+
+            if ucd_col is not None:
+                guess = ucd_col
+            else:
+                # finally, check if any column names match the conventional RA/Dec naming patterns
+                token_pattern = COORD_PATTERNS[col]
+                guess = next(
+                    (table_colnames[i] for i, name in enumerate(all_column_names)
+                     if check_col_tokens(col, token_pattern,
+                                         re.split(r'[\s_\-\.]+', name))),
+                    '---'
+                )
 
         if col == "ra":
             ra_field = guess

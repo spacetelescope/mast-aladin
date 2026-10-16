@@ -51,3 +51,16 @@ def test_guess_coord_column_exclude(ra, dec):
     guess_ra, guess_dec = validators.guess_coord_cols(tab)
     assert guess_ra == '---'
     assert guess_dec == '---'
+
+
+@pytest.mark.parametrize("ra_meta, dec_meta",
+                         [("pos.eq.ra", "pos.eq.dec"),
+                          ("pos.eq.ra;meta.main", "pos.eq.dec;meta.main")])
+def test_guess_ucd_column(ra_meta, dec_meta):
+    tab = QTable({'pos1': [10.0], 'pos2': [-5.0]})
+    tab['pos1'].meta['ucd'] = ra_meta
+    tab['pos2'].meta['ucd'] = dec_meta
+
+    guess_ra, guess_dec = validators.guess_coord_cols(tab)
+    assert guess_ra == 'pos1'
+    assert guess_dec == 'pos2'
