@@ -24,8 +24,8 @@ class DestinationSelector(v.VuetifyTemplate):
         self.selected_columns = selected_columns or []
         self.disabled_columns = []
 
-        self.title = "Destination Widget(s)"
-        self.description = "The Widget(s) that will follow the Source's position and display settings."  # noqa: E501
+        self.title = "Destination widget(s)"
+        self.description = "The widget(s) that will follow the source's current viewport settings."  # noqa: E501
         self.label = "dest ="
 
     def _get_selected_columns(self):

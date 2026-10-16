@@ -16,7 +16,7 @@
             :aria-label="disabled ? 'Synchronization unavailable' : `${value} synchronization`"
             rounded="0"
             variant="flat"
-            @click="value = value === 'Sync' ? 'Desync' : 'Sync'"
+            @click="value = value === 'Sync' ? 'Stop Sync' : 'Sync'"
           >
             {{ disabled ? 'Sync unavailable' : value }}
           </v-btn>

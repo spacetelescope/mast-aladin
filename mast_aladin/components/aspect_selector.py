@@ -21,7 +21,7 @@ class AspectSelector(v.VuetifyTemplate):
 
         self.options = options
         self.selected = list(options)  # Default to all options selected
-        self.title = "Aspect Selector"
+        self.title = "Aspect selector"
         self.label = "Aspects"
         self.descriptions = descriptions or {}
 

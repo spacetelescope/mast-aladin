@@ -9,7 +9,7 @@ from mast_aladin.components import AspectSelector, DestinationSelector, SourceSe
 VIEWER_SYNC_CSS = Path(__file__).with_name("viewer_sync.css").read_text()
 
 
-class ViewerSyncPlugin():
+class ViewerSync():
     def __init__(self, app_manager):
         self.app_manager = app_manager
 
@@ -48,10 +48,10 @@ class ViewerSyncPlugin():
     @property
     def ui(self):
         styles = v.Html(tag="style", children=[VIEWER_SYNC_CSS])
-        header = v.Html(tag="h3", children=["Viewer Sync Plugin"])
+        header = v.Html(tag="h3", children=["Viewer Sync"])
         description = v.Html(tag="p", children=[
             """
-            To Sync: choose a source widget, select the destination widget(s) that
+            To sync: choose a source widget, select the destination widget(s) that
             should follow it, and specify which viewport properties to keep
             synchronized.
             """
@@ -135,15 +135,23 @@ class ViewerSyncPlugin():
         self.destination_dropdown.columns = new_options
 
     def _refresh_adapters(self):
-        for idx, app in self.app_manager.apps.items():
-            if idx in self._adapters:
-                pass
+        # remove adapters for apps that are no longer present
+        new_adapters = {}
+        for name in self._adapters.keys():
+            if name in self.app_manager.apps:
+                new_adapters[name] = self._adapters[name]
+        self._adapters = new_adapters
+
+        # add adapters for any new apps that are present
+        for name, app in self.app_manager.apps.items():
+            if name in self._adapters:
+                continue
 
             adapter = get_adapter(app)
             if adapter is None:
-                pass
+                continue
 
-            self._adapters[idx] = adapter(app)
+            self._adapters[name] = adapter(app)
 
     def display(self):
         display(self.ui)

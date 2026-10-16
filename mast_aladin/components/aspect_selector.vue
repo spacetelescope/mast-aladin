@@ -61,6 +61,10 @@
             >
               {{ label }} =
             </v-btn>
+            <v-divider
+                class="option-divider border-opacity-100 my-1 mx-0"
+                vertical
+              />
             <template v-for="(option, index) in option_items" :key="option.value">
               <v-btn
                 v-bind="props"

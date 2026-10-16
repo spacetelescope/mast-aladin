@@ -17,8 +17,8 @@ class SourceSelector(v.VuetifyTemplate):
         self.columns = columns
         self.selected_column = selected_column
 
-        self.title = "Source Widget"
-        self.description = "The Widget whose current position and display settings control the synchronized view."  # noqa: E501
+        self.title = "Source widget"
+        self.description = "The widget whose current viewport settings control the synchronized view."  # noqa: E501
         self.label = "source ="
 
     @traitlets.observe("columns")

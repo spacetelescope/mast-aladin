@@ -1,12 +1,12 @@
 import ipywidgets as widgets
-from mast_aladin.plugins import ViewerSyncPlugin
+from mast_aladin.plugins import ViewerSync
 from IPython.display import display
 
 
 class PluginManager():
     def __init__(self, mast_manager):
         self._plugins = {
-            "viewer_sync": ViewerSyncPlugin(mast_manager.AppManager),
+            "viewer_sync": ViewerSync(mast_manager.AppManager),
         }
 
     @property
