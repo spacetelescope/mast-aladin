@@ -96,13 +96,18 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
             guess = skycoord_col
         else:
             # check if any columns have a UCD that indicates they are RA/Dec columns
-            ucd_key = f'pos.eq.{col}'
-            ucd_col = next(
-                (name for name in table_colnames
-                 if ucd_key in [atom.strip().lower()
-                                for atom in table[name].meta.get('ucd', '').split(';')]),
-                None
-            )
+            ucd_prefix = f'pos.eq.{col}'
+            column_ucds = {
+                name: (table[name].meta.get('ucd') or '').strip().lower()
+                for name in table_colnames
+            }
+            ucd_col = (next(
+                (name for name, ucd in column_ucds.items()
+                 if ucd == f'{ucd_prefix};meta.main'), None)
+                       or next(
+                    (name for name, ucd in column_ucds.items()
+                     if ucd.startswith(ucd_prefix)), None)
+                       )
 
             if ucd_col is not None:
                 guess = ucd_col

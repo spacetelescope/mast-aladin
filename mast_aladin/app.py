@@ -207,6 +207,28 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                     f"table='{table}' is not a valid S3 URI for a parquet table."
                 )
 
+        try:
+            check_table_for_columns(table, ra_field, dec_field)
+        except ValueError:
+            ra_field = None
+            dec_field = None
+
+        # search for ra/dec columns
+        if ra_field is None or dec_field is None:
+            ra_guess, dec_guess = guess_coord_cols(table, ra_field, dec_field)
+            ra_field = ra_field or ra_guess
+            dec_field = dec_field or dec_guess
+
+        if isinstance(ra_field, SkyCoord):
+            ra_field = ra_field.ra
+            dec_field = ra_field.dec
+
+        if '---' in [ra_field, dec_field]:
+            raise ValueError(
+                "Could not automatically determine RA/Dec columns in table. "
+                "Please specify `ra_field` and `dec_field` explicitly."
+            )
+
         # add an already-constructed performance catalog
         if isinstance(table, PerformanceCatalog):
             table._attach_to_mast_aladin(self)
@@ -238,26 +260,6 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # for large catalogs, show sources within the viewport up to `n_sources_max`;
             # otherwise use `performance_cls` to show an "optimized" vizualization.
             # construct a performance catalog layer:
-
-            check_table_for_columns(table, ra_field, dec_field)
-
-            if ra_field is None and dec_field is None:
-                ra_field, dec_field = guess_coord_cols(table)
-            # covering the unlikely case that one is provided but not the other:
-            if ra_field is None:
-                ra_field = guess_coord_cols(table)[0]
-            if dec_field is None:
-                dec_field = guess_coord_cols(table)[1]
-
-            if isinstance(ra_field, SkyCoord):
-                ra_field = ra_field.ra
-                dec_field = ra_field.dec
-
-            if '---' in [ra_field, dec_field]:
-                raise ValueError(
-                    "Could not automatically determine RA/Dec columns in table. "
-                    "Please specify `ra_field` and `dec_field` explicitly."
-                )
 
             if name is None:
                 name = f"Catalog {len(self.performance_catalogs) + 1}"

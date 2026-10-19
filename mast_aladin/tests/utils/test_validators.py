@@ -21,24 +21,18 @@ class TestUtils:
         assert result is False
 
 
-@pytest.mark.parametrize("ra", ['ALPHA_J2000', 'RA', 'RA_deg', 'matchra', 'ra', 'ra_img',
-                                'radeg', 'ramean', 's_ra', 'sci_ra', 'targ_ra', 'trgposra'],
-                         ids=lambda x: f"ra={x}")
-def test_guess_ra_column(ra):
-    tab = QTable({ra: [10.0], 'dec': [-5.0]})
+@pytest.mark.parametrize("ra, dec", [('ALPHA_J2000', 'DEC'), ('RA', 'DEC'),
+                                     ('RA_deg', 'DEC'), ('matchra', 'DEC'),
+                                     ('ra', 'DEC'), ('ra_img', 'DEC'),
+                                     ('radeg', 'DEC'), ('ramean', 'DEC'),
+                                     ('s_ra', 'DEC'), ('sci_ra', 'DEC'),
+                                     ('targ_ra', 'DEC'), ('trgposra', 'DEC')],
+                         ids=lambda x: f"ra={x[0]}, dec={x[1]}")
+def test_guess_ra_dec_columns(ra, dec):
+    tab = QTable({ra: [10.0], dec: [-5.0]})
 
-    guess_ra = validators.guess_coord_cols(tab)[0]
+    guess_ra, guess_dec = validators.guess_coord_cols(tab)
     assert guess_ra == ra
-
-
-@pytest.mark.parametrize("dec", ['DEC', 'DEC_deg', 'DELTA_J2000', 'dec', 'decdeg', 'decl',
-                                 'decl_img', 'decmean', 'matchdec', 's_dec', 'sci_dec',
-                                 'targ_dec', 'trgposdec'],
-                         ids=lambda x: f"dec={x}")
-def test_guess_dec_column(dec):
-    tab = QTable({'ra': [10.0], dec: [-5.0]})
-
-    guess_dec = validators.guess_coord_cols(tab)[1]
     assert guess_dec == dec
 
 

@@ -22,7 +22,7 @@ def test_add_astropy_table(mock_table_from_s3, MastAladin_app):
     Test that the add_table method functions as defined by ipyaladin when
     given an astropy table, and that parquet logic is not invoked.
     """
-    table = Table()
+    table = Table(names=['ra', 'dec'], data=[[10.0], [-5.0]])
 
     result = MastAladin_app.add_table(table)
 
@@ -36,7 +36,7 @@ def test_add_parquet_table(mock_table_from_s3, MastAladin_app):
     Test that the add_table method correctly handles parquet URIs and invokes
     the super method from ipyaladin.
     """
-    mock_table = Table()
+    mock_table = Table(names=['ra', 'dec'], data=[[10.0], [-5.0]])
     mock_table_from_s3.return_value = mock_table
     parquet_uri = "s3://some-bucket/test.parquet"
 
