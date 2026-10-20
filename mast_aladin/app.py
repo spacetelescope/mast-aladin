@@ -432,8 +432,8 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             "tab-before", "tab-after", "right", None
         ]
 
-        if type(loc) is not str:
-            raise ValueError("Invalid loc provided. Must be a string.")
+        if not isinstance(loc, str):
+            raise TypeError("Invalid loc type provided. Must be a string.")
 
         if loc == "inline":
             display(self)
@@ -468,6 +468,8 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                 raise ValueError(
                     "Invalid anchor provided. Must be 'window' or 'tab'."
                 )
+        else:
+            raise ValueError("Invalid loc provided. Must be 'inline', 'sidecar', or 'popout'.")
 
 
 def gca():
