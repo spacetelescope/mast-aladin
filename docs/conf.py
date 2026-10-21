@@ -37,6 +37,8 @@ intersphinx_mapping = {
     'regions': ('https://astropy-regions.readthedocs.io/en/stable/', None),
     'ipyaladin': ('https://cds-astro.github.io/ipyaladin/', None),
     'scipy': ("https://docs.scipy.org/doc/scipy/", None),
+    'astroquery': ('https://astroquery.readthedocs.io/en/stable/', None),
+    'mast-table': ('https://mast-table.readthedocs.io/en/latest/', None),
 }
 
 # Add any Sphinx extension module names here, as strings. They can be
