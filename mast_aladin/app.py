@@ -207,14 +207,10 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                     f"table='{table}' is not a valid S3 URI for a parquet table."
                 )
 
-        try:
+        if ra_field is not None and dec_field is not None:
             check_table_for_columns(table, ra_field, dec_field)
-        except ValueError:
-            ra_field = None
-            dec_field = None
-
-        # search for ra/dec columns
-        if ra_field is None or dec_field is None:
+        else:
+            # search for ra/dec columns
             ra_guess, dec_guess = guess_coord_cols(table, ra_field, dec_field)
             ra_field = ra_field or ra_guess
             dec_field = dec_field or dec_guess
