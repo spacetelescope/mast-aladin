@@ -100,3 +100,9 @@ def test_guess_ra_dec_columns(MastAladin_app):
     # so they should be set as a placeholder value of '---'
     assert guess_ra == '---'
     assert guess_dec == '---'
+
+def test_illegal_column_names(MastAladin_app):
+    tab = QTable({'ra': [10.0], 'dec': [5.0]})
+
+    with pytest.raises(ValueError):
+        MastAladin_app.add_table(tab, ra_field='nonexistent_ra', dec_field='nonexistent_dec')

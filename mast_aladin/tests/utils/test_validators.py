@@ -21,12 +21,12 @@ class TestUtils:
         assert result is False
 
 
-@pytest.mark.parametrize("ra, dec", [('ALPHA_J2000', 'DEC'), ('RA', 'DEC'),
-                                     ('RA_deg', 'DEC'), ('matchra', 'DEC'),
-                                     ('ra', 'DEC'), ('ra_img', 'DEC'),
-                                     ('radeg', 'DEC'), ('ramean', 'DEC'),
-                                     ('s_ra', 'DEC'), ('sci_ra', 'DEC'),
-                                     ('targ_ra', 'DEC'), ('trgposra', 'DEC')],
+@pytest.mark.parametrize("ra, dec", [('ALPHA_J2000', 'DELTA_J2000'), ('RA', 'DEC'),
+                                     ('RA_deg', 'DEC_deg'), ('matchra', 'matchdec'),
+                                     ('ra', 'dec'), ('ra_img', 'dec_img'),
+                                     ('radeg', 'decdeg'), ('ramean', 'decmean'),
+                                     ('s_ra', 's_dec'), ('sci_ra', 'sci_dec'),
+                                     ('targ_ra', 'targ_dec'), ('trgposra', 'trgposdec')],
                          ids=lambda x: f"ra={x[0]}, dec={x[1]}")
 def test_guess_ra_dec_columns(ra, dec):
     tab = QTable({ra: [10.0], dec: [-5.0]})

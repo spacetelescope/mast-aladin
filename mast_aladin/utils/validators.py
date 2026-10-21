@@ -77,9 +77,6 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
     if not isinstance(table, (Table, QTable)):
         return ra_field or '---', dec_field or '---'
 
-    if ra_field is not None and dec_field is not None:
-        return ra_field, dec_field
-
     table_colnames = table.colnames
 
     skycoord_col = next(
@@ -89,6 +86,7 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
 
     all_column_names = [str(x).lower().strip() for x in table_colnames]
 
+    guesses = []
     for col in ("ra", "dec"):
         field = ra_field if col == "ra" else dec_field
         if field is not None:
@@ -123,14 +121,9 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
                     '---'
                 )
 
-        if col == "ra":
-            ra_field = guess
-        elif col == "dec":
-            dec_field = guess
-        else:
-            raise NotImplementedError(f"Not a valid coordinate column: {col}.")
+        guesses.append(guess)
 
-    return ra_field, dec_field
+    return guesses
 
 
 def check_col_tokens(col, token_pattern, tokens):
