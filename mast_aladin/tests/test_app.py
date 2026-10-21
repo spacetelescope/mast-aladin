@@ -1,6 +1,8 @@
 from mast_aladin.app import MastAladin, gca
 from unittest.mock import Mock, patch
 from astropy.table import Table
+from astroquery.exceptions import InvalidQueryError
+from astroquery.mast import MastMissionsClass
 import pytest
 
 
@@ -66,3 +68,78 @@ def test_add_invalid_table(mock_table_from_s3, MastAladin_app):
         MastAladin_app.add_table(parquet_uri)
 
     mock_table_from_s3.assert_not_called()
+
+
+ORIG_FILENAME = "r0034201001001001001_0001_wfi01_f087_coadd.asdf"
+L3_FILESET_NAME = ORIG_FILENAME.rpartition('_')[0]
+
+
+def _mock_mission_app():
+    mission_app = Mock(spec=MastMissionsClass)
+    l3_table = Table({"category": ["3"], "fileSetName": [L3_FILESET_NAME]})
+
+    def get_unique_product_list(fileset_name):
+        if fileset_name == L3_FILESET_NAME:
+            return l3_table
+        raise InvalidQueryError("no match")
+
+    mission_app.get_unique_product_list.side_effect = get_unique_product_list
+    return mission_app
+
+
+def test_mock_mission_app_get_unique_product_list():
+    """
+    Unit test for the `get_unique_product_list` side-effect function used
+    by the `_mock_mission_app` test helper: it should return the Level 3
+    product table when queried with the matching fileSetName, and raise
+    `InvalidQueryError` for any other fileSetName.
+    """
+    mission_app = _mock_mission_app()
+
+    result = mission_app.get_unique_product_list(L3_FILESET_NAME)
+    assert len(result) == 1
+    assert result["fileSetName"][0] == L3_FILESET_NAME
+    assert result["category"][0] == "3"
+
+    with pytest.raises(InvalidQueryError, match="no match"):
+        mission_app.get_unique_product_list("some_other_fileset_name")
+
+
+@pytest.mark.parametrize("l4_filename", [
+    # standardized asdf filename for Roman Level 4 segmentation map product
+    "r0034201001001001001_0001_wfi01_f087_segm.asdf",
+    # file renamed by the user
+    "dummy.asdf",
+])
+def test_find_roman_level3_products_from_asdf(MastAladin_app, write_asdf_file, l4_filename):
+    l4_path = write_asdf_file(l4_filename, orig_filename=ORIG_FILENAME)
+    mission_app = _mock_mission_app()
+
+    result = MastAladin_app.find_roman_level3_products(str(l4_path), mission_app)
+
+    assert len(result) > 0
+    assert result["fileSetName"][0] == L3_FILESET_NAME
+
+
+@pytest.mark.parametrize("l4_filename", [
+    # standardized parquet filename for Roman Level 4 catalog product
+    "r0034201001001001001_0001_wfi01_f087_cat.parquet",
+    # file renamed by the user
+    "dummy.parquet",
+])
+def test_find_roman_level3_products_from_parquet(MastAladin_app, write_parquet_file, l4_filename):
+    l4_path = write_parquet_file(l4_filename, orig_filename=ORIG_FILENAME)
+    mission_app = _mock_mission_app()
+
+    result = MastAladin_app.find_roman_level3_products(str(l4_path), mission_app)
+
+    assert len(result) > 0
+    assert result["fileSetName"][0] == L3_FILESET_NAME
+
+
+def test_find_roman_level3_products_invalid_mission_app(MastAladin_app, write_asdf_file):
+    l4_path = write_asdf_file("dummy.asdf", orig_filename=ORIG_FILENAME)
+
+    with pytest.raises(TypeError,
+                       match="mission_app must be an instance of MastMissionsClass, not <class 'NoneType'>."):  # noqa: E501
+        MastAladin_app.find_roman_level3_products(str(l4_path), None)
