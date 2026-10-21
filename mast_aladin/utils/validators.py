@@ -41,9 +41,11 @@ def check_table_for_columns(table, ra_field, dec_field):
     ------
     ValueError
     """
-    for col, name in [[ra_field, 'RA'], [dec_field, 'Dec']]:
-        if col not in table.colnames:
-            raise ValueError(f"{name} column '{col}' not found in table.")
+    if (ra_field is not None and dec_field is not None
+            and ra_field in table.colnames and dec_field in table.colnames):
+        return ra_field, dec_field
+    else:
+        raise ValueError(f"RA column '{ra_field}' or Dec column '{dec_field}' not found in table.")
 
 
 def guess_coord_cols(table, ra_field=None, dec_field=None):
