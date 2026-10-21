@@ -101,6 +101,7 @@ def test_guess_ra_dec_columns(MastAladin_app):
     assert guess_ra == '---'
     assert guess_dec == '---'
 
+
 def test_illegal_column_names(MastAladin_app):
     tab = QTable({'ra': [10.0], 'dec': [5.0]})
 
