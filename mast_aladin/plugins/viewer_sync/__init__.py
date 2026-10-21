@@ -1,1 +1,1 @@
-from .viewer_sync_plugin import ViewerSyncPlugin  # noqa:F401
+from .viewer_sync import ViewerSync  # noqa:F401

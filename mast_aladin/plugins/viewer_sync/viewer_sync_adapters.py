@@ -44,7 +44,7 @@ class ViewerSyncAdapter(ABC):
 class MastAladinSyncAdapter(ViewerSyncAdapter):
     def __init__(self, viewer=None):
         self.viewer = viewer if viewer else gca()
-        self.aid = self.viewer.aid
+        self.aid = self.viewer
 
     def add_callback(self, func):
         self.viewer.observe(func, names=["_target", "_fov", "_rotation", "_projection"])
@@ -87,6 +87,13 @@ class JdavizSyncAdapter(ViewerSyncAdapter):
             orientation.set_north_up_east_left()
         except Exception as e:
             warnings.warn(f"Could not configure orientation: {e}")
+
+    def sync_to(self, sync_viewer, aspects):
+        # Remove "projection" from the list of aspects to sync, as it is not supported in jdaviz.
+        if "projection" in aspects:
+            aspects.remove("projection")
+
+        super().sync_to(sync_viewer, aspects)
 
     def add_callback(self, func):
         for name in ['x_min', 'reference_data']:
