@@ -88,10 +88,7 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
 
     guesses = []
     for col in ("ra", "dec"):
-        field = ra_field if col == "ra" else dec_field
-        if field is not None:
-            continue
-
+        
         if skycoord_col is not None:
             guess = skycoord_col
         else:
