@@ -211,7 +211,7 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             check_table_for_columns(table, ra_field, dec_field)
         else:
             # search for ra/dec columns
-            ra_guess, dec_guess = guess_coord_cols(table, ra_field, dec_field)
+            ra_guess, dec_guess = guess_coord_cols(table)
             ra_field = ra_field or ra_guess
             dec_field = dec_field or dec_guess
 
