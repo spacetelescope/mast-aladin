@@ -48,24 +48,21 @@ def check_table_for_columns(table, ra_field, dec_field):
         raise ValueError(f"RA column '{ra_field}' or Dec column '{dec_field}' not found in table.")
 
 
-def guess_coord_cols(table, ra_field=None, dec_field=None):
+def guess_coord_cols(table):
     """
     Determine the likely RA and Dec column names in `table` in a single pass.
 
-    If `ra_field` and/or `dec_field` are explicitly provided, they are returned
-    as-is for that coordinate. Otherwise, this first checks for the presence of a
-    `~astropy.coordinates.SkyCoord` column, then checks if any columns contain
-    UCDs in the metadata that indicate they are RA/Dec columns, and then falls back
-    to matching column names against conventional source catalog RA/Dec
-    naming patterns. If no good candidate column is found for a coordinate,
-    '---' is returned for that coordinate (no selection).
+    This first checks for the presence of a `~astropy.coordinates.SkyCoord` column,
+    then checks if any columns contain UCDs in the metadata that indicate they are
+    RA/Dec columns, and then falls back to matching column names against
+    conventional source catalog RA/Dec naming patterns. If no good candidate
+    column is found for a coordinate, '---' is returned for that
+    coordinate (no selection).
 
     Parameters
     ----------
     table : `~astropy.table.Table` or `~astropy.table.QTable`
         The table to search for RA/Dec columns.
-    ra_field, dec_field : str, optional
-        If provided, used directly instead of guessing for that coordinate.
 
     Returns
     -------
@@ -75,7 +72,7 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
     """
 
     if not isinstance(table, (Table, QTable)):
-        return ra_field or '---', dec_field or '---'
+        return ['---', '---']
 
     table_colnames = table.colnames
 
@@ -88,7 +85,7 @@ def guess_coord_cols(table, ra_field=None, dec_field=None):
 
     guesses = []
     for col in ("ra", "dec"):
-        
+
         if skycoord_col is not None:
             guess = skycoord_col
         else:
