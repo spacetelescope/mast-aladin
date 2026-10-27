@@ -107,3 +107,32 @@ def test_illegal_column_names(MastAladin_app):
 
     with pytest.raises(ValueError):
         MastAladin_app.add_table(tab, ra_field='nonexistent_ra', dec_field='nonexistent_dec')
+
+
+def test_show_invalid_locs():
+    """
+    Test that the show method correctly raises errors for invalid locs.
+    """
+    ma = MastAladin()
+
+    # check invalid loc type
+    with pytest.raises(TypeError, match="Invalid loc type provided. Must be a string."):
+        ma.show(loc=1234)
+
+    # check invalid sidecar anchor
+    with pytest.raises(ValueError, match="Invalid anchor provided. Must be one of"):
+        ma.show(loc="sidecar:invalid")
+
+    # check invalid popout anchor
+    with pytest.raises(
+        ValueError,
+        match="Invalid anchor provided. Must be 'window' or 'tab'"
+    ):
+        ma.show(loc="popout:invalid")
+
+    # check invalid loc str
+    with pytest.raises(
+        ValueError,
+        match="Invalid loc provided. Must be 'inline', 'sidecar', or 'popout'."
+    ):
+        ma.show(loc="invalid")
