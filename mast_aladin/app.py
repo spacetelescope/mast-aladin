@@ -113,7 +113,10 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         Parameters
         ----------
         table : `~astropy.table.table.QTable` or `~astropy.table.table.Table` or `str`
-            The table to add. Valid types are astropy table and S3 URIs of parquet files.
+            or `mast_table.mast_table.MastTable`.
+            The table to add. Valid types are ``MastTable``, astropy table and S3 URIs of parquet files.
+            When a ``MastTable`` is provided, listeners will automatically be configured to synchronize
+            selections and filters between the ``MastTable`` and Aladin viewport.
 
         include_column_names : list[str], optional
             List of column names from the remote parquet table to stream into mast-aladin.
