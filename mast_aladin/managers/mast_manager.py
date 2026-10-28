@@ -1,5 +1,8 @@
 from .app_manager import AppManager
 from .plugin_manager import PluginManager
+from sidecar import Sidecar
+from mast_aladin import MastAladin
+from jdaviz.configs.deconfigged import App as JdavizApp
 
 
 class MastManager():
@@ -32,7 +35,7 @@ class MastManager():
     def register_app(self, app, id):
         """
         This is a passthrough method that allows users to register an app to the AppManager
-        directly from the MastManager.This is the recommended way to register apps, as it
+        directly from the MastManager. This is the recommended way to register apps, as it
         allows the MastManager to keep track of all registered applications and facilitate
         communication between them as needed.
 
@@ -52,3 +55,17 @@ class MastManager():
 
     def display_plugins(self):
         self._plugin_manager.display()
+
+    def display_apps(self):
+        self._app_manager.check_for_new_instances(None)
+        sc = None
+        for name, app in self._app_manager.apps.items():
+            if sc is None:
+                sc = Sidecar(title=name, anchor='split-right')
+            else:
+                sc = Sidecar(title=name, anchor='split-bottom', ref=sc)
+            with sc:
+                if isinstance(app, JdavizApp):
+                    app.show()
+                else:
+                    display(app)

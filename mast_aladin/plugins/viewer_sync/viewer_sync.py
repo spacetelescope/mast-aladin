@@ -75,7 +75,7 @@ class ViewerSync():
         # if the source changes while syncing, we want to stop syncing.
         if self._syncing:
             self.sync_switch.value = "Sync"
-        self.destination_dropdown.set_disabled_columns(self.source_dropdown.selected_column)
+        self._refresh_disabled_adapters()
         self._update_sync_switch_status()
 
     def _destination_on_change(self, change):
@@ -133,6 +133,19 @@ class ViewerSync():
         new_options = list(self._adapters.keys())
         self.source_dropdown.columns = new_options
         self.destination_dropdown.columns = new_options
+        self._refresh_disabled_adapters()
+
+    def _refresh_disabled_adapters(self):
+        disabled = [
+            name for name, adapter in self._adapters.items()
+            if not adapter.ready
+        ]
+        self.source_dropdown.set_disabled_columns(*disabled)
+
+        source = self.source_dropdown.selected_column
+        if source:
+            disabled.append(source)
+        self.destination_dropdown.set_disabled_columns(*disabled)
 
     def _refresh_adapters(self):
         # remove adapters for apps that are no longer present
@@ -180,12 +193,12 @@ class ViewerSyncManager():
         self.destinations = destinations
         self.aspects = aspects
 
+        # add a callback to the source to update the destination when the view changes
+        self.source.add_callback(self._callback)
+
         # call the sync method once manually to align the views
         for destination in self.destinations:
             destination.sync_to(self.source, self.aspects)
-
-        # add a callback to the source to update the destination when the view changes
-        self.source.add_callback(self._callback)
 
     def stop_real_time_sync(self):
         prev_source = self.source

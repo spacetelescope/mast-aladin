@@ -19,6 +19,10 @@ def get_adapter(app):
 
 
 class ViewerSyncAdapter(ABC):
+    @property
+    def ready(self):
+        return True
+
     def sync_to(self, sync_viewer, aspects):
         source_viewport = sync_viewer.aid.get_viewport(sky_or_pixel="sky")
 
@@ -59,36 +63,58 @@ class MastAladinSyncAdapter(ViewerSyncAdapter):
 class JdavizSyncAdapter(ViewerSyncAdapter):
     def __init__(self, viewer=None):
         self.app = viewer if viewer else jdaviz.gca()
+        self._orientation_configured = self._configure_orientation()
 
-        # Get the first available image viewer
-        image_viewers = self.app._app.get_viewers_of_cls('ImvizImageView')
-        if image_viewers:
-            glue_viewer = image_viewers[0]
-        else:
-            raise ValueError(
-                "No compatible viewers available in jdaviz. You must "
-                "load data with a world coordinate system before using JdavizSyncAdapter."
-            )
-
-        self.viewer = self.app.viewers[glue_viewer._ref_or_id]
-        self.aid = glue_viewer.aid
-        self.state = glue_viewer.state
-
-        self._configure_orientation()
-
-    def _configure_orientation(self):
+    def _configure_orientation(self, warn=True):
         """Configure WCS alignment and orientation in jdaviz."""
         orientation = self.app.plugins.get('Orientation')
         if orientation is None:
-            return
+            return False
 
         try:
             orientation.align_by = 'WCS'
+        except Exception as e:
+            if warn:
+                warnings.warn(f"Could not configure WCS alignment: {e}")
+            return False
+
+        try:
             orientation.set_north_up_east_left()
         except Exception as e:
-            warnings.warn(f"Could not configure orientation: {e}")
+            if warn:
+                warnings.warn(f"Could not configure orientation: {e}")
+            return False
+
+        return True
+
+    @property
+    def viewer(self):
+        return self.app.viewers.get('Image')
+
+    @property
+    def state(self):
+        if self.viewer is None:
+            return None
+        return self.viewer._obj.glue_viewer.state
+
+    @property
+    def aid(self):
+        return self.viewer
+
+    @property
+    def ready(self):
+        if self.viewer is None:
+            return False
+
+        if not self._orientation_configured:
+            self._orientation_configured = self._configure_orientation(warn=False)
+
+        return self._orientation_configured
 
     def sync_to(self, sync_viewer, aspects):
+        if not self.ready:
+            return
+
         # Remove "projection" from the list of aspects to sync, as it is not supported in jdaviz.
         if "projection" in aspects:
             aspects.remove("projection")
@@ -96,6 +122,9 @@ class JdavizSyncAdapter(ViewerSyncAdapter):
         super().sync_to(sync_viewer, aspects)
 
     def add_callback(self, func):
+        if not self.ready:
+            return
+
         for name in ['x_min', 'reference_data']:
             try:
                 self.state.add_callback(name, func)
@@ -103,6 +132,9 @@ class JdavizSyncAdapter(ViewerSyncAdapter):
                 warnings.warn(f"Failed to add callback {name}: {e}")
 
     def remove_callback(self, func):
+        if self.state is None:
+            return
+
         for name in ['x_min', 'reference_data']:
             try:
                 self.state.remove_callback(name, func)
