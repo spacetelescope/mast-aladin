@@ -6,7 +6,7 @@ authors = [
     { name = "mast-aladin developers" },
 ]
 dependencies = [
-    "ipyaladin >= 0.8.1",
+    "ipyaladin @ git+https://github.com/tomdonaldson/ipyaladin@masked_selection",
     "astroquery",
     "sidecar >= 0.8.1",
     "jdaviz @ git+https://github.com/spacetelescope/jdaviz.git",
@@ -17,7 +17,7 @@ dependencies = [
     "solara >= v1.61.0",
     "roman-datamodels",
     "regions",
-    "mast-table @ git+https://github.com/spacetelescope/mast-table.git",
+    "mast-table @ git+https://github.com/tomdonaldson/mast-table@masked_selection_new",
     "pysiaf",
     "echo>=0.11.0",
     "fsspec",
