@@ -57,12 +57,7 @@ class DestinationSelector(v.VuetifyTemplate):
         self.selected_columns = self._get_selected_columns()
 
     def set_disabled_columns(self, *columns):
-        if columns is None:
-            columns = []
-        if isinstance(columns, str):
-            columns = [columns]
-
-        self.disabled_columns = columns
+        self.disabled_columns = list(columns)
 
     def vue_select_all(self, data=None):
         self.selected_columns = [
