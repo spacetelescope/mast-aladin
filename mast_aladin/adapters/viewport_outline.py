@@ -70,7 +70,7 @@ class ViewportOutline(HasTraits):
         """
         if self.aladin_overlay is not None:
             overlay_label = self.aladin_overlay['options']['name']
-            if overlay_label in self.aladin._overlays:
+            if overlay_label in self.aladin.overlays:
                 self.aladin.remove_overlay(self.aladin_overlay)
 
     def _clear_aladin_outline_in_jdaviz(self):
@@ -217,7 +217,7 @@ class ViewportOutline(HasTraits):
 
         if jdaviz_viewer_name is None:
             # Get first available image viewer
-            image_viewers = current_jdaviz_app.app.get_viewers_of_cls(
+            image_viewers = current_jdaviz_app._app.get_viewers_of_cls(
                 'ImvizImageView'
             )
             if image_viewers:
