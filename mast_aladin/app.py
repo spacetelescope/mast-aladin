@@ -1,11 +1,14 @@
 import os
+import warnings
 from pathlib import Path
-
 from traitlets import observe
+
 
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.wcs import WCS
+from astroquery.mast import MastMissions
+
 from regions import (
     PolygonSkyRegion
 )
@@ -13,6 +16,7 @@ from regions import (
 from ipyaladin import Aladin
 
 from mast_table import MastTable
+from mast_table.base import mission_mast_ra_dec_colnames
 
 from IPython.display import display
 from sidecar import Sidecar
@@ -470,6 +474,166 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                 )
         else:
             raise ValueError("Invalid loc provided. Must be 'inline', 'sidecar', or 'popout'.")
+
+    @property
+    def viewport_to_cone_search_args(self):
+        """
+        Get positional arguments for a cone search that circumscribes
+        the current viewport boundaries.
+
+        Results may be passed to `~astroquery.mast.missions.MastMissionsClass`,
+        for example.
+
+        Returns
+        -------
+        dict
+            Dictionary of the viewport center (``coordinates``) and the
+            angular separation from the center to a corner of the viewport
+            (``radius``).
+        """
+        fov_x, fov_y = self.fov_xy
+        coordinates = self.target
+
+        # measured from the center to the corner of the viewport:
+        radius = ((fov_x / 2) ** 2 + (fov_y / 2) ** 2) ** 0.5
+
+        return dict(
+            coordinates=coordinates,
+            radius=radius
+        )
+
+    def search_this_area(
+            self,
+            mission=None,
+            mission_mast=None,
+            add_footprints=True,
+            name="MAST Search",
+            replace=False,
+            **query_region_kwargs):
+        """
+        Search Missions MAST for observations from ``mission`` within the
+        current viewport, and optionally add the footprints to the viewer.
+
+        Runs a cone search via ``MastMissions.query_region``. The cone center
+        coordinate is the center of the viewport, and the cone radius
+        is the separation from the viewport's center to its corner, calculated
+        by ``~mast_aladin.app.MastAladin.viewport_to_cone_search_args``.
+
+        Extra keyword arguments are passed to ``MastMissions.query_region``.
+
+        Users can also provide a pre-configured `~astroquery.mast.missions.MastMissionsClass`
+        instance via ``mission_mast``. If both ``mission`` and ``mission_mast``
+        are specified, ``mission`` takes precedent.
+
+        Note: the maximum cone search radius supported by
+        `~astroquery.mast.missions.MastMissionsClass` is 30 arcmin.
+
+        Parameters
+        ----------
+        mission : str {'hst', 'jwst', 'roman'}, optional
+            Mission to query via Missions Mast. If None, ``mission_mast`` must
+            be given.
+        mission_mast : `~astroquery.mast.missions.MastMissionsClass`, optional
+            User-defined instance of `~astroquery.mast.missions.MastMissionsClass`. If None,
+            ``mission`` must be given.
+        add_footprints : bool, default True
+            Add the query results' observation footprints to Aladin
+        name : str, optional
+            Name given to footprint overlays in Aladin.
+        replace : bool, default False
+            If True and footprint overlays already exist with the name ``name``, replace
+            the existing footprint overlay with the new query result.
+        limit : int
+            Default is 5000. The maximum number of dataset IDs in the results.
+        offset : int
+            Default is 0. The number of records you wish to skip before selecting
+            records.
+        select_cols: iterable or str or None, optional
+            Default is None. Names of columns that will be included in the result
+            table. If None, a default set of columns will be returned.
+            Can either be an iterable of column names, a comma-separated string
+            of column names, or 'all'/'*' to return all available columns.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will
+            be returned.
+        **criteria
+            Other mission-specific criteria arguments.
+            All valid filters can be found using
+            `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
+            For example, one can specify the output columns(select_cols) or use other
+            filters(conditions). To filter by multiple values for a single column,
+            pass in a list of values or a comma-separated string of values. For the
+            Roman mission, you can also use the special "pass_id"
+
+        Returns
+        -------
+        query_result : `~astropy.table.Table`
+            Mission MAST query results via astroquery.
+
+        footprint_overlays : `~ipyaladin.overlays.overlay.Overlay` or None
+            Overlay object for the footprint layer created by this method, if there
+            is one.
+        """
+        if mission is not None and mission_mast is None:
+            mission_mast = MastMissions(mission=mission)
+
+        elif mission is None and mission_mast is not None:
+            mission = mission_mast.mission.lower()
+
+        elif mission and mission_mast:
+            warnings.warn(
+                "`search_this_area` was called with values for both `mission` and "
+                "`mission_mast`. `mission_mast` takes precedent. `mission` will be "
+                "ignored."
+            )
+            mission = mission_mast.mission.lower()
+
+        else:
+            raise ValueError("One of the arguments `mission` or `mission_mast` must be given.")
+
+        if 'coordinates' in query_region_kwargs or 'radius' in query_region_kwargs:
+            raise ValueError(
+                "`search_this_area` does not accept the MastMissions arguments "
+                "`coordinates` or `radius` as keyword arguments. The values for these "
+                "arguments are set by `search_this_area` based on the current viewport. "
+            )
+
+        query_result = mission_mast.query_region(
+            **self.viewport_to_cone_search_args,
+            **query_region_kwargs
+        )
+
+        # will return `footprint_overlays`, set to None in case no overlay gets created:
+        footprint_overlays = None
+
+        if add_footprints and len(query_result):
+            ra_field, dec_field = mission_mast_ra_dec_colnames[mission]
+
+            if replace and name in self.overlays:
+                self.remove_overlay(name)
+
+            footprint_overlays = self.add_table(
+                query_result,
+                name=name,
+                ra_field=ra_field,
+                dec_field=dec_field,
+                only_footprints=True,
+            )
+
+            if 's_region' not in query_result.colnames:
+                warnings.warn(
+                    "Footprints can't be added because the query result "
+                    "contains no 's_region' column.", UserWarning
+                )
+
+        if len(query_result) == 0:
+            # this warning will appear after astroquery.mast's warning that says:
+            #  "NoResultsWarning: Query returned no results."
+            warnings.warn(
+                "`search_this_area` returning None. "
+            )
+
+        return query_result, footprint_overlays
 
 
 def gca():
