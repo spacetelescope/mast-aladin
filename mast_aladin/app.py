@@ -475,21 +475,49 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         else:
             raise ValueError("Invalid loc provided. Must be 'inline', 'sidecar', or 'popout'.")
 
+    @property
+    def viewport_to_cone_search_args(self):
+        """
+        Get positional arguments for a cone search that circumscribes
+        the current viewport boundaries.
+
+        Results may be passed to `~astroquery.mast.missions.MastMissionsClass`,
+        for example.
+
+        Returns
+        -------
+        dict
+            Dictionary of the viewport center (``coordinates``) and the
+            angular separation from the center to a corner of the viewport
+            (``radius``).
+        """
+        fov_x, fov_y = self.fov_xy
+        coordinates = self.target
+
+        # measured from the center to the corner of the viewport:
+        radius = ((fov_x / 2) ** 2 + (fov_y / 2) ** 2) ** 0.5
+
+        return dict(
+            coordinates=coordinates,
+            radius=radius
+        )
+
     def search_this_area(
             self,
             mission=None,
             mission_mast=None,
             add_footprints=True,
             name="MAST Search",
-            clear_existing=False,
+            replace=False,
             **query_region_kwargs):
         """
-        Search Missions MAST for observations from ``mission``, and return
-        query results in a  `~mast_table.cross_filter_widget.MastTable`.
+        Search Missions MAST for observations from ``mission`` within the
+        current viewport, and optionally add the footprints to the viewer.
 
-        Runs a cone search via ``MastMissions.query_region`` where
-        the center coordinate is the center of the viewport, and the radius angle
-        is the length of the viewport's center to its corner.
+        Runs a cone search via ``MastMissions.query_region``. The cone center
+        coordinate is the center of the viewport, and the cone radius
+        is the separation from the viewport's center to its corner, calculated
+        by ``~mast_aladin.app.MastAladin.viewport_to_cone_search_args``.
 
         Extra keyword arguments are passed to ``MastMissions.query_region``.
 
@@ -512,9 +540,9 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             Add the query results' observation footprints to Aladin
         name : str, optional
             Name given to footprint overlays in Aladin.
-        clear_existing : bool, default False
-            If True, footprint overlays from previous calls to ``search_this_area``
-            will be removed.
+        replace : bool, default False
+            If True and footprint overlays already exist with the name ``name``, replace
+            the existing footprint overlay with the new query result.
         limit : int
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
@@ -539,10 +567,13 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
         Returns
         -------
-        `~mast_table.cross_filter_widget.MastTable`
-            Observation query results.
-        """
+        query_result : `~astropy.table.Table`
+            Mission MAST query results via astroquery.
 
+        footprint_overlays : `~ipyaladin.overlays.overlay.Overlay` or None
+            Overlay object for the footprint layer created by this method, if there
+            is one.
+        """
         if mission is not None and mission_mast is None:
             mission_mast = MastMissions(mission=mission)
 
@@ -567,30 +598,21 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                 "arguments are set by `search_this_area` based on the current viewport. "
             )
 
-        coordinates = self.target
-        fov_x, fov_y = self.fov_xy
-
-        # measured from the center to the corner of the viewport:
-        radius = ((fov_x / 2) ** 2 + (fov_y / 2) ** 2) ** 0.5
-
         query_result = mission_mast.query_region(
-            coordinates=coordinates,
-            radius=radius,
+            **self.viewport_to_cone_search_args,
             **query_region_kwargs
         )
 
-        mast_table = MastTable(query_result)
+        # will return `footprint_overlays`, set to None in case no overlay gets created:
+        footprint_overlays = None
 
         if add_footprints and len(query_result):
             ra_field, dec_field = mission_mast_ra_dec_colnames[mission]
 
-            if mission == 'jwst':
-                dec_field = 'targ_dec'
-
-            if clear_existing and name in self.overlays:
+            if replace and name in self.overlays:
                 self.remove_overlay(name)
 
-            overlay = self.add_table(
+            footprint_overlays = self.add_table(
                 query_result,
                 name=name,
                 ra_field=ra_field,
@@ -599,15 +621,10 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             )
 
             if 's_region' not in query_result.colnames:
-                raise ValueError(
+                warnings.warn(
                     "Footprints can't be added because the query result "
-                    "contains no 's_region' column."
+                    "contains no 's_region' column.", UserWarning
                 )
-
-            # store the overlay info on the mast_table
-            mast_table.overlay = overlay
-
-            return mast_table
 
         if len(query_result) == 0:
             # this warning will appear after astroquery.mast's warning that says:
@@ -615,7 +632,8 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             warnings.warn(
                 "`search_this_area` returning None. "
             )
-            return None
+
+        return query_result, footprint_overlays
 
 
 def gca():
