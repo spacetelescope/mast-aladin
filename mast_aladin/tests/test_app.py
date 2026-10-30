@@ -1,8 +1,9 @@
-from mast_aladin.app import MastAladin, gca
-from mast_aladin.utils.validators import guess_coord_cols
 from unittest.mock import Mock, patch
 from astropy.table import Table, QTable
 import pytest
+
+from mast_aladin.app import MastAladin, gca
+from mast_aladin.utils.validators import guess_coord_cols
 
 
 def test_current_app(MastAladin_app):
@@ -122,6 +123,12 @@ def test_show_invalid_locs():
     # check invalid sidecar anchor
     with pytest.raises(ValueError, match="Invalid anchor provided. Must be one of"):
         ma.show(loc="sidecar:invalid")
+
+    # check invalid sidecar ref
+    with pytest.raises(ValueError, match="Invalid ref provided. Must be a `Sidecar`"):
+        ma.show(ref="invalid_ref")
+    with pytest.raises(ValueError, match="Invalid ref provided. Must be a `Sidecar`"):
+        ma.show(ref=ma)
 
     # check invalid popout anchor
     with pytest.raises(
