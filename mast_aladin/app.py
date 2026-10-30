@@ -252,6 +252,9 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # show all sources without performance optimization. Within the PerformanceLayer
             # framework, `performance_cls` is set to `None` in some calls to `add_table`
             # to explicitly avoid the performance behaviors.
+            if not name:
+                name = "catalog"
+
             return super().add_table(
                 table,
                 shape=shape,
