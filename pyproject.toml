@@ -6,7 +6,7 @@ authors = [
     { name = "mast-aladin developers" },
 ]
 dependencies = [
-    "ipyaladin >= 0.8.1",
+    "ipyaladin @ git+https://github.com/tomdonaldson/ipyaladin@masked_selection",
     "astroquery",
     "sidecar >= 0.8.1",
     "jdaviz @ git+https://github.com/spacetelescope/jdaviz.git",
