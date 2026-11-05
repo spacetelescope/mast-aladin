@@ -1,11 +1,12 @@
+from pathlib import Path
 import os
 import warnings
-from pathlib import Path
 from traitlets import observe
 
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+
 from astropy.wcs import WCS
 from astroquery.mast import MastMissions
 
@@ -26,6 +27,7 @@ from ipypopout import PopoutButton
 from mast_aladin.aida import AIDA
 from mast_aladin.mixins import DelayUntilRendered
 import mast_aladin.utils.parquet as parquet
+
 from mast_aladin.utils.validators import (
     is_valid_s3_uri, check_table_for_columns, guess_coord_cols
 )
@@ -36,6 +38,9 @@ from mast_aladin.catalogs import (
 )
 from mast_aladin.catalogs.throttle import throttle
 import roman_datamodels.datamodels as rdd
+import logging
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     'MastAladin',
