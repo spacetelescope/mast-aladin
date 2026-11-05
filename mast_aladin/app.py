@@ -15,7 +15,6 @@ from regions import (
 
 from ipyaladin import Aladin
 
-from mast_table import MastTable
 from mast_table.base import mission_mast_ra_dec_colnames
 
 from IPython.display import display
@@ -123,31 +122,6 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
         self.sidecar = kwargs.get("sidecar", None)
         self.popout_button = PopoutButton(self, window_features="popup,width=800,height=600")
-
-    def load_table(
-        self,
-        table,
-        load_footprints=True,
-        update_viewport=True,
-        unique_column=None
-    ):
-        table_widget = MastTable(
-            table,
-            app=self,
-            unique_column=unique_column,
-            update_viewport=update_viewport
-        )
-
-        if load_footprints:
-            if 's_region' in table.colnames:
-                self.add_graphic_overlay_from_stcs(table['s_region'])
-            else:
-                raise ValueError(
-                    "The table does not contain an `s_region` column, so no "
-                    "footprints can be loaded."
-                )
-
-        return table_widget
 
     def add_table(
         self,
