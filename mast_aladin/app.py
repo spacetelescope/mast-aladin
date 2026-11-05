@@ -168,8 +168,12 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
 
         Parameters
         ----------
-        table : `~astropy.table.table.QTable` or `~astropy.table.table.Table` or `str`
-            The table to add. Valid types are astropy table and S3 URIs of parquet files.
+        table : `~astropy.table.table.QTable` | `~astropy.table.table.Table` | `str` |
+             `~mast_table.mast_table.MastTable`.
+            The table to add. Valid types are ``MastTable``, astropy table, or S3 URIs of
+            parquet files.  When a ``MastTable`` is provided, listeners will automatically
+            be configured to synchronize selections and filters between ``MastTable``
+            and the viewport.
 
         include_column_names : list[str], optional
             List of column names from the remote parquet table to stream into mast-aladin.
@@ -269,6 +273,11 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                     f"table='{table}' is not a valid S3 URI for a parquet table."
                 )
 
+        # handle MastTable
+        mt = table if isinstance(table, MastTable) else None
+        if mt:
+            table = mt.table
+
         if ra_field is not None and dec_field is not None:
             check_table_for_columns(table, ra_field, dec_field)
         else:
@@ -304,10 +313,13 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             # show all sources without performance optimization. Within the PerformanceLayer
             # framework, `performance_cls` is set to `None` in some calls to `add_table`
             # to explicitly avoid the performance behaviors.
-            if not name:
-                name = "catalog"
+            if mt is not None:
+                def aladin_selection_handler(mask):
+                    mt.set_selected_mask(mask, notify=False)
 
-            return super().add_table(
+                table_options['selected_mask_listener'] = aladin_selection_handler
+
+            table_layer = super().add_table(
                 table,
                 shape=shape,
                 name=name,
@@ -315,6 +327,18 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
                 dec_field=dec_field,
                 **table_options
             )
+
+            if mt is not None:
+                def selection_handler(mask):
+                    self.select_by_mask(table_layer, mask.tolist())
+
+                def filter_handler(mask):
+                    self.filter_by_mask(table_layer, mask.tolist())
+
+                mt.add_selection_listener(selection_handler)
+                mt.add_filter_listener(filter_handler)
+
+            return table_layer
 
         # construct a performance catalog
         else:
