@@ -22,7 +22,7 @@ Key Features
 Why mast-aladin?
 ^^^^^^^^^^^^^^^^
 
-.. image:: assets/aladin-inheritance.png
+.. image:: https://github.com/spacetelescope/widget-docs/blob/main/mast-aladin/aladin-inheritance.png?raw=true
     :width: 80%
     :align: center
 

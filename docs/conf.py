@@ -153,15 +153,16 @@ pygments_style = 'sphinx'
 # variables set in the global configuration. The variables set in the
 # global configuration are listed below, commented out.
 
-# html_css_files = ["mast-aladin.css"]
 html_copy_source = False
+html_static_path = ['assets']
+html_css_files = ['mast-aladin.css']
 
 html_theme_options.update(  # noqa: F405
     {
         "github_url": "https://github.com/spacetelescope/mast-aladin",
         "use_edit_page_button": True,
         "logo": {
-            "text": "mast-aladin"
+            "text": '<span id="mast">mast</span>-<span id="app">aladin</span>'
         }
     }
 )

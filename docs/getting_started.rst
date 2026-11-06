@@ -20,7 +20,7 @@ To open `~mast_aladin.app.MastAladin` from a notebook in
     mast_aladin.show()
 
 
-.. image:: assets/getting_started_images/cell0.jpg
+.. image:: https://github.com/spacetelescope/widget-docs/blob/main/mast-aladin/getting_started/cell0.jpg?raw=true
     :width: 70%
     :align: center
 
@@ -49,7 +49,7 @@ footprints in red:
     overlay.update(color='#ff0000')
 
 
-.. image:: assets/getting_started_images/cell1.jpg
+.. image:: https://github.com/spacetelescope/widget-docs/blob/main/mast-aladin/getting_started/cell1.jpg?raw=true
     :width: 70%
     :align: center
 
@@ -72,7 +72,7 @@ The MAST query result is saved to ``observations``, which is an astropy `~astrop
         267561750 jw02770-o001_b000000071_nirspec         2bs, 3 ... PUBLIC   3.0.0 0.17267581666666668
         263175722       jw01228003001_02101_00002     1b, 2a, 2b ... PUBLIC   3.0.0 0.31410466666666664
         263175725       jw01228003001_02101_00001     1b, 2a, 2b ... PUBLIC   3.0.0           0.3185939
-        263175711       jw01228003001_02101_00003     1b, 2a, 2b ... PUBLIC   3.0.0  0.3196436166666667
+        263175711       jw0-u 1228003001_02101_00003     1b, 2a, 2b ... PUBLIC   3.0.0  0.3196436166666667
             ...                             ...            ... ...    ...     ...                 ...
         256799703       jw01256001002_02105_00003 1b, 2a, 2b, 2c ... PUBLIC   3.0.0  1.7430215999999998
         256798751       jw01256001002_02109_00003 1b, 2a, 2b, 2c ... PUBLIC   3.0.0           1.7430279
@@ -89,7 +89,7 @@ The MAST query result is saved to ``observations``, which is an astropy `~astrop
 Clicking on the edge of a footprint will reveal the observation query result
 information in the mast-aladin widget:
 
-.. image:: assets/getting_started_images/cell1-click.jpg
+.. image:: https://github.com/spacetelescope/widget-docs/blob/main/mast-aladin/getting_started/cell1-click.jpg?raw=true
     :width: 70%
     :align: center
 

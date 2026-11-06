@@ -1,0 +1,45 @@
+a {
+    /* STScI logo color */
+    color: #3e8ede !important;
+}
+
+div.prev-next-area > a.left-prev > div.prev-next-info > p.prev-next-title {
+    /* STScI logo color */
+    color: #3e8ede !important;
+}
+
+div.prev-next-area > a.right-next > div.prev-next-info > p.prev-next-title {
+    /* STScI logo color */
+    color: #3e8ede !important;
+}
+
+p.title.logo__title {
+    /* style "mast-aladin" in the top-left of the navbar */
+    font-size: 1.2em !important;
+    color: #3e8ede !important;
+}
+
+p.title.logo__title > span#app { 
+    /* make "aladin" name slightly bolder in the top-left "mast-aladin" in the navbar */
+    font-weight: 550 !important;
+}
+
+.navbar-brand {
+    img {
+        /* limit height of the STScI logo */
+        max-height: 1.7em !important;
+    }
+}
+
+a.no-click {
+    /* by default, sphinx renders images as links with the default target
+    set to the image URL. we'll use the "no-click" class to specify images 
+    that should never be treated as links. */
+    pointer-events: none;
+}
+
+img.outlined {
+    /* thin outline around an image in the pydata sphinx book
+    tip admonition header background. */
+    border: 3px solid #d6ece1
+}

@@ -98,18 +98,18 @@ class AIDA:
         projection: str, optional
             Set the projection of the viewer.
         image_label : str, optional
-            `image_label` is a required argument for ``AID`` API compatibility,
+            ``image_label`` is a required argument for ``AID`` API compatibility,
             but it is not relevant for HiPS browsers like aladin-lite. If not
             `None`, a warning will be emitted.
 
         Raises
         ------
         TypeError
-            - Given center is not provided as SkyCoord.
-            - Given fov is not provided as Angle or float.
-            - Given rotation is not provided as Angle or float.
+            If: center is not provided as SkyCoord; fov is not provided as
+            Angle or float; or rotation is not provided as Angle or float.
+
         Warning
-            - Image label was passed.
+            Image label was passed.
         """
 
         if image_label is not None:
@@ -136,32 +136,33 @@ class AIDA:
             If `"sky"` or `None`, the viewport center and field of view will be returned
             in world coordinates. `"pixel"` is not supported for HiPS viewers.
         image_label : str, optional
-            `image_label` is a required argument for ``AID`` API compatibility,
+            `image_label` is a required argument for ``AIDA`` compatibility,
             but it is not relevant for HiPS browsers like aladin-lite. If not
             `None`, an error will be raised.
 
         Returns
         -------
         dict
-            A dictionary containing:
-            - center : `~astropy.coordinates.SkyCoord`
-                Center coordinates of the viewer.
-            - fov : `~astropy.coordinates.Angle`
-                Length of the shorter viewport axis.
-            - rotation : `~astropy.coordinates.Angle`
-                Angle of the view center to north pole angle in degrees.
-            - projection: str
-                A string representing the projection of the viewer.
-            - image_label: None
-                A string representing the label of the image, always `None`
-                for aladin-lite.
+
+            Dictionary containing the following entries:
+
+            * center : `~astropy.coordinates.SkyCoord`
+               * Center coordinates of the viewer.
+            * fov : `~astropy.coordinates.Angle`
+               * Length of the shorter viewport axis.
+            * rotation : `~astropy.coordinates.Angle`
+               * Angle of the view center to north pole angle in degrees.
+            * projection : `str`
+               * A string representing the projection of the viewer.
+            * image_label : `None`
+               * A string representing the label of the image, always `None` for aladin-lite.
 
         Raises
         ------
         NotImplementedError
-            - Given `sky_or_pixel` is not "sky" or `None`.
+            Given `sky_or_pixel` is not "sky" or `None`.
         Warning
-            - Image label was passed.
+            Image label was passed.
 
         """
 
