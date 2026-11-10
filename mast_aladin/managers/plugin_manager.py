@@ -9,6 +9,10 @@ class PluginManager():
             "viewer_sync": ViewerSync(mast_manager.AppManager),
         }
 
+    def close(self):
+        for plugin in self._plugins.values():
+            plugin.close()
+
     @property
     def plugins(self):
         return self._plugins

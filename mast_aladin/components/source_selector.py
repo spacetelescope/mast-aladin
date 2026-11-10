@@ -8,6 +8,7 @@ class SourceSelector(v.VuetifyTemplate):
     selected_column = traitlets.Unicode(allow_none=True).tag(sync=True)
     columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     column_items = traitlets.List(traitlets.Dict(), default_value=[]).tag(sync=True)
+    disabled_columns = traitlets.List(traitlets.Unicode(), default_value=[]).tag(sync=True)
     title = traitlets.Unicode(default_value="Select Column").tag(sync=True)
     description = traitlets.Unicode(default_value="").tag(sync=True)
     label = traitlets.Unicode(default_value="Choose column").tag(sync=True)
@@ -29,6 +30,23 @@ class SourceSelector(v.VuetifyTemplate):
                 "value": column,
             }
             for column in change["new"]
+            if column not in self.disabled_columns
         ]
         if self.selected_column not in self.columns:
             self.selected_column = None
+
+    @traitlets.observe("disabled_columns")
+    def _update_disabled_columns(self, change):
+        self.column_items = [
+            {
+                "title": column,
+                "value": column,
+            }
+            for column in self.columns
+            if column not in change["new"]
+        ]
+        if self.selected_column in self.disabled_columns:
+            self.selected_column = None
+
+    def set_disabled_columns(self, *columns):
+        self.disabled_columns = list(columns)
