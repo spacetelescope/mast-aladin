@@ -2,10 +2,14 @@ from astropy.io import fits
 import pytest
 import numpy as np
 
+from mast_aladin.utils.optional_deps import import_jdaviz
+NO_JDAVIZ = import_jdaviz() is None
 
+
+@pytest.mark.skipif(NO_JDAVIZ, reason='test requires jdaviz, jdaviz not installed')
 class BaseImviz:
     @pytest.fixture(autouse=True)
-    def setup_class(self, imviz_helper):
+    def setup_class(self, jdaviz_helper):
         arr = np.ones((10, 10))
 
         hdu1 = fits.ImageHDU(arr, name='SCI')
@@ -23,10 +27,10 @@ class BaseImviz:
             'CRVAL2': -33.71313687167955,
             'NAXIS2': 0
         })
-        imviz_helper.load(hdu1, format="Image", data_label='has_wcs_1')
+        jdaviz_helper.load(hdu1, format="Image", data_label='has_wcs_1')
 
-        self.imviz = imviz_helper
-        glue_viewer = imviz_helper._app.get_viewers_of_cls('ImvizImageView')[0]
+        self.imviz = jdaviz_helper
+        glue_viewer = jdaviz_helper._app.get_viewers_of_cls('ImvizImageView')[0]
         self.viewer = glue_viewer
         self.viewer.shape = (100, 100)
         self.viewer.state._set_axes_aspect_ratio(1)

@@ -4,12 +4,9 @@ from ipyaladin import Aladin
 from sidecar import Sidecar as UpstreamSidecar
 from mast_table import MastTable
 from mast_aladin.app import MastAladin, gca
-import jdaviz
+from mast_aladin.utils.optional_deps import import_jdaviz
 
-try:
-    from jdaviz.core.helpers import ConfigHelper
-except ImportError:
-    ConfigHelper = None
+jdaviz = import_jdaviz()
 
 default_height = 500
 default_anchor = 'split-bottom'
@@ -20,8 +17,8 @@ def is_jdaviz(app):
     If jdaviz can be imported, check app is instanace of ConfigHelper;
     otherwise you can't have a jdaviz app:
     """
-    if ConfigHelper is not None:
-        return isinstance(app, ConfigHelper)
+    if jdaviz is not None:
+        return isinstance(app, jdaviz.core.helpers.ConfigHelper)
 
     return False
 
@@ -143,16 +140,14 @@ class AppSidecarManager:
                 mal = MastAladin()
             apps.append(mal)
 
-        try:
-            jdaviz_instances = [app for app in apps if is_jdaviz(app)]
+        jdaviz_instances = [app for app in apps if is_jdaviz(app)]
 
-            if not len(jdaviz_instances) and include_jdaviz:
-                if not use_current_apps or jdaviz.gca() is None:
-                    jdaviz.new_app()
-                viz = jdaviz.gca()
-                apps.append(viz)
-
-        except ImportError:
+        if jdaviz is not None and not len(jdaviz_instances) and include_jdaviz:
+            if not use_current_apps or jdaviz.gca() is None:
+                jdaviz.new_app()
+            viz = jdaviz.gca()
+            apps.append(viz)
+        elif jdaviz is None:
             warnings.warn(
                 "`AppSidecar` found that jdaviz was not installed. To install it, "
                 "run `pip install jdaviz`.",

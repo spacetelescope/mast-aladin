@@ -62,6 +62,13 @@ jobs:
             toxenv: py312-test
             allow_failure: false
 
+          - name: Python 3.12 with jdaviz
+            os: ubuntu-latest
+            python: '3.12'
+            toxenv: py312-test-jdaviz
+            allow_failure: false
+
+
     steps:
     - name: Checkout code
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2

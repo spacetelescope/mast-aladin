@@ -1,18 +1,20 @@
 from IPython.display import display
 from mast_aladin.app import gca, MastAladin
 import warnings
-import jdaviz
-from jdaviz.configs.deconfigged import App as JdavizApp
+
+from mast_aladin.utils.optional_deps import import_jdaviz
 
 from abc import ABC, abstractmethod
 from mast_aladin.aida import AIDA_aspects
 
 
 def get_adapter(app):
+    jdaviz = import_jdaviz()
+
     if isinstance(app, MastAladin):
         return MastAladinSyncAdapter
 
-    if isinstance(app, JdavizApp):
+    if jdaviz is not None and isinstance(app, jdaviz.configs.deconfigged.App):
         return JdavizSyncAdapter
 
     return None
@@ -58,6 +60,7 @@ class MastAladinSyncAdapter(ViewerSyncAdapter):
 
 class JdavizSyncAdapter(ViewerSyncAdapter):
     def __init__(self, viewer=None):
+        jdaviz = import_jdaviz()
         self.app = viewer if viewer else jdaviz.gca()
 
         # Get the first available image viewer

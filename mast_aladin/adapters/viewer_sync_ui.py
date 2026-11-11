@@ -1,14 +1,14 @@
 import ipywidgets as widgets
 from IPython.display import display
 
-from mast_aladin.adapters import ImvizSyncAdapter, AladinSyncAdapter, SyncManager
+from mast_aladin.adapters import JdavizSyncAdapter, AladinSyncAdapter, SyncManager
 
 
 class ViewerSyncUI():
     def __init__(self):
 
         self.mast_aladin = AladinSyncAdapter()
-        self.imviz = ImvizSyncAdapter()
+        self.imviz = JdavizSyncAdapter()
         self.sync_manager = SyncManager()
         self.aspects = self.sync_manager.aspects
 

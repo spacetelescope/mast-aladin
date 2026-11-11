@@ -9,7 +9,6 @@ dependencies = [
     "ipyaladin >= 0.8.1",
     "astroquery",
     "sidecar >= 0.8.1",
-    "jdaviz @ git+https://github.com/spacetelescope/jdaviz.git",
     "traitlets",
     "ipypopout",
     "ipyvuetify >= v3.0.0",
@@ -21,6 +20,7 @@ dependencies = [
     "pysiaf",
     "echo>=0.11.0",
     "fsspec",
+    "pandas",
 ]
 dynamic = [
     "version",
@@ -36,6 +36,9 @@ docs = [
     "sphinx-toml",
     "sphinx-astropy[confv2]>=1.9.1",
     "sphinx_design"
+]
+all = [
+    "jdaviz @ git+https://github.com/spacetelescope/jdaviz.git"
 ]
 
 [project.urls]
