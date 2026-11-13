@@ -657,7 +657,7 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
             is one.
         """
         if mission is not None and mission_search is None:
-            mission_search = MastMissions(mission=mission)
+            mission_search = MastMissions(mission=mission.lower())
 
         elif mission is None and mission_search is not None:
             mission = mission_search.mission.lower()
@@ -699,7 +699,7 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         footprint_overlays = None
 
         if add_footprints and len(query_result):
-            ra_field, dec_field = mission_mast_ra_dec_colnames[mission]
+            ra_field, dec_field = mission_mast_ra_dec_colnames[mission.lower()]
 
             if replace and name in self.overlays:
                 self.remove_overlay(name)
