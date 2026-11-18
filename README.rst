@@ -1,6 +1,6 @@
 .. |stsci-logo| image:: docs/assets/mast-aladin-logo.svg
     :alt: STScI logo
-    :height: 72px
+    :height: 200px
 
 |stsci-logo|
 
