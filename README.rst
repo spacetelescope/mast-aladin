@@ -12,11 +12,15 @@
 mast-aladin
 ===========
 
-``mast-aladin`` is an extension of the `aladin-lite <https://github.com/cds-astro/aladin-lite>`_ widget for use with data products
-from the `Mikulski Archive for Space Telescopes (MAST) <https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html>`_
-from the `Space Telescope Science Institute <https://www.stsci.edu/>`_. It provides an interactive visualization tool for
-exploring astronomical data within Jupyter notebooks.
+``mast-aladin`` is Python package maintained by the Space Telescope Science Institute that extends `ipyaladin <https://github.com/cds-astro/ipyaladin>`_, a package maintained by CDS (Centre de Données astronomiques de Strasbourg). ``ipyaladin`` is a Jupyter widget wrapper for `aladin-lite <https://github.com/cds-astro/aladin-lite>`_, also maintained by CDS. ``mast-aladin`` adds convenience methods for visualizing and interacting with query results from MAST on the Aladin sky atlas, including queries for observations and sources in catalogs.
 
+Key Features
+------------
+
+- Runs in Jupyter notebooks locally or on the `Roman Research Nexus <https://roman.science.stsci.edu/>`_.
+- Provides interactive access through the Aladin Lite interface and a Python API, with all-sky imaging from surveys including SDSS, Pan-STARRS, WISE, GALEX, and more.
+- Visualizes and interacts with MAST observation and catalog query results, including plotting observation footprints and source catalogs and working with `mast-table <https://github.com/spacetelescope/mast-table>`_ results.
+- Integrates with `jdaviz <https://jdaviz.readthedocs.io/en/stable/>`_ through the AIDA (Astronomical Interactive Data Analysis) framework.
 
 Installing
 ----------
@@ -59,6 +63,12 @@ To get started with ``mast-aladin``, import it in your jupyter lab notebook as f
 
    mast_aladin = MastAladin()
    mast_aladin.show()
+
+.. image:: https://github.com/spacetelescope/widget-docs/blob/main/mast-aladin/getting_started/cell0.jpg?raw=true
+    :width: 70%
+    :align: center
+
+|
 
 ``mast-aladin`` also provides a directory of `sample notebooks <https://github.com/spacetelescope/mast-aladin/tree/main/notebooks>`_ for reference and experimentation.
 
