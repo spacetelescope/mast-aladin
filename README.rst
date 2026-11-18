@@ -1,8 +1,8 @@
-.. |stsci-logo| image:: docs/assets/stsci_symbol_pantone279.svg
+.. |stsci-logo| image:: docs/assets/mast-aladin-logo.svg
     :alt: STScI logo
-    :height: 48px
+    :height: 72px
 
-|stsci-logo| mast-\ **aladin**
+|stsci-logo|
 
 .. image:: https://github.com/spacetelescope/mast-aladin/actions/workflows/ci_workflows.yml/badge.svg
     :target: https://github.com/spacetelescope/mast-aladin/actions/workflows/ci_workflows.yml
