@@ -77,6 +77,8 @@ To get started with ``mast-aladin``, import it in your jupyter lab notebook as f
 
 |
 
+By default, ``mast_aladin.show()`` displays the widget in a `sidecar <https://github.com/jupyter-widgets/jupyterlab-sidecar>`_. You can control the location of the sidecar using the ``loc`` parameter of the ``show`` method, for example: ``mast_aladin.show(loc="sidecar:split-right")``.
+
 ``mast-aladin`` also provides a directory of `sample notebooks <https://github.com/spacetelescope/mast-aladin/tree/main/notebooks>`_ for reference and experimentation.
 
 Help
