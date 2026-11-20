@@ -48,8 +48,10 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :includehidden:
 
    installation
    getting_started
    performance_catalog
+   plugins
    api
