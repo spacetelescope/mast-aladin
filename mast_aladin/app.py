@@ -504,13 +504,13 @@ class MastAladin(Aladin, DelayUntilRendered, AIDA):
         ----------
         asdf : Union[str or Path-like, rdd]
             The ASDF image to load in the widget. It can be given as a path (either a
-            string or as a `roman_datamodels.datamodels._datamodels.ImageModel`).
+            string or as a `roman_datamodels.datamodels.ImageModel`).
         image_options : any
             The options for the image. See the `Aladin Lite image options
             <https://cds-astro.github.io/aladin-lite/global.html#ImageOptions>`_
 
         """
-        if isinstance(asdf, rdd._datamodels.ImageModel):
+        if isinstance(asdf, rdd.ImageModel):
             asdf_file = asdf
         else:
             asdf_file = rdd.open(asdf)
