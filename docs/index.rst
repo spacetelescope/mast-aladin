@@ -70,4 +70,6 @@ Contents
    installation
    getting_started
    performance_catalog
+   plugins
+   accessing_plugins_api
    api
