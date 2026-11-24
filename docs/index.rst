@@ -18,6 +18,24 @@ Key Features
 * **Interactivity** via the familiar Aladin-Lite UI *and* via a Python API
 * Plot **observation footprints** and **source catalogs** from MAST
 
+Demo
+----
+
+Watch as we:
+
+1. Query MAST for JWST/NIRCam observations
+2. Display NIRCam footprints in mast-aladin
+3. Load and display Gaia source catalog
+4. "Search this area" for JWST/MIRI observations
+5. Load NIRCam Level 3 image
+
+.. raw:: html
+
+   <video autoplay muted loop playsinline controls width="100%">
+     <source src="https://stsci.box.com/shared/static/frdgn1w4x36uy152q34ybalw8pvsugco.mp4" type="video/mp4">
+     Your browser does not support the video tag.
+   </video>
+
 
 Why mast-aladin?
 ^^^^^^^^^^^^^^^^

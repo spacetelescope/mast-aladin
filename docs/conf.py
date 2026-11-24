@@ -38,7 +38,7 @@ intersphinx_mapping = {
     'ipyaladin': ('https://cds-astro.github.io/ipyaladin/', None),
     'scipy': ("https://docs.scipy.org/doc/scipy/", None),
     'astroquery': ('https://astroquery.readthedocs.io/en/stable/', None),
-    'mast-table': ('https://mast-table.readthedocs.io/en/latest/', None),
+    'mast-table': ('https://mast-table.readthedocs.io/latest/', None),
 }
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -58,7 +58,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-# templates_path = ['_templates']
+templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
